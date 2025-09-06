@@ -1,22 +1,33 @@
+/* 전체 카드 */
 .archive__item {
   display: flex;
-  align-items: center;
+  justify-content: space-between; /* 텍스트랑 이미지 양 끝으로 배치 */
+  align-items: center;            /* 세로 중앙 정렬 */
+  border: 1px solid #ddd;
+  border-radius: 0.5em;
+  padding: 1em;
+  margin-bottom: 1.2em;
+  background: #fff;
 }
 
+/* 텍스트 영역 */
+.archive__item-title,
+.archive__item-excerpt {
+  margin: 0;
+}
+
+/* 썸네일 영역 */
 .archive__item-teaser {
-  order: 2; /* 오른쪽 */
-  width: 120px;
+  flex: 0 0 auto;     /* 크기 고정 */
+  width: 120px;       /* 원하는 크기 */
   height: 80px;
-  margin-left: 1em;
+  margin-left: 1em;   /* 텍스트와 간격 */
 }
 
+/* 썸네일 이미지 */
 .archive__item-teaser img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-.archive__item-content {
-  order: 1;
-  flex: 1;
+  object-fit: cover;  /* 이미지 잘라서 비율 유지 */
+  border-radius: 0.3em;
 }
