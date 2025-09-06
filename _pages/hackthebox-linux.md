@@ -11,14 +11,21 @@ show_excerpts: false               # 요약 보이게 (true가 기본)
   {% assign docs = site.hackthebox-linux | sort: 'title' %}
   {% assign seen = "" %}
   {% for doc in docs %}
-    {% assign url = doc.url | append: "" %}
     {% comment %}
-      1) 같은 URL이면 건너뜀
-      2) 현재 페이지(url 같음)면 건너뜀
-      3) doc.path에 'index.' 포함되어 있으면(컬렉션 내부 index 파일 등) 건너뜀
-      4) thumb(썸네일)가 없으면 출력 안 함
+      건너뛰기 조건:
+        - 이미 보였던 URL (seen)
+        - doc.path가 존재하고 page.path와 동일하면 (같은 파일)
+        - doc.url가 page.url과 동일하면 (같은 URL)
+        - doc.path에 'index.' 포함 시 (컬렉션 내부 index 파일)
+        - 썸네일(thumb)이 없는 문서는 표시 안 함
     {% endcomment %}
+
+    {% assign url = doc.url | append: "" %}
     {% if seen contains url %}
+      {% continue %}
+    {% endif %}
+
+    {% if doc.path and page.path and doc.path == page.path %}
       {% continue %}
     {% endif %}
 
