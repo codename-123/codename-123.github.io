@@ -3,9 +3,7 @@ title: "Machine Foo — PrivEsc (Linux)"
 date: 2025-09-06
 layout: single
 toc: true
-header:
-  image: /assets/images/awesome_face.png   # ← 절대 경로, 대소문자 일치 필수
-  caption: "Machine Foo — PrivEsc"
+teaser: /assets/images/awesome_face.png
 tags: [linux, priv-esc, web]
 difficulty: "Medium"
 arch: linux
