@@ -387,11 +387,3 @@ defaults:
       layout: single
       toc: true
 
-  # defaults 맨 아래에 추가
-  - scope:
-      path: "hackthebox"   # hackthebox 폴더 안의 모든 pages에 적용
-      type: pages
-    values:
-      layout: single
-      sidebar:
-        nav: hackthebox
