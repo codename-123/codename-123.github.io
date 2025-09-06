@@ -1,68 +1,59 @@
-/* list + thumbnail: 작고 잘리지 않게, 제목/요약 폰트 조절, 제목 흰색 강제 */
-.list-archive { margin: 0; padding: 0; }
+/* --- minimal-mistakes: transform grid cards into horizontal list-like rows --- */
+.cards-grid { display:block; gap: 0; }
 
-.list-item {
-  display: flex;
-  align-items: flex-start;
+/* 카드/아카이브 항목을 가로(flex)로 변경 */
+.cards-grid .card,
+.archive__items .archive__item {
+  display: flex !important;
   gap: 1rem;
-  margin: 1.0rem 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  padding-bottom: 1rem;
+  align-items: flex-start;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-/* 썸네일: 고정 너비, 이미지 전체 보이게 (contain), white-space 통제 */
-.list-thumb {
-  flex: 0 0 100px;   /* 너비: 100px로 줄임 (원하면 120 등으로 조정) */
-  height: 100px;     /* 정사각박스 */
-  overflow: visible; /* 이미지 잘림 방지 (contain 사용) */
+/* 썸네일 영역 크기 고정 (왼쪽) */
+.cards-grid .card .card-thumb,
+.archive__items .archive__item .archive__item-teaser {
+  flex: 0 0 160px !important;
+  height: 110px !important;
+  overflow: hidden;
   border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.02);
 }
 
-/* 이미지가 잘리는 대신 전체가 보이게 contain 사용 */
-.list-thumb img {
-  width: auto;
+/* 이미지 채우기 */
+.cards-grid .card .card-thumb img,
+.archive__items .archive__item .archive__item-teaser img {
+  width: 100%;
   height: 100%;
-  max-width: 100%;
-  object-fit: contain; /* cover -> contain 으로 변경: 잘림 없이 전체 표시 */
-  display: block;
+  object-fit: cover;
+  display:block;
 }
 
-/* 텍스트(메타) 영역 */
-.list-meta { flex: 1 1 auto; }
+/* 텍스트 영역은 남은 공간 사용 */
+.cards-grid .card .card-excerpt,
+.archive__items .archive__item .archive__item-content {
+  flex: 1 1 auto;
+}
 
-/* 제목: 흰색으로 고정, 글씨크기 줄임 */
-.list-title { margin: 0 0 0.3rem 0; font-size: 1.00rem; line-height: 1.15; }
-.list-title a {
-  color: #ffffff !important;   /* 제목을 흰색으로 고정 */
+/* 제목(링크)은 테마 링크색으로, 요약은 흰색으로 유지 */
+.cards-grid .card .card-title a,
+.archive__items .archive__item .archive__item-title a {
+  color: #2aa6a6 !important; /* 원하는 색으로 바꿔도 됨 */
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
-
-/* 요약: 더 작고 컴팩트하게 (빨간밑줄 대신 흰색 일반 텍스트) */
-.list-excerpt {
-  font-size: 0.92rem;
-  line-height: 1.45;
+.cards-grid .card .card-excerpt,
+.archive__items .archive__item .archive__item-content p {
   color: #ffffff !important;
-  margin: 0;
-  text-decoration: none !important;
 }
 
-/* a 안에 있어도 요약색을 흰색으로 강제 적용 */
-.list-link .list-excerpt,
-.list-link .list-excerpt * {
-  color: #ffffff !important;
-  text-decoration: none !important;
-}
-
-/* 모바일: 세로 스택 */
+/* 모바일: 스택으로 복귀 */
 @media (max-width: 720px) {
-  .list-item { flex-direction: column; gap: 0.75rem; }
-  .list-thumb { width: 100%; height: 180px; flex: none; }
-  .list-thumb img { height: 100%; width: auto; object-fit: cover; }
-  .list-title { font-size: 1.05rem; }
-  .list-excerpt { font-size: 0.95rem; }
+  .cards-grid .card,
+  .archive__items .archive__item { flex-direction: column; }
+  .cards-grid .card .card-thumb,
+  .archive__items .archive__item .archive__item-teaser {
+    width: 100% !important;
+    height: 180px !important;
+    flex: none;
+  }
 }
