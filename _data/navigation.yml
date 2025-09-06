@@ -4,6 +4,7 @@ main:
     url: /
 
   - title: "HackTheBox"
+    url: /hackthebox/
     children:
       - title: "Linux"
         url: /hackthebox/linux/
