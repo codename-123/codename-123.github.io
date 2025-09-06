@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: single
 title:  "Welcome to Jekyll!"
 ---
 
@@ -9,5 +9,6 @@ title:  "Welcome to Jekyll!"
 ### 나의 이름
 
 안녕하세요 ㅋㅋ
+
 
 ## ㅎㅇ
