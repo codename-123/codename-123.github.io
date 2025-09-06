@@ -14,13 +14,3 @@ main:
 
   - title: "About"
     url: /about/
-
-hackthebox:
-  - title: "HackTheBox"
-    children:
-      - title: "Linux"
-        url: /hackthebox/linux/
-      - title: "Windows"
-        url: /hackthebox/windows/
-      - title: "AD"
-        url: /hackthebox/ad/
