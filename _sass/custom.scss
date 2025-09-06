@@ -1,0 +1,57 @@
+/* list + thumbnail: 텍스트 크기/썸네일 크기 정렬용 */
+.list-archive { margin: 0; padding: 0; }
+
+.list-item {
+  display: flex;
+  align-items: flex-start; /* 텍스트 위쪽에 맞춤 */
+  gap: 1rem;
+  margin: 1.0rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding-bottom: 1rem;
+}
+
+/* 썸네일: 작게 고정 */
+.list-thumb {
+  flex: 0 0 120px;   /* 너비: 필요시 100~160으로 조절 */
+  height: 90px;      /* 높이: 너비/높이 비율 마음대로 조절 */
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+}
+.list-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 텍스트(메타) 영역 */
+.list-meta { flex: 1 1 auto; }
+
+/* 제목: 링크 스타일 유지하되 크기 약간 */
+.list-title { margin: 0 0 0.35rem 0; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+.list-title a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* 요약: 작고 더 컴팩트하게(하얀색으로 고정) */
+.list-excerpt {
+  font-size: 0.95rem;       /* 요약 폰트 크기 — 여기 값으로 맞춰짐 */
+  line-height: 1.45;        /* 줄간격 */
+  color: #ffffff !important;/* 링크 색으로 바뀌지 않게 강제 */
+  margin: 0;
+  text-decoration: none !important;
+}
+
+/* 요약 내부의 링크(있을 경우)도 흰색 유지 */
+.list-link .list-excerpt,
+.list-link .list-excerpt * {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+/* 모바일: 세로 스택, 이미지 크게 */
+@media (max-width: 720px) {
+  .list-item { flex-direction: column; gap: 0.75rem; }
+  .list-thumb { width: 100%; height: 180px; flex: none; }
+  .list-title { font-size: 1.15rem; }
+  .list-excerpt { font-size: 0.98rem; }
+}
