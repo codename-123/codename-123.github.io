@@ -3,7 +3,7 @@ main:
   - title: "Home"
     url: /
 
-  - title: "HackTheBox"
+  - title: "Hack The Box"
     url: /hackthebox/
 
   - title: "Web Hacking"
@@ -16,9 +16,11 @@ main:
     url: /about/
 
 hackthebox:
-  - title: "Linux"
-    url: /hackthebox/linux/
-  - title: "Windows"
-    url: /hackthebox/windows/
-  - title: "AD"
-    url: /hackthebox/ad/
+  - title: "Hack The Box"
+    children:
+      - title: "Linux"
+        url: /hackthebox/linux/
+      - title: "Windows"
+        url: /hackthebox/windows/
+      - title: "AD"
+        url: /hackthebox/ad/
