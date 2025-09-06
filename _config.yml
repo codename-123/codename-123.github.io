@@ -10,7 +10,7 @@
 # Review documentation to determine if you should use `theme` or `remote_theme`
 # https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
 
-# theme                  : "minimal-mistakes-jekyll"
+theme                    : "minimal-mistakes-jekyll"
 # remote_theme           : "mmistakes/minimal-mistakes"
 minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
@@ -359,6 +359,8 @@ defaults:
     values:
       layout: single
       toc: true
+      sidebar:
+        nav: hackthebox
 
   - scope:
       path: ""
@@ -366,6 +368,8 @@ defaults:
     values:
       layout: single
       toc: true
+      sidebar:
+        nav: hackthebox
 
   - scope:
       path: ""
@@ -373,6 +377,8 @@ defaults:
     values:
       layout: single
       toc: true
+      sidebar:
+        nav: hackthebox
 
   - scope:
       path: ""
@@ -380,11 +386,3 @@ defaults:
     values:
       layout: single
       toc: true
-
-  - scope:
-      path: "hackthebox"   # 이 폴더 아래 모든 페이지에 적용
-      type: pages
-    values:
-      layout: single
-      sidebar:
-        nav: hackthebox    # _data/navigation.yml 에 정의한 hackthebox 메뉴 사용
