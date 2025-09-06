@@ -1,0 +1,37 @@
+{%- comment -%}
+nav_list_or_custom.liquid
+{%- endcomment -%}
+
+{%- assign nav_key = include.nav_key | default: include.nav | default: "" -%}
+{%- if nav_key == "" -%}
+  {%- comment -%} nothing to show {%- endcomment -%}
+{%- else -%}
+  {%- assign nav_data = site.data.navigation[nav_key] -%}
+
+  {%- if nav_data %}
+    {%- for section in nav_data %}
+      {%- if section.children %}
+        <div class="sidebar-section">
+          <h3 class="sidebar-section-title">{{ section.title }}</h3>
+          <ul class="sidebar-section-list">
+            {%- for child in section.children %}
+              <li class="sidebar-item">
+                <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+              </li>
+            {%- endfor %}
+          </ul>
+        </div>
+      {%- else %}
+        <div class="sidebar-section">
+          <a class="sidebar-section-link" href="{{ section.url | relative_url }}">{{ section.title }}</a>
+        </div>
+      {%- endif %}
+    {%- endfor %}
+  {%- else %}
+    {%- comment -%}
+      fallback to default nav_list include (theme-provided)
+      keep compatibility with existing nav_list include signature
+    {%- endcomment -%}
+    {% include nav_list nav=nav_key %}
+  {%- endif %}
+{%- endif -%}
