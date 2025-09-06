@@ -4,7 +4,7 @@ date: 2025-09-06
 layout: single
 toc: true
 header:
-  image: /assets/images/awesome_face.jpg   # ← 절대 경로, 대소문자 일치 필수
+  image: ../assets/images/awesome_face.jpg   # ← 절대 경로, 대소문자 일치 필수
   caption: "Machine Foo — PrivEsc"
 tags: [linux, priv-esc, web]
 difficulty: "Medium"
