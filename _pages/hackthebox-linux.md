@@ -1,6 +1,6 @@
 ---
 title: "HackTheBox — Linux"
-layout: collection
+layout: page
 permalink: /hackthebox/linux/
 collection: hackthebox-linux
 # entries_layout: list              # grid(카드형) 또는 list
