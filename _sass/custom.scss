@@ -1,57 +1,68 @@
-/* list + thumbnail: 텍스트 크기/썸네일 크기 정렬용 */
+/* list + thumbnail: 작고 잘리지 않게, 제목/요약 폰트 조절, 제목 흰색 강제 */
 .list-archive { margin: 0; padding: 0; }
 
 .list-item {
   display: flex;
-  align-items: flex-start; /* 텍스트 위쪽에 맞춤 */
+  align-items: flex-start;
   gap: 1rem;
   margin: 1.0rem 0;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   padding-bottom: 1rem;
 }
 
-/* 썸네일: 작게 고정 */
+/* 썸네일: 고정 너비, 이미지 전체 보이게 (contain), white-space 통제 */
 .list-thumb {
-  flex: 0 0 120px;   /* 너비: 필요시 100~160으로 조절 */
-  height: 90px;      /* 높이: 너비/높이 비율 마음대로 조절 */
-  overflow: hidden;
+  flex: 0 0 100px;   /* 너비: 100px로 줄임 (원하면 120 등으로 조정) */
+  height: 100px;     /* 정사각박스 */
+  overflow: visible; /* 이미지 잘림 방지 (contain 사용) */
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255,255,255,0.02);
 }
+
+/* 이미지가 잘리는 대신 전체가 보이게 contain 사용 */
 .list-thumb img {
-  width: 100%;
+  width: auto;
   height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  object-fit: contain; /* cover -> contain 으로 변경: 잘림 없이 전체 표시 */
   display: block;
 }
 
 /* 텍스트(메타) 영역 */
 .list-meta { flex: 1 1 auto; }
 
-/* 제목: 링크 스타일 유지하되 크기 약간 */
-.list-title { margin: 0 0 0.35rem 0; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
-.list-title a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+/* 제목: 흰색으로 고정, 글씨크기 줄임 */
+.list-title { margin: 0 0 0.3rem 0; font-size: 1.00rem; line-height: 1.15; }
+.list-title a {
+  color: #ffffff !important;   /* 제목을 흰색으로 고정 */
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
-/* 요약: 작고 더 컴팩트하게(하얀색으로 고정) */
+/* 요약: 더 작고 컴팩트하게 (빨간밑줄 대신 흰색 일반 텍스트) */
 .list-excerpt {
-  font-size: 0.95rem;       /* 요약 폰트 크기 — 여기 값으로 맞춰짐 */
-  line-height: 1.45;        /* 줄간격 */
-  color: #ffffff !important;/* 링크 색으로 바뀌지 않게 강제 */
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #ffffff !important;
   margin: 0;
   text-decoration: none !important;
 }
 
-/* 요약 내부의 링크(있을 경우)도 흰색 유지 */
+/* a 안에 있어도 요약색을 흰색으로 강제 적용 */
 .list-link .list-excerpt,
 .list-link .list-excerpt * {
   color: #ffffff !important;
   text-decoration: none !important;
 }
 
-/* 모바일: 세로 스택, 이미지 크게 */
+/* 모바일: 세로 스택 */
 @media (max-width: 720px) {
   .list-item { flex-direction: column; gap: 0.75rem; }
   .list-thumb { width: 100%; height: 180px; flex: none; }
-  .list-title { font-size: 1.15rem; }
-  .list-excerpt { font-size: 0.98rem; }
+  .list-thumb img { height: 100%; width: auto; object-fit: cover; }
+  .list-title { font-size: 1.05rem; }
+  .list-excerpt { font-size: 0.95rem; }
 }
