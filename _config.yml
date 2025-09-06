@@ -347,8 +347,8 @@ defaults:
 
     # add these two entries for the collections
   - scope:
-    path: ""
-    type: web-hacking
+      path: ""
+      type: web-hacking
     values:
       layout: single
       toc: true
