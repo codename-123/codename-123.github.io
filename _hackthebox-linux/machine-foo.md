@@ -3,7 +3,8 @@ title: "Machine Foo — PrivEsc (Linux)"
 date: 2025-09-06
 layout: single
 toc: true
-teaser: /assets/images/awesome_face.png
+header:
+  teaser: /assets/images/awesome_face.png
 tags: [linux, priv-esc, web]
 difficulty: "Medium"
 arch: linux
