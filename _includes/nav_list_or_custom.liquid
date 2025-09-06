@@ -1,5 +1,8 @@
 {%- comment -%}
 nav_list_or_custom.liquid
+- include usage: {% include nav_list_or_custom.liquid nav_key="hackthebox" %}
+- If site.data.navigation[nav_key] exists -> render our custom header+children structure
+- Otherwise fallback to theme's nav_list include: {% include nav_list nav=nav_key %}
 {%- endcomment -%}
 
 {%- assign nav_key = include.nav_key | default: include.nav | default: "" -%}

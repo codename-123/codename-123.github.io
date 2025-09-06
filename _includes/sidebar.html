@@ -14,12 +14,12 @@
 
     {% if s.nav %}
       {%- assign nav_key = s.nav -%}
-      {% include_relative nav_list_or_custom.liquid nav_key=nav_key %}
+      {% include nav_list_or_custom.liquid nav_key=nav_key %}
     {% endif %}
   {% endfor %}
 
   {%- if page.sidebar.nav %}
     {%- assign nav_key = page.sidebar.nav -%}
-    {% include_relative nav_list_or_custom.liquid nav_key=nav_key %}
+    {% include nav_list_or_custom.liquid nav_key=nav_key %}
   {% endif %}
 {% endif %}
