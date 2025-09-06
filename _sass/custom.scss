@@ -1,0 +1,8 @@
+.site-nav {
+  margin-left: auto; /* 전체 nav 오른쪽 끝으로 */
+}
+
+.site-nav .site-nav-list {
+  display: flex;
+  justify-content: flex-end; /* 내부 메뉴도 오른쪽 정렬 */
+}
