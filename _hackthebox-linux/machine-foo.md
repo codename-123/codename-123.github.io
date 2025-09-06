@@ -4,7 +4,7 @@ date: 2025-09-06
 layout: single
 toc: true
 header:
-  image: /assets/images/awesome_face.png
+  image: ../assets/images/awesome_face.png
   overlay_color: "#000"
   overlay_filter: 0.5
   caption: "테스트 이미지"

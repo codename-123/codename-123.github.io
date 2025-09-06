@@ -16,11 +16,11 @@ main:
     url: /about/
 
 hackthebox:
-  - title: "Hack The Box"
+  - title: "Machine"
     children:
       - title: "Linux"
         url: /hackthebox/linux/
       - title: "Windows"
         url: /hackthebox/windows/
-      - title: "AD"
+      - title: "Active Directory"
         url: /hackthebox/ad/
