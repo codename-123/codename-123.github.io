@@ -380,3 +380,11 @@ defaults:
     values:
       layout: single
       toc: true
+
+  - scope:
+      path: "hackthebox"   # 이 폴더 아래 모든 페이지에 적용
+      type: pages
+    values:
+      layout: single
+      sidebar:
+        nav: hackthebox    # _data/navigation.yml 에 정의한 hackthebox 메뉴 사용
