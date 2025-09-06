@@ -1,32 +1,66 @@
-/* 전체 카드 */
+/* ---------- LIST: thumbnail on the left, text on the right (no white card bg) ---------- */
+
+/* 강제 우선 적용: 테마의 카드/배경 스타일 덮어쓰기 */
+.entries-list .list__item > .archive__item,
+.list__item > .archive__item,
 .archive__item {
-  display: flex;
-  justify-content: flex-start; /* 왼쪽 정렬 */
-  align-items: center;         /* 세로 중앙 맞춤 */
-  border: none;                /* 흰색 배경, 테두리 제거 */
-  background: none;            /* 배경 제거 */
-  padding: 0.5em 0;            /* 위아래만 살짝 간격 */
-  margin-bottom: 1.2em;        /* 항목 사이 간격 */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 1.0rem 0 !important; /* 항목 간 간격 */
 }
 
-/* 텍스트 영역 */
-.archive__item-title,
-.archive__item-excerpt {
-  margin: 0;
+/* 가로 레이아웃: 이미지 왼쪽, 텍스트 오른쪽 (신문형) */
+.archive__item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 1rem !important; /* 이미지와 텍스트 사이 간격 */
+  min-width: 0; /* 텍스트 줄바꿈 안정화 */
 }
 
-/* 썸네일 영역 */
+/* 텍스트 래퍼 (반드시 HTML에서 h2/excerpt를 .archive__item-content로 감싸야 함) */
+.archive__item-content {
+  order: 2;
+  flex: 1 1 auto;
+  min-width: 0; /* long text truncation safety */
+  padding-right: 0.5rem;
+}
+
+/* 썸네일 영역: 고정 크기, 왼쪽에 위치 */
 .archive__item-teaser {
-  flex: 0 0 auto;
-  width: 120px;
-  height: 80px;
-  margin-right: 1em;  /* 텍스트랑 간격 벌리기 */
+  order: 1;
+  flex: 0 0 120px !important; /* 너비 고정 */
+  height: 80px !important;     /* 높이 고정 */
+  overflow: hidden !important;
+  border-radius: 6px;
+  margin-right: 1rem !important; /* 텍스트와의 간격 */
+  display: block !important;
 }
 
-/* 썸네일 이미지 */
+/* 이미지 채우기 */
 .archive__item-teaser img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 0.3em; /* 선택: 모서리 살짝 둥글게 */
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* 제목/요약 스타일 (원하면 색/크기 바꿔도 됨) */
+.archive__item-title { margin: 0 0 .35rem 0; font-size: 1.1rem; line-height: 1.2; }
+.archive__item-excerpt { margin: 0; color: rgba(255,255,255,0.85); }
+
+/* 모바일: 세로 스택으로 복귀 */
+@media (max-width: 720px) {
+  .archive__item {
+    flex-direction: column !important;
+    gap: .6rem !important;
+  }
+  .archive__item-teaser {
+    width: 100% !important;
+    height: 180px !important;
+    margin-right: 0 !important;
+    order: 0 !important;
+  }
+  .archive__item-content { order: 1 !important; }
 }
