@@ -302,6 +302,24 @@ tag_archive:
 #   permalinks:
 #     category: /categories/:name/
 #     tag: /tags/:name/
+# --- insert this at top-level somewhere (e.g. after permalink:) ---
+collections:
+  web-hacking:
+    output: true
+    permalink: /web-hacking/:path/
+  hackthebox-linux:
+    output: true
+    permalink: /hackthebox/linux/:path/
+  hackthebox-windows:
+    output: true
+    permalink: /hackthebox/windows/:path/
+  hackthebox-ad:
+    output: true
+    permalink: /hackthebox/ad/:path/
+  redteam-simulation:
+    output: true
+    permalink: /redteam-simulation/:path/
+
 
 
 # HTML Compression
@@ -325,3 +343,40 @@ defaults:
       comments: true
       share: true
       related: true
+
+
+    # add these two entries for the collections
+  - scope:
+    path: ""
+    type: web-hacking
+    values:
+      layout: single
+      toc: true
+
+  - scope:
+      path: ""
+      type: hackthebox-linux
+    values:
+      layout: single
+      toc: true
+
+  - scope:
+      path: ""
+      type: hackthebox-windows
+    values:
+      layout: single
+      toc: true
+
+  - scope:
+      path: ""
+      type: hackthebox-ad
+    values:
+      layout: single
+      toc: true
+
+  - scope:
+      path: ""
+      type: redteam-simulation
+    values:
+      layout: single
+      toc: true
