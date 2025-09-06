@@ -3,8 +3,13 @@ title: "HackTheBox — Linux"
 layout: collection
 permalink: /hackthebox/linux/
 collection: hackthebox-linux
-entries_layout: grid              # grid(카드형) 또는 list
-show_excerpts: true               # 요약 보이게 (true가 기본)                   
+show_excerpts: true
+sort_by: title
 ---
 
-
+<div class="grid__wrapper">
+  {% for post in paginator.posts %}
+    {% include archive-single-list.html type="list" post=post %}
+  {% endfor %}
+</div>
+{% include paginator.html %}

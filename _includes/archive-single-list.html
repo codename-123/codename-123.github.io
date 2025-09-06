@@ -1,0 +1,37 @@
+{% comment %}
+  archive-single-list.html
+  include expects: post (or uses paginator post) and include.type == "list"
+{% endcomment %}
+
+{% assign p = include.post | default: post %}
+
+{% if p.header.teaser %}
+  {% capture teaser %}{{ p.header.teaser }}{% endcapture %}
+{% else %}
+  {% assign teaser = site.teaser %}
+{% endif %}
+
+<div class="{{ include.type | default: 'list' }}__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    {% if include.type == "list" and teaser %}
+      <div class="archive__item-teaser_list">
+        <img src="{{ teaser | relative_url }}" alt="{{ p.title }}">
+      </div>
+    {% endif %}
+
+    <div class="archive__item-postbox">
+      <h2 class="archive__item-title no_toc" itemprop="headline">
+        {% if p.link %}
+          <a href="{{ p.link }}">{{ p.title }}</a>
+        {% else %}
+          <a href="{{ p.url | relative_url }}" rel="permalink">{{ p.title }}</a>
+        {% endif %}
+      </h2>
+
+      {% include page__meta.html type=include.type %}
+      {% if p.excerpt %}
+        <p class="archive__item-excerpt" itemprop="description">{{ p.excerpt | markdownify | strip_html | truncate: 160 }}</p>
+      {% endif %}
+    </div>
+  </article>
+</div>

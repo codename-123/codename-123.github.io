@@ -1,99 +1,27 @@
-/* ===== custom: show collection entries as vertical list with left thumbnail ===== */
+/* list thumbnail (left) layout */
+.archive__item { display: flex; gap: 1rem; align-items: flex-start; padding: .8rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 
-/* Make grid/container non-grid */
-.cards-grid,
-.archive,
-.archive__items,
-.archive-list,
-.cards {
-  display: block !important;
+.archive__item-teaser_list {
+  flex: 0 0 160px;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.03);
 }
+.archive__item-teaser_list img { width: 100%; height: 100%; object-fit: cover; display:block; }
 
-/* Force each generated card/archive item to be horizontal row */
-.cards-grid > *,
-.archive__items > *,
-.archive-list > *,
-.cards > *,
-.card,
-.archive__item,
-.archive__items .archive__item,
-.post-card,
-.archive__item--post {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-start !important;
-  gap: 1rem !important;
-  padding: 0.75rem 0 !important;
-  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
-}
+/* postbox 옆 텍스트 영역 */
+.archive__item-postbox { flex: 1 1 auto; }
 
-/* Thumbnail block (left) */
-.cards-grid .card-thumb,
-.card .card-thumb,
-.archive__item .archive__item-teaser,
-.archive__items .archive__item .archive__item-teaser,
-.post-card .post-card-image,
-.card-thumb,
-.archive__item-teaser,
-.archive__item .thumbnail {
-  flex: 0 0 160px !important;   /* 너비: 필요시 140~180 조정 */
-  height: 110px !important;     /* 높이: 필요시 조정 */
-  overflow: hidden !important;
-  border-radius: 6px !important;
-  display: block !important;
-}
+/* 제목/요약 스타일 */
+.archive__item-title a { color: #2aa6a6; text-decoration: underline; }
+.archive__item-excerpt { color: #fff; margin-top: .4rem; }
 
-/* Thumbnail image fill */
-.cards-grid img,
-.card-thumb img,
-.archive__item-teaser img,
-.post-card img,
-.archive__item img,
-.archive__items img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
-}
-
-/* Text area takes rest */
-.cards-grid .card-excerpt,
-.cards-grid .card-content,
-.archive__item .archive__item-content,
-.archive__item .archive__item-body,
-.archive__items .archive__item .archive__item-content,
-.card .card-excerpt,
-.post-card .post-card-body {
-  flex: 1 1 auto !important;
-}
-
-/* Title link color (theme link color as example) and excerpt white */
-.cards-grid .card-title a,
-.archive__item .archive__item-title a,
-.card .card-title a,
-.post-card .post-card-title a {
-  color: #2aa6a6 !important; /* 바꾸고 싶으면 색값 수정 */
-}
-.cards-grid .card-excerpt,
-.archive__item .archive__item-content p,
-.post-card .post-card-excerpt,
-.card .card-excerpt {
-  color: #ffffff !important;
-}
-
-/* Mobile: stack vertically */
+/* 모바일: 세로로 쌓기 */
 @media (max-width: 720px) {
-  .cards-grid > *,
-  .archive__items > *,
-  .card,
-  .archive__item {
-    flex-direction: column !important;
-  }
-  .cards-grid .card-thumb,
-  .archive__item .archive__item-teaser,
-  .card-thumb {
-    width: 100% !important;
-    height: 180px !important;
-    flex: none !important;
-  }
+  .archive__item { flex-direction: column; }
+  .archive__item-teaser_list { width: 100%; height: 180px; flex: none; }
 }
