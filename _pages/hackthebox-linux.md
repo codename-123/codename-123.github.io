@@ -9,7 +9,7 @@ sort_by: title                    # 필요하면 date 등으로 변경
 ---
 
 <div class="list-archive">
-  {% assign docs = site.collections['hackthebox-linux'].docs | sort: 'title' %}
+  {% assign docs = site.hackthebox-linux | sort: 'title' %}
   {% for doc in docs %}
     {% assign thumb = doc.header.teaser | default: doc.header.image | default: doc.image %}
     <article class="list-item">
@@ -18,8 +18,6 @@ sort_by: title                    # 필요하면 date 등으로 변경
           <div class="list-thumb">
             <img src="{{ thumb | relative_url }}" alt="{{ doc.title }}">
           </div>
-        {% else %}
-          <div class="list-thumb placeholder">No image</div>
         {% endif %}
 
         <div class="list-meta">
