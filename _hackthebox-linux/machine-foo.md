@@ -1,9 +1,9 @@
 ---
 title: "Machine Foo — PrivEsc (Linux)"
-date: 2025-09-07
+date: 2025-09-06
 layout: single
 toc: true
-image: /assets/images/hackthebox/linux/machine-foo/cover.png
+image: /assets/images/awesomeface.png
 tags: [linux, priv-esc, web]
 difficulty: "Medium"
 arch: linux
