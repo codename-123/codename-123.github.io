@@ -17,7 +17,7 @@ minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "
 # Site Settings
 locale                   : "en-US"
 rtl                      : # true, false (default) # turns direction of the page into right to left for RTL languages
-title                    : "123"
+title                    : "Blog"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Ji Sang"
@@ -114,7 +114,7 @@ analytics:
 # Site Author
 author:
   name             : "Ji Sang"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "./assets/images/awesome_face.png"
   bio              : "A personal blog documenting my journey learning red teaming and penetration testing."
   location         : # "Somewhere"
   email            :
