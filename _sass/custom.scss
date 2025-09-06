@@ -1,0 +1,39 @@
+/* _sass/custom.scss (또는 네가 쓰는 custom scss 맨 아래) */
+
+/* 기본: 이미지 오른쪽, 텍스트 왼쪽 */
+.list-item {
+  display: flex;
+  flex-direction: row-reverse; /* <-- 여기서 오른쪽으로 뒤집음 */
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+/* 썸네일 너비 */
+.list-thumb {
+  flex: 0 0 200px; /* 너비 조정: 140~240px 권장 */
+  height: 120px;   /* 필요하면 변경 */
+  overflow: hidden;
+  border-radius: 6px;
+}
+.list-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 텍스트 영역 */
+.list-meta { flex: 1 1 auto; }
+
+/* 모바일에서는 세로 스택(이미지 아래로) */
+@media (max-width: 720px) {
+  .list-item {
+    flex-direction: column; /* 세로로 쌓임 */
+  }
+  .list-thumb {
+    width: 100%;
+    height: 180px;
+    flex: none;
+  }
+}
