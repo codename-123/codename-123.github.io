@@ -9,17 +9,25 @@ show_excerpts: false               # 요약 보이게 (true가 기본)
 
 <div class="list-archive">
   {% assign docs = site.hackthebox-linux | sort: 'title' %}
+  {% assign seen = "" %}
   {% for doc in docs %}
+    {% assign url = doc.url | append: "" %}
+    {% if seen contains url %}
+      {% continue %}
+    {% endif %}
+    {% assign seen = seen | append: url | append: "|" %}
+
     {% assign thumb = doc.header.teaser | default: doc.header.image | default: doc.image %}
     <article class="list-item">
       <a href="{{ doc.url | relative_url }}" class="list-link">
         {% if thumb %}
-          <div class="list-thumb">
+          <div class="list-thumb" aria-hidden="true">
             <img src="{{ thumb | relative_url }}" alt="{{ doc.title }}">
           </div>
         {% endif %}
+
         <div class="list-meta">
-          <h3 class="list-title">{{ doc.title }}</h3>
+          <h3 class="list-title"><a href="{{ doc.url | relative_url }}">{{ doc.title }}</a></h3>
           <div class="list-excerpt">
             {{ doc.excerpt | default: doc.content | strip_html | truncate: 240 }}
           </div>
@@ -28,3 +36,4 @@ show_excerpts: false               # 요약 보이게 (true가 기본)
     </article>
   {% endfor %}
 </div>
+
