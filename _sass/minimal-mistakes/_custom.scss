@@ -1,32 +1,22 @@
-/* 전체 항목(card) 스타일 */
 .archive__item {
   display: flex;
   align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 0.3em;
-  padding: 0.5em;
-  margin-bottom: 1em;
-  background: #fff;
 }
 
-/* 텍스트 영역 */
-.archive__item-content {
-  order: 1;
-  flex: 1;
-}
-
-/* 썸네일 영역: 오른쪽 */
 .archive__item-teaser {
-  order: 2;
+  order: 2; /* 오른쪽 */
   width: 120px;
   height: 80px;
-  margin-left: 1em; /* 텍스트와 간격 */
+  margin-left: 1em;
 }
 
-/* 썸네일 이미지 */
 .archive__item-teaser img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+}
+
+.archive__item-content {
+  order: 1;
+  flex: 1;
 }
