@@ -3,7 +3,11 @@ title: "Machine Foo — PrivEsc (Linux)"
 date: 2025-09-06
 layout: single
 toc: true
-image: ../assets/images/awesome_face.png
+header:
+  image: /assets/images/awesome_face.png
+  overlay_color: "#000"
+  overlay_filter: 0.5
+  caption: "테스트 이미지"
 tags: [linux, priv-esc, web]
 difficulty: "Medium"
 arch: linux

@@ -3,7 +3,7 @@ main:
   - title: "Home"
     url: /
 
-  - title: "Hack The Box"
+  - title: "HackTheBox"
     url: /hackthebox/
 
   - title: "Web Hacking"
