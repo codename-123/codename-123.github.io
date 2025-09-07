@@ -1,14 +1,9 @@
-/* ============================
-  Archive list - solid overrides
-  Fix vertical title, teaser size, excerpt size/spacing
-  Place at end of _sass/minimal-mistakes/_custom.scss
-   ============================ */
+/* ===== Fix: force thumbnail left + title/excerpt/right content when no .archive__item-content wrapper ===== */
 
-/* 1) 항목 전체: 왼쪽 썸네일 / 오른쪽 텍스트 기본 레이아웃 보장 */
+/* ensure article is a horizontal flex row (you already have something like this; keep it) */
+article.archive__item,
 .entries-list article.archive__item,
-.archive .entries-list article.archive__item,
-.list__item > article.archive__item,
-article.archive__item {
+.list__item > article.archive__item {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-start !important;
@@ -17,106 +12,82 @@ article.archive__item {
   margin: 0.9rem 0 !important;
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
-  min-width: 0 !important; /* flex 아이템에서 텍스트 잘리는 문제 방지 */
+  min-width: 0 !important;
 }
 
-/* 2) 썸네일(왼쪽) : 고정 크기(조정값: 160x120) */
-.article .archive__item-teaser,
-.entries-list .archive__item-teaser,
-article.archive__item .archive__item-teaser,
-.list__item .archive__item-teaser {
+/* thumbnail fixed size (left) */
+article.archive__item > .archive__item-teaser {
   order: 1 !important;
   flex: 0 0 160px !important;
   width: 160px !important;
   height: 120px !important;
+  margin-right: 1rem !important;
   overflow: hidden !important;
   border-radius: 6px !important;
-  margin-right: 1rem !important;
   display: block !important;
 }
-
-/* 이미지가 박스에 맞게 잘 채워지도록 */
-.archive__item-teaser img,
-.entries-list .archive__item-teaser img,
-article.archive__item .archive__item-teaser img {
+article.archive__item > .archive__item-teaser img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
   display: block !important;
 }
 
-/* 3) 텍스트 영역(타이틀/요약) : 오른쪽으로 넓게 차지 */
-.archive__item-content,
-.entries-list .archive__item .archive__item-content,
-article.archive__item .archive__item-content {
+/* --- CRITICAL: make H2 + excerpt + meta behave as "content" on the right --- */
+/* Force title, meta and excerpt to occupy the remaining flex space (order:2) */
+article.archive__item > .archive__item-title,
+article.archive__item > .page__meta,
+article.archive__item > .archive__item-excerpt {
   order: 2 !important;
   flex: 1 1 auto !important;
-  min-width: 0 !important; /* overflow: ellipsis 문제 방지 */
-  padding: 0 !important;
+  min-width: 0 !important; /* prevents child text from overflowing / forcing narrow column */
 }
 
-/* 4) 제목(세로 쪼개짐 해결) */
-/* - writing-mode: horizontal-tb로 강제 (수직글자 가능성 차단)
-   - display:block으로 충분한 가로 너비 확보 */
-.entries-list .archive__item-title,
-.archive .entries-list .archive__item-title,
-.archive__item-title {
+/* Title specifics: avoid vertical/one-letter-per-line and adjust size */
+article.archive__item > .archive__item-title {
+  margin: 0 0 0.35rem 0 !important;
+  padding: 0 !important;
   white-space: normal !important;
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-  hyphens: none !important;
-  writing-mode: horizontal-tb !important;
   overflow: visible !important;
   text-overflow: clip !important;
+  writing-mode: horizontal-tb !important; /* safety */
 }
 
-.entries-list .archive__item-title a,
-.archive .entries-list .archive__item-title a,
-.archive__item-title a {
-  display: block !important;                /* 한 줄로 정상 배치되도록 block */
+article.archive__item > .archive__item-title a {
+  display: inline-block !important; /* block is fine too; inline-block avoids collapsing */
   max-width: 100% !important;
   white-space: normal !important;
-  word-break: break-word !important;        /* 단어 단위 줄바꿈 허용 */
+  word-break: break-word !important;
   line-height: 1.25 !important;
-  font-size: 1.05rem !important;            /* 제목 크기(필요시 조절) */
-  margin-bottom: 0.25rem !important;
-  color: #c63b6a !important;                 /* 원하는 색으로 바꿔도 됨 */
-  text-decoration: underline !important;    /* 원치 않으면 none으로 변경 */
+  font-size: 1.05rem !important; /* 원하는 크기로 조절 */
+  color: #c63b6a !important; /* 너가 원하면 색 변경 */
+  text-decoration: underline !important;
 }
 
-/* 5) excerpt(요약) 스타일 작게 / 색감 조정 */
-.entries-list .archive__item-excerpt,
-.archive .entries-list .archive__item-excerpt,
-.archive__item-excerpt {
+/* Excerpt smaller, 줄 간격 적절히 */
+article.archive__item > .archive__item-excerpt {
   font-size: 0.95rem !important;
   line-height: 1.45 !important;
   color: rgba(255,255,255,0.88) !important;
   margin: 0 !important;
 }
 
-/* 6) 특정 썸네일(예: feature/card형) 크기 충돌 방지
-   grid나 feature 스타일에서 max-height가 걸려있을 때 우회 */
-.grid__item .archive__item-teaser,
-.feature__item .archive__item-teaser {
-  max-height: none !important;
-  height: 120px !important;
-}
-
-/* 7) 반응형: 모바일에서 한 컬럼으로 스택 복귀 */
+/* Mobile: stack vertically */
 @media (max-width: 720px) {
-  .entries-list article.archive__item,
-  .archive .entries-list article.archive__item,
-  .list__item > article.archive__item {
+  article.archive__item,
+  .entries-list article.archive__item {
     flex-direction: column !important;
+    gap: .6rem !important;
     align-items: flex-start !important;
-    gap: 0.6rem !important;
   }
-  .archive__item-teaser {
+  article.archive__item > .archive__item-teaser {
     width: 100% !important;
     height: 180px !important;
-    margin-right: 0 !important;
     order: 0 !important;
+    margin-right: 0 !important;
   }
-  .archive__item-content { order: 1 !important; }
+  article.archive__item > .archive__item-title,
+  article.archive__item > .archive__item-excerpt {
+    order: 1 !important;
+  }
 }
