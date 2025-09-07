@@ -3,8 +3,8 @@ title: "Web Hacking"
 layout: collection
 permalink: /web-hacking/
 collection: web-hacking
-entries_layout: grid
-classes: wide
+entries_layout: list      
+show_excerpts: true
 ---
 
 

@@ -71,3 +71,35 @@ article.archive__item .archive__item-teaser img {
   }
   .archive__item-content { order: 1 !important; }
 }
+
+/* ---------- hide footer (Minimal Mistakes) ---------- */
+/* hide common footer selectors used by the theme */
+.site-footer,
+.page__footer,
+.page_footer,
+#footer,
+footer,
+.footer,
+.site-footer__inner {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* remove any bottom padding reserved for footer area */
+.initial-content,
+.site,
+.site-wrapper,
+.page {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* if there's a footer container inside a .archive or .page element */
+.archive + .page__footer,
+.entries-list + .page__footer {
+  display: none !important;
+}
