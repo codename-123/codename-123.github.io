@@ -119,9 +119,13 @@
 
 /* ---------- list-view: thumbnail + title-only (excerpt 숨김) ---------- */
 .list__item {
+  /* 날짜/메타가 제목 바로 아래에 나오도록 block & 간격 조정 */
   .page__meta {
-    margin: 0 0 4px;
-    font-size: 0.6em;
+    display: block;
+    margin: 0.35rem 0 0.75rem;
+    font-size: 0.85rem;
+    color: $muted-text-color;
+    line-height: 1.2;
   }
 
   .archive__item {
@@ -147,32 +151,56 @@
     }
   }
 
-  /* 제목: 가로로 보이도록 강제, 밑줄(경계선) 스타일 추가, 크기조정 */
+  /* 제목: 가로 보이게 + 밑줄(전체선) 유지 또는 제거 선택 가능 */
   .archive__item-title {
     flex: 1 1 auto;
     min-width: 0;
-    margin: 0 0 0.5rem;          /* 제목 아래 여백 */
-    padding-bottom: 0.4rem;      /* 밑줄과 글자 사이 여백 */
+    margin: 0 0 0.5rem;
+    padding-bottom: 0.4rem;
     font-family: $sans-serif-narrow;
-    font-size: 1.1rem;           /* 필요하면 1.0rem~1.2rem로 조정 */
+    font-size: 1.1rem;
     line-height: 1.2;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $border-color; /* 전체 가로선 필요없으면 none으로 변경 */
     color: $text-color;
     writing-mode: horizontal-tb !important;
     white-space: normal !important;
     word-break: normal !important;
     letter-spacing: normal !important;
     overflow: visible;
+
+    /* ---- 링크 색/언더라인 제거 (우선순위 확보) ---- */
+    a,
+    a:link,
+    a:visited,
+    a:active {
+      color: #ffffff !important;         /* 링크 텍스트 흰색으로 고정 */
+      text-decoration: none !important;  /* 밑줄 제거 */
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+
+    a:hover,
+    a:active {
+      color: #ffffff !important;
+      opacity: 0.92;
+      text-decoration: none !important;
+    }
+
+    a:focus-visible {
+      outline: 2px solid rgba(255,255,255,0.2);
+      outline-offset: 2px;
+      text-decoration: none !important;
+    }
   }
 
-  /* permalink 영역(링크 겹침 방지) 유지 */
+  /* permalink::before 가 layout 깨지게 하면 안되므로 유지 */
   .archive__item-title a[rel="permalink"]::before {
     content: '';
     position: absolute;
     inset: 0;
   }
 
-  /* 요약 숨김 (CSS로 완전히 숨김) */
+  /* 요약 숨김 */
   .archive__item-excerpt {
     display: none !important;
   }
@@ -194,8 +222,12 @@
       font-size: 1rem;
       padding-bottom: 0.3rem;
     }
+    .page__meta {
+      font-size: 0.8rem;
+    }
   }
 }
+
 
 /*
    Grid view
