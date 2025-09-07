@@ -24,3 +24,10 @@ hackthebox:
         url: /hackthebox/windows/
       - title: "Active Directory"
         url: /hackthebox/ad/
+
+
+web-hacking:
+  - title: "Web Development"
+    children:
+      - title: "User authentication (login & signup)"
+        url: /web-hacking/doc
