@@ -4,7 +4,7 @@ date: 2025-09-06
 layout: single
 toc: true
 header:
-  teaser: /assets/images/lame-card.png
+  teaser: /assets/images/lame.png
 tags: [linux, priv-esc, web]
 difficulty: "Hard"
 arch: linux
