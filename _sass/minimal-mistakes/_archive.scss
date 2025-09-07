@@ -173,7 +173,7 @@
     a:link,
     a:visited,
     a:active {
-      color: #ffffff !important;         /* 링크 텍스트 흰색으로 고정 */
+      color: #e60909 !important;         /* 링크 텍스트 흰색으로 고정 */
       text-decoration: none !important;  /* 밑줄 제거 */
       background-image: none !important;
       box-shadow: none !important;
@@ -181,7 +181,7 @@
 
     a:hover,
     a:active {
-      color: #ffffff !important;
+      color: #e60909 !important;
       opacity: 0.92;
       text-decoration: none !important;
     }
