@@ -117,91 +117,83 @@
   }
 }
 
-/*
-   List view
-   ========================================================================== */
-
-/* 기존 page__meta 스타일을 유지하면서, list 전용 레이아웃(flex) 추가 */
+/* ---------- list-view: thumbnail + title-only (excerpt 숨김) ---------- */
 .list__item {
   .page__meta {
     margin: 0 0 4px;
     font-size: 0.6em;
   }
 
-  /* ---------- list-view: thumbnail + content 가로 정렬 ---------- */
   .archive__item {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;                /* 썸네일과 텍스트 사이 간격 */
+    gap: 1rem;
     margin-bottom: 1.25rem;
-
-    /* 제목과 요약이 들어가는 영역이 줄 바꿈을 올바르게 하도록 */
     min-width: 0;
   }
 
-  /* 썸네일 고정 크기(원하면 96px -> 80/72 등으로 조정) */
   .archive__item-teaser {
     flex: 0 0 96px;
     width: 96px;
     height: 96px;
     overflow: hidden;
-    border-radius: $border-radius; /* 원하면 6px 등으로 변경 */
+    border-radius: $border-radius;
 
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;       /* 비율 유지하며 잘라냄 */
+      object-fit: cover;
       display: block;
     }
   }
 
-  /* 본문 영역이 남은 공간을 채우게 */
+  /* 제목: 가로로 보이도록 강제, 밑줄(경계선) 스타일 추가, 크기조정 */
   .archive__item-title {
     flex: 1 1 auto;
-    min-width: 0;             /* flex 아이템의 정상 줄바꿈을 위해 중요 */
-    margin-bottom: 0.25rem;
+    min-width: 0;
+    margin: 0 0 0.5rem;          /* 제목 아래 여백 */
+    padding-bottom: 0.4rem;      /* 밑줄과 글자 사이 여백 */
     font-family: $sans-serif-narrow;
-    font-size: $type-size-5;  /* 제목 크기(기존 값과 비슷하게 유지) */
-    line-height: 1.25;
-
-    /* “세로로 쪼개지는” 문제를 강제 해제 */
+    font-size: 1.1rem;           /* 필요하면 1.0rem~1.2rem로 조정 */
+    line-height: 1.2;
+    border-bottom: 1px solid $border-color;
+    color: $text-color;
     writing-mode: horizontal-tb !important;
     white-space: normal !important;
     word-break: normal !important;
     letter-spacing: normal !important;
+    overflow: visible;
   }
 
-  /* permalink::before 절대로 제목 레이아웃을 깨지 않게 유지 */
+  /* permalink 영역(링크 겹침 방지) 유지 */
   .archive__item-title a[rel="permalink"]::before {
     content: '';
     position: absolute;
     inset: 0;
   }
 
-  /* 요약(엑서빗) 폰트 크기 조정 */
+  /* 요약 숨김 (CSS로 완전히 숨김) */
   .archive__item-excerpt {
-    margin-top: 0;
-    font-size: 0.95rem;       /* 필요하면 0.9rem 등으로 더 낮춤 */
-    line-height: 1.45;
-    color: $muted-text-color;
-    margin-bottom: 0;
+    display: none !important;
   }
 }
 
-/* 모바일: 세로로 쌓이게, 썸네일은 작게 */
+/* 모바일: 썸네일 작게, 레이아웃 안정화 */
 @include breakpoint($small) {
   .list__item {
     .archive__item {
-      flex-direction: row;    /* 원하면 column으로 해서 이미지 위, 텍스트 아래 배치 가능 */
-      gap: 0.75rem;
+      flex-direction: row;
+      gap: 0.6rem;
     }
     .archive__item-teaser {
       flex: 0 0 64px;
       width: 64px;
       height: 64px;
     }
-    .archive__item-title { font-size: $type-size-5; }
-    .archive__item-excerpt { font-size: 0.9rem; }
+    .archive__item-title {
+      font-size: 1rem;
+      padding-bottom: 0.3rem;
+    }
   }
 }
 
