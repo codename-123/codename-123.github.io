@@ -339,10 +339,11 @@ defaults:
     values:
       layout: single
       author_profile: true
-      read_time: false
+      read_time: true
       comments: true
       share: true
       related: true
+      show_date: true
 
 
     # add these two entries for the collections
