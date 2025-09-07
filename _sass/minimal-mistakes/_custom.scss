@@ -1,36 +1,25 @@
-/* ===== 리스트: 썸네일 왼쪽(160x120) + 텍스트 오른쪽 ===== */
+/* --- minimal override: archive list thumbnail left + text right (safe & small scope) --- */
 
+/* 타깃: collection list 항목(기본 테마 클래스 사용) */
 .entries-list .list__item > article.archive__item,
 .list__item > article.archive__item,
 article.archive__item {
   display: flex !important;
   flex-direction: row !important;
-  align-items: center !important;   /* 세로 중앙 정렬 */
-  gap: 1.25rem !important;          /* 이미지와 텍스트 간격 */
-  min-width: 0 !important;
-  padding: 0.25rem 0 !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 0.6rem 0 !important;
   margin: 1.0rem 0 !important;
+
+  /* remove card background/shadow that theme might add on grid */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-/* 텍스트 wrapper */
-.entries-list .list__item > article.archive__item .archive__item-content,
-.list__item > article.archive__item .archive__item-content,
-article.archive__item .archive__item-content {
-  order: 2 !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  padding-right: 0.5rem !important;
-}
-
-/* 썸네일: 크기를 통일해서 지정 (flex-basis == width) */
-.entries-list .list__item > article.archive__item .archive__item-teaser,
-.list__item > article.archive__item .archive__item-teaser,
+/* 썸네일 박스: 왼쪽, 고정 크기 */
 article.archive__item .archive__item-teaser {
-  order: 1 !important;
-  flex: 0 0 160px !important;   /* flex-basis = 160px */
+  flex: 0 0 160px !important; /* 고정 너비 */
   width: 160px !important;
   height: 120px !important;
   overflow: hidden !important;
@@ -39,9 +28,7 @@ article.archive__item .archive__item-teaser {
   display: block !important;
 }
 
-/* 이미지 박스 채우기 */
-.entries-list .list__item > article.archive__item .archive__item-teaser img,
-.list__item > article.archive__item .archive__item-teaser img,
+/* 썸네일 이미지 채우기 */
 article.archive__item .archive__item-teaser img {
   width: 100% !important;
   height: 100% !important;
@@ -50,25 +37,36 @@ article.archive__item .archive__item-teaser img {
   border-radius: inherit !important;
 }
 
-/* 제목/요약 (선택) */
-.archive__item-title { margin: 0 0 .35rem 0 !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
-.archive__item-excerpt { margin: 0 !important; color: rgba(255,255,255,0.9) !important; }
+/* 텍스트 영역: 오른쪽, 남은 공간 사용 */
+article.archive__item .archive__item-content {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
 
-/* 모바일: 세로 스택으로 복귀 */
+/* 제목/요약 스타일 (간단) */
+.archive__item-title { 
+  margin: 0 0 .35rem 0 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.25 !important;
+}
+.archive__item-excerpt {
+  margin: 0 !important;
+  color: rgba(255,255,255,0.88) !important;
+  font-size: 0.95rem !important;
+}
+
+/* 모바일: 세로 스택으로 안전 복귀 */
 @media (max-width: 720px) {
-  .entries-list .list__item > article.archive__item,
-  .list__item > article.archive__item,
   article.archive__item {
     flex-direction: column !important;
     gap: .6rem !important;
     align-items: flex-start !important;
   }
-  .archive__item-teaser {
+  article.archive__item .archive__item-teaser {
     width: 100% !important;
     height: 180px !important;
     margin-right: 0 !important;
     order: 0 !important;
   }
-  .archive__item-content { order: 1 !important; }
+  article.archive__item .archive__item-content { order: 1 !important; }
 }
-
