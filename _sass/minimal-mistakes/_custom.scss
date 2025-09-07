@@ -1,29 +1,21 @@
-/* ========= 강제 오버라이드: 리스트 썸네일(왼) + 텍스트(오른) ========= */
+/* ===== 리스트: 썸네일 왼쪽(160x120) + 텍스트 오른쪽 ===== */
 
-/* 컨테이너 기본 스타일 제거(테마의 카드/배경 제거) */
-.entries-list .list__item > article.archive__item,
-.list__item > article.archive__item,
-.article.archive__item,
-.archive .entries-list .list__item > article.archive__item {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 1.0rem 0 !important;
-}
-
-/* flex 레이아웃 강제 적용 - 텍스트 오른쪽, 썸네일 왼쪽 */
 .entries-list .list__item > article.archive__item,
 .list__item > article.archive__item,
 article.archive__item {
   display: flex !important;
   flex-direction: row !important;
-  align-items: flex-start !important;
-  gap: 1rem !important;
+  align-items: center !important;   /* 세로 중앙 정렬 */
+  gap: 1.25rem !important;          /* 이미지와 텍스트 간격 */
   min-width: 0 !important;
+  padding: 0.25rem 0 !important;
+  margin: 1.0rem 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* 텍스트 wrapper - 반드시 HTML에서 .archive__item-content 로 묶어야 함 */
+/* 텍스트 wrapper */
 .entries-list .list__item > article.archive__item .archive__item-content,
 .list__item > article.archive__item .archive__item-content,
 article.archive__item .archive__item-content {
@@ -33,21 +25,21 @@ article.archive__item .archive__item-content {
   padding-right: 0.5rem !important;
 }
 
-/* 썸네일(왼) - 고정 사이즈 */
+/* 썸네일: 크기를 통일해서 지정 (flex-basis == width) */
 .entries-list .list__item > article.archive__item .archive__item-teaser,
 .list__item > article.archive__item .archive__item-teaser,
 article.archive__item .archive__item-teaser {
   order: 1 !important;
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  height: 80px !important;
+  flex: 0 0 160px !important;   /* flex-basis = 160px */
+  width: 160px !important;
+  height: 120px !important;
   overflow: hidden !important;
   border-radius: 6px !important;
   margin-right: 1rem !important;
   display: block !important;
 }
 
-/* 이미지 채우기 */
+/* 이미지 박스 채우기 */
 .entries-list .list__item > article.archive__item .archive__item-teaser img,
 .list__item > article.archive__item .archive__item-teaser img,
 article.archive__item .archive__item-teaser img {
@@ -58,9 +50,9 @@ article.archive__item .archive__item-teaser img {
   border-radius: inherit !important;
 }
 
-/* 제목/요약 스타일 (선택) */
+/* 제목/요약 (선택) */
 .archive__item-title { margin: 0 0 .35rem 0 !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
-.archive__item-excerpt { margin: 0 !important; color: rgba(255,255,255,0.85) !important; }
+.archive__item-excerpt { margin: 0 !important; color: rgba(255,255,255,0.9) !important; }
 
 /* 모바일: 세로 스택으로 복귀 */
 @media (max-width: 720px) {
@@ -69,6 +61,7 @@ article.archive__item .archive__item-teaser img {
   article.archive__item {
     flex-direction: column !important;
     gap: .6rem !important;
+    align-items: flex-start !important;
   }
   .archive__item-teaser {
     width: 100% !important;
