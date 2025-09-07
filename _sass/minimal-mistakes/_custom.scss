@@ -1,93 +1,83 @@
-/* ===== Fix: force thumbnail left + title/excerpt/right content when no .archive__item-content wrapper ===== */
+/* -------------------------
+   custom.scss (paste into your custom scss file)
+   ------------------------- */
 
-/* ensure article is a horizontal flex row (you already have something like this; keep it) */
-article.archive__item,
-.entries-list article.archive__item,
-.list__item > article.archive__item {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-start !important;
-  gap: 1rem !important;
-  padding: 0.5rem 0 !important;
-  margin: 0.9rem 0 !important;
-  background: transparent !important;
-  border: none !important;
-  min-width: 0 !important;
+/* 기본 리스트 항목을 플렉스 컨테이너로 만들어 섬네일 + 컨텐츠를 가로 정렬 */
+.post-list .post,
+.archive .post,
+.collection .post {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;                 /* thumbnail과 텍스트 사이 간격 */
+  margin-bottom: 1.25rem;
 }
 
-/* thumbnail fixed size (left) */
-article.archive__item > .archive__item-teaser {
-  order: 1 !important;
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  height: 120px !important;
-  margin-right: 1rem !important;
-  overflow: hidden !important;
-  border-radius: 6px !important;
-  display: block !important;
-}
-article.archive__item > .archive__item-teaser img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
+/* 썸네일 크기 고정(원하면 픽셀 조정) */
+.post-list .post .post-thumbnail,
+.archive .post .post-thumbnail,
+.collection .post .post-thumbnail {
+  flex: 0 0 96px;           /* 고정 너비 */
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  object-fit: cover;        /* 이미지 비율 유지 */
+  border-radius: 6px;       /* 원하면 제거 */
 }
 
-/* --- CRITICAL: make H2 + excerpt + meta behave as "content" on the right --- */
-/* Force title, meta and excerpt to occupy the remaining flex space (order:2) */
-article.archive__item > .archive__item-title,
-article.archive__item > .page__meta,
-article.archive__item > .archive__item-excerpt {
-  order: 2 !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important; /* prevents child text from overflowing / forcing narrow column */
+/* 본문 영역이 남은 영역을 채우게 */
+.post-list .post .post-content,
+.archive .post .post-content,
+.collection .post .post-content {
+  flex: 1 1 auto;
+  min-width: 0;             /* 텍스트 줄바꿈을 제대로 동작하게 */
 }
 
-/* Title specifics: avoid vertical/one-letter-per-line and adjust size */
-article.archive__item > .archive__item-title {
-  margin: 0 0 0.35rem 0 !important;
-  padding: 0 !important;
+/* 제목: 가로 쓰기 강제, 글자 분리(한글자씩 줄바꿈) 방지 */
+.post-list .post .post-title,
+.archive .post .post-title,
+.collection .post .post-title {
+  writing-mode: horizontal-tb !important; /* vertical 쓰기 모드 해제 */
   white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  writing-mode: horizontal-tb !important; /* safety */
+  word-break: normal !important;
+  letter-spacing: normal !important;
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;        /* 제목 크기 — 필요하면 조정 */
+  line-height: 1.3;
 }
 
-article.archive__item > .archive__item-title a {
-  display: inline-block !important; /* block is fine too; inline-block avoids collapsing */
-  max-width: 100% !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  line-height: 1.25 !important;
-  font-size: 1.05rem !important; /* 원하는 크기로 조절 */
-  color: #c63b6a !important; /* 너가 원하면 색 변경 */
-  text-decoration: underline !important;
+/* 제목 안의 링크도 강제 스타일(한 줄로 길게 가야하면 nowrap으로 바꿀 것) */
+.post-list .post .post-title a,
+.archive .post .post-title a,
+.collection .post .post-title a {
+  display: block;
+  text-decoration: none;
 }
 
-/* Excerpt smaller, 줄 간격 적절히 */
-article.archive__item > .archive__item-excerpt {
-  font-size: 0.95rem !important;
-  line-height: 1.45 !important;
-  color: rgba(255,255,255,0.88) !important;
-  margin: 0 !important;
+/* 요약(엑서빗) 글씨 크기 및 행간 조절 */
+.post-list .post .post-excerpt,
+.archive .post .post-excerpt,
+.collection .post .post-excerpt {
+  font-size: 0.95rem;       /* 너무 크면 0.9rem 등으로 낮춤 */
+  line-height: 1.45;
+  margin: 0;
+  color: #d0d0d0;           /* theme에 맞게 조정 */
 }
 
-/* Mobile: stack vertically */
-@media (max-width: 720px) {
-  article.archive__item,
-  .entries-list article.archive__item {
-    flex-direction: column !important;
-    gap: .6rem !important;
-    align-items: flex-start !important;
+/* 작은 화면(모바일)에서는 썸네일 작게, 항목 세로 스택으로 전환 */
+@media (max-width: 640px) {
+  .post-list .post,
+  .archive .post,
+  .collection .post {
+    flex-direction: row;    /* 행 유지(원하면 column으로) */
+    gap: 0.75rem;
   }
-  article.archive__item > .archive__item-teaser {
-    width: 100% !important;
-    height: 180px !important;
-    order: 0 !important;
-    margin-right: 0 !important;
+  .post-list .post .post-thumbnail,
+  .archive .post .post-thumbnail,
+  .collection .post .post-thumbnail {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
   }
-  article.archive__item > .archive__item-title,
-  article.archive__item > .archive__item-excerpt {
-    order: 1 !important;
-  }
+  .post-list .post .post-title { font-size: 1rem; }
+  .post-list .post .post-excerpt { font-size: 0.95rem; }
 }
