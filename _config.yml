@@ -360,6 +360,8 @@ defaults:
     values:
       layout: single
       toc: true
+      comments: true
+      show_date: true
       sidebar:
         nav: hackthebox
 
