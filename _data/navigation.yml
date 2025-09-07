@@ -31,3 +31,5 @@ web-hacking:
     children:
       - title: "User authentication (login & signup)"
         url: /web-hacking/doc/
+      - title: "User name"
+        url: /web-hacking/dog/
