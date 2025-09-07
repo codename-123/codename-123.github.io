@@ -3,6 +3,9 @@ title: "회원가입 & 로그인 기능 구현"
 date: 2025-05-06
 layout: single
 toc: true
+toc_label: "User auth"
+toc_icon: "book"
+toc_sticky: true
 tags: [web, register, login]
 header:
   teaser: /assets/images/database.png
