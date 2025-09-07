@@ -26,7 +26,7 @@ hackthebox:
         url: /hackthebox/ad/
 
 
-web-hacking:
+web:
   - title: "Web Development"
     children:
       - title: "User authentication (login & signup)"
