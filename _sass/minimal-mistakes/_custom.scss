@@ -1,0 +1,73 @@
+/* ----------------------------
+  Minimal override:
+  archive list — thumbnail left (160x120) + text right
+  Scope: entries-list (collection/list pages)
+   ---------------------------- */
+
+.entries-list article.archive__item,
+.archive .entries-list article.archive__item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 1rem !important;
+  padding: 0.6rem 0 !important;
+  margin: 1.0rem 0 !important;
+
+  /* Remove theme card background/shadow for list view */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 썸네일: 왼쪽, 고정 크기 160x120 */
+.entries-list article.archive__item .archive__item-teaser,
+.archive .entries-list article.archive__item .archive__item-teaser {
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  height: 120px !important;
+  overflow: hidden !important;
+  border-radius: 6px !important;
+  margin-right: 1rem !important;
+  display: block !important;
+}
+
+/* 이미지 채우기 (비율 유지) */
+.entries-list article.archive__item .archive__item-teaser img,
+.archive .entries-list article.archive__item .archive__item-teaser img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: inherit !important;
+}
+
+/* 텍스트 영역(제목+요약)이 오른쪽에서 남은 공간 채우기 */
+.entries-list article.archive__item .archive__item-content,
+.archive .entries-list article.archive__item .archive__item-content {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* 제목/요약 조금 다듬기 */
+.entries-list .archive__item-title { margin: 0 0 .35rem 0 !important; font-size: 1.05rem !important; line-height: 1.2 !important; }
+.entries-list .archive__item-excerpt { margin: 0 !important; color: rgba(255,255,255,0.9) !important; font-size: 0.95rem !important; }
+
+/* 모바일: 세로 스택으로 돌아감 */
+@media (max-width: 720px) {
+  .entries-list article.archive__item,
+  .archive .entries-list article.archive__item {
+    flex-direction: column !important;
+    gap: .6rem !important;
+    align-items: flex-start !important;
+  }
+
+  .entries-list article.archive__item .archive__item-teaser,
+  .archive .entries-list article.archive__item .archive__item-teaser {
+    width: 100% !important;
+    height: 180px !important;
+    margin-right: 0 !important;
+    order: 0 !important;
+  }
+
+  .entries-list article.archive__item .archive__item-content { order: 1 !important; }
+}
