@@ -355,6 +355,8 @@ defaults:
       comments: true
       show_date: true
       toc: true
+      sidebar:
+        nav: web-hacking
 
   - scope:
       path: ""

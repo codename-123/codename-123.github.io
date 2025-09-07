@@ -30,4 +30,4 @@ web-hacking:
   - title: "Web Development"
     children:
       - title: "User authentication (login & signup)"
-        url: /web-hacking/doc
+        url: /web-hacking/doc/

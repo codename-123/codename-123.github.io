@@ -1,5 +1,6 @@
 ---
 title: "SQL Injection — Login Bypass"
+date: 2025-09-06
 layout: single
 toc: true
 tags: [sqli, web, login]
