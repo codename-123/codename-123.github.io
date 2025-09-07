@@ -1,73 +1,68 @@
-/* ----------------------------
-  Minimal override:
-  archive list — thumbnail left (160x120) + text right
-  Scope: entries-list (collection/list pages)
-   ---------------------------- */
+/* ------------------------------------------------------------------
+  Fix: archive list — 제목 세로로 쪼개짐 / excerpt 글씨 큼
+  적용 위치: _sass/minimal-mistakes/_custom.scss (맨 아래)
+  ------------------------------------------------------------------ */
 
+/* 1) 기본 정렬 보장 (썸네일 왼쪽, 텍스트 오른쪽) */
 .entries-list article.archive__item,
 .archive .entries-list article.archive__item {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-start !important;
   gap: 1rem !important;
-  padding: 0.6rem 0 !important;
-  margin: 1.0rem 0 !important;
-
-  /* Remove theme card background/shadow for list view */
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
 }
 
-/* 썸네일: 왼쪽, 고정 크기 160x120 */
-.entries-list article.archive__item .archive__item-teaser,
-.archive .entries-list article.archive__item .archive__item-teaser {
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  height: 120px !important;
-  overflow: hidden !important;
-  border-radius: 6px !important;
-  margin-right: 1rem !important;
-  display: block !important;
+/* 2) 제목 링크가 세로로 쪼개지는 문제 방지 */
+.entries-list .archive__item-title,
+.archive .entries-list .archive__item-title {
+  /* 제목 박스가 텍스트를 가로로 자연스럽게 흐르게 함 */
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
 }
 
-/* 이미지 채우기 (비율 유지) */
-.entries-list article.archive__item .archive__item-teaser img,
-.archive .entries-list article.archive__item .archive__item-teaser img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
-  border-radius: inherit !important;
+/* 제목 내부 링크(실제 보이는 텍스트)에 강제 스타일 */
+.entries-list .archive__item-title a,
+.archive .entries-list .archive__item-title a {
+  display: inline-block !important;        /* block이거나 비정상적으로 좁아지는걸 방지 */
+  max-width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.2 !important;
+  font-size: 1.05rem !important;           /* 제목 크기: 필요시 조절 */
+  text-decoration: underline !important;   /* 네가 원하면 제거 가능 */
+  color: #c63b6a !important;               /* 테마 링크 색 변경 예시(원하면 바꿔) */
 }
 
-/* 텍스트 영역(제목+요약)이 오른쪽에서 남은 공간 채우기 */
-.entries-list article.archive__item .archive__item-content,
-.archive .entries-list article.archive__item .archive__item-content {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
+/* 3) excerpt(요약) 크기/색 조절 */
+.entries-list .archive__item-excerpt,
+.archive .entries-list .archive__item-excerpt {
+  font-size: 0.95rem !important;           /* 요약 글씨 작게 */
+  line-height: 1.45 !important;
+  color: rgba(255,255,255,0.88) !important; /* 눈에 띄되 과하지 않게 */
+  margin-top: 0.25rem !important;
 }
 
-/* 제목/요약 조금 다듬기 */
-.entries-list .archive__item-title { margin: 0 0 .35rem 0 !important; font-size: 1.05rem !important; line-height: 1.2 !important; }
-.entries-list .archive__item-excerpt { margin: 0 !important; color: rgba(255,255,255,0.9) !important; font-size: 0.95rem !important; }
+/* 4) 제목(타이틀) 래퍼 여백 정리 */
+.entries-list .archive__item-title {
+  margin: 0 0 0.35rem 0 !important;
+  padding: 0 !important;
+}
 
-/* 모바일: 세로 스택으로 돌아감 */
+/* 5) 제목 텍스트가 절단(ellipsis) 상태라면 제거 */
+.entries-list .archive__item-title,
+.entries-list .archive__item-title a {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* 모바일에서 레이아웃 무너지는 경우 다시 세로 스택으로 */
 @media (max-width: 720px) {
   .entries-list article.archive__item,
   .archive .entries-list article.archive__item {
     flex-direction: column !important;
-    gap: .6rem !important;
     align-items: flex-start !important;
+    gap: 0.6rem !important;
   }
-
-  .entries-list article.archive__item .archive__item-teaser,
-  .archive .entries-list article.archive__item .archive__item-teaser {
-    width: 100% !important;
-    height: 180px !important;
-    margin-right: 0 !important;
-    order: 0 !important;
-  }
-
-  .entries-list article.archive__item .archive__item-content { order: 1 !important; }
 }
