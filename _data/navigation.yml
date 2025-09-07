@@ -6,8 +6,8 @@ main:
   - title: "HackTheBox"
     url: /hackthebox/
 
-  - title: "Web Hacking"
-    url: /web-hacking/
+  - title: "WEB"
+    url: /web/
 
   - title: "Red Team"
     url: /redteam-simulation/
@@ -30,6 +30,6 @@ web-hacking:
   - title: "Web Development"
     children:
       - title: "User authentication (login & signup)"
-        url: /web-hacking/doc/
+        url: /web/doc/
       - title: "User name"
-        url: /web-hacking/dog/
+        url: /web/dog/

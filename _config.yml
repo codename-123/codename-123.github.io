@@ -306,7 +306,7 @@ tag_archive:
 collections:
   web-hacking:
     output: true
-    permalink: /web-hacking/:path/
+    permalink: /web/:path/
   hackthebox-linux:
     output: true
     permalink: /hackthebox/linux/:path/
@@ -349,14 +349,14 @@ defaults:
     # add these two entries for the collections
   - scope:
       path: ""
-      type: web-hacking
+      type: web
     values:
       layout: single
       comments: true
       show_date: true
       toc: true
       sidebar:
-        nav: web-hacking
+        nav: web
 
   - scope:
       path: ""
