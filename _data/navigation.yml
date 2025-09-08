@@ -28,10 +28,12 @@ hackthebox:
 hackthebox-linux:
   - title: "Easy"
     children:
-      - title: "/hackthebox/linux/Lame/"
+      - title: Lame
+        url: "/hackthebox/linux/Lame/"
   - title: "Midium"
     children:
-      - title: "/hackthebox/linux/machine-foo/"
+      - title: Machine foo
+        url: "/hackthebox/linux/machine-foo/"
 
 
 web:
