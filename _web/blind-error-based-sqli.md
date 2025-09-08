@@ -3,7 +3,7 @@ title: "Blind & Error Based SQL Injection"
 date: 2025-05-25
 layout: single
 toc: true
-toc_label: "Blind, Error Based SQLI"
+toc_label: "Blind & Error Based SQLI"
 toc_icon: "book"
 toc_sticky: true
 tags: [web, sqli, blind, error based, hacking]

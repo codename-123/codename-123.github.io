@@ -43,3 +43,5 @@ web:
         url: /web/blind-error-based-sqli/
       - title: "SQL Injection Point"
         url: /web/sqli-point/
+      - title: "Stored & Reflected XSS"
+        url: /web/stored-reflected-xss/
