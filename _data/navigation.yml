@@ -49,3 +49,5 @@ web:
         url: /web/xss-dom-steal/
       - title: "CSRF"
         url: /web/csrf/
+      - title: "File Upload"
+        url: /web/file-upload/

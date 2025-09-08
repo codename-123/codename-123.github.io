@@ -6,7 +6,7 @@ toc: true
 toc_label: "CSRF"
 toc_icon: "book"
 toc_sticky: true
-tags: [web, xss, hacking]
+tags: [web, csrf, hacking]
 header:
   teaser: /assets/images/csrf.png
 ---
