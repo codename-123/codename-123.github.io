@@ -53,3 +53,5 @@ web:
         url: /web/file-upload/
       - title: "File Download & LFI"
         url: /web/file-download-lfi/
+      - title: "Authorization"
+        url: /web/authorization/

@@ -150,4 +150,4 @@ Burp Suite를 통해 응답 본문을 분석한 결과, 이전 문제와 똑같�
 
 ![플래그 획득](/assets/screenshots/file-download-lfi/get_file2_flag.png)
  
-최종적으로 `flag.txt` 파일 내 플래그를 획득함으로써, 해당 문제를 완전히 해결하였다.
+최종적으로 `flag.txt` 파일 내 플래그를 획득하였다.
