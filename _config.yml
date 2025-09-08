@@ -367,7 +367,7 @@ defaults:
       comments: true
       show_date: true
       sidebar:
-        nav: hackthebox
+        nav: hackthebox-linux
 
   - scope:
       path: ""
@@ -376,7 +376,7 @@ defaults:
       layout: single
       toc: true
       sidebar:
-        nav: hackthebox
+        nav: hackthebox-windows
 
   - scope:
       path: ""
@@ -385,7 +385,7 @@ defaults:
       layout: single
       toc: true
       sidebar:
-        nav: hackthebox
+        nav: hackthebox-ad
 
   - scope:
       path: ""
