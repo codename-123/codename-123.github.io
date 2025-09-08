@@ -37,5 +37,5 @@ web:
         url: /web/crud/
   - title: "Web Hacking"
     children:
-      - title: "회원가입 & 로그인 기능 구현"
-        url: /web/user-auth/
+      - title: "UNION SQL Injection"
+        url: /web/union-sqli/
