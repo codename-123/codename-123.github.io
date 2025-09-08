@@ -7,7 +7,8 @@ toc_label: "Login & JWT"
 toc_icon: "book"
 toc_sticky: true
 tags: [web, login, jwt]
-image: /assets/images/lock-icon.png
+header:
+  teaser: /assets/images/lock-icon.png
 ---
 
 # 개요
@@ -101,7 +102,7 @@ if ($user && password_verify($password, $user['password'])) {
 }
 ```
 
-- **`password_verify()`는 안전하게 비밀번호를 비교해 줍니다, 하지만 여전히 $username이 SQL 쿼리에 직접 삽입되어 있어 SQL Injection에 매우 취약함.**
+- **`password_verify()`는 안전하게 비밀번호를 비교해 줌, 하지만 여전히 $username이 SQL 쿼리에 직접 삽입되어 있어 SQL Injection에 매우 취약함.**
 
 ---
 
