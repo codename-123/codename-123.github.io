@@ -39,3 +39,5 @@ web:
     children:
       - title: "UNION SQL Injection"
         url: /web/union-sqli/
+      - title: "Blind & Error Based SQL Injection"
+        url: /web/blind-error-based-sqli/

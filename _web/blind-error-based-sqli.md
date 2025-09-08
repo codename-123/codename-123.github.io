@@ -1,5 +1,5 @@
 ---
-title: "Blind SQL Injection & Error Based SQL Injection"
+title: "Blind & Error Based SQL Injection"
 date: 2025-06-14
 layout: single
 toc: true
