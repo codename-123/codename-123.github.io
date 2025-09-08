@@ -98,7 +98,7 @@ SELECT ? FROM ? WHERE user = '1111';
 
 이제 해당 테이블을 활용하여 **플래그 값**을 추출해보겠다.
 
-```html
+```sql
 ' union select flag from flag_table limit 1,1 #
 ```
 
