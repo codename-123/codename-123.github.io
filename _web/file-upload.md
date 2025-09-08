@@ -65,7 +65,7 @@ find / -name "flag.txt" 2>/dev/null
 
 ---
 
-### Web Shell 2
+## Web Shell 2
 
 해당 웹 애플리케이션 역시 게시글 작성 기능 내에 파일 업로드 입력란을 제공하고 있다.
 
