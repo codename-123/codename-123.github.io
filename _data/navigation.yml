@@ -35,6 +35,8 @@ web:
         url: /web/login-jwt/
       - title: "게시판 CRUD"
         url: /web/crud/
+      - title: "Web Development"
+        url: /web/web-development/
   - title: "Web Hacking"
     children:
       - title: "UNION SQL Injection"
