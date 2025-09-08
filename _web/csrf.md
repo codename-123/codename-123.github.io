@@ -25,7 +25,7 @@ header:
 
 해당 기능은 사용자 정보를 변경하는 요청을 **HTTP GET 방식으로도 처리하고 있으며**, `CSRF Token`이나 `Referer` 검증 없이 파라미터만으로 사용자의 정보를 변경할 수 있어 외부 요청에 취약한 구조를 가진다.
 
-![CSRF1 burp suite](/assets/screenshots/csrf/csrf1_burp_suite.png)
+![CSRF1 burp suite](/assets/web-screenshots/csrf/csrf1_burp_suite.png)
 
 공격자는 게시판 기능을 이용해 다음과 같이 **사회공학적 미끼 제목**과 함께 CSRF 공격용 이미지를 삽입하였다.
 
@@ -35,12 +35,12 @@ header:
 <img src="http://ctf.segfaulthub.com:7575/csrf_1/mypage_update.php?id=&info=&pw=1234">
 ```
 
-![CSRF1 post](/assets/screenshots/csrf/csrf1_post.png)
+![CSRF1 post](/assets/web-screenshots/csrf/csrf1_post.png)
 
  
 사용자는 일반 게시글처럼 보여 클릭 유도
 
-![CSRF1 list](/assets/screenshots/csrf/csrf1_list.png)
+![CSRF1 list](/assets/web-screenshots/csrf/csrf1_list.png)
 
 관리자가 로그인된 상태로 해당 게시글을 조회할 경우,  
 **삽입된 이미지 태그를 통해 자동으로 GET 요청이 전송되며, 사용자의 비밀번호가 공격자가 지정한 값으로 변경된다**.
@@ -53,13 +53,13 @@ header:
 
 이로 인해 공격자가 외부 HTML 문서 내에 자동으로 전송되는 `form`을 작성할 경우, 피해자의 세션을 이용한 비밀번호 변경이 가능하다.
 
-![CSRF2 burp suite](/assets/screenshots/csrf/csrf2_burp_suite.png)
+![CSRF2 burp suite](/assets/web-screenshots/csrf/csrf2_burp_suite.png)
 
 요청 파라미터 중 `id` 값을 빈 문자열(`""`)로 설정하더라도,  
 서버는 이를 별도 검증 없이 **현재 로그인된 사용자 세션 기준으로 자동 대체 처리**하는 구조를 가지고 있다.
 
 
-![CSRF2 post](/assets/screenshots/csrf/csrf2_post.png)
+![CSRF2 post](/assets/web-screenshots/csrf/csrf2_post.png)
 
 **페이로드:**
 
@@ -97,7 +97,7 @@ header:
 공격자는 이를 악용하여 다음과 같이 **토큰 값을 사전에 iframe을 통해 추출 후**, 해당 값을 포함한 POST 요청을 자동으로 생성하여 사용자의 정보(비밀번호 등)를 변경할 수 있다.
 
 
-![CSRF3 burp suite](/assets/screenshots/csrf/csrf3_burp_suite.png)
+![CSRF3 burp suite](/assets/web-screenshots/csrf/csrf3_burp_suite.png)
 
 공격자는 다음과 같은 구조의 HTML을 게시글에 삽입하여, **사용자가 게시글을 열었을 때 자동으로 토큰 추출 → 정보 변경이 발생하도록 구성**한다.
 
@@ -123,7 +123,7 @@ header:
 </script>
 ```
 
-![CSRF3 post](/assets/screenshots/csrf/csrf3_post.png)
+![CSRF3 post](/assets/web-screenshots/csrf/csrf3_post.png)
 
 공격자 페이지에는 시각적으로 아무 것도 표시되지 않으며,
 `form`, `iframe` 모두 `display:none` 처리되어 사용자는 공격 사실을 인지할 수 없다.

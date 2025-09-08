@@ -15,14 +15,14 @@ header:
 
 ## SQL Injection 1
 
-![가장 처음 게시판](/assets/screenshots/union-sqli/sql_1_board.png)
+![가장 처음 게시판](/assets/web-screenshots/union-sqli/sql_1_board.png)
 
 처음 페이지에서 검색어에 따라 `ID`, `Level`, `Rank Point`, `Rate`와 같은 게시판 정보가 출력되는 것을 확인했다. 예를 들어 **ID에는 `NORMALTIC`**, **Level에는 `52`** 등의 값이 출력되며 총 **4개의 정보**가 나타났다.
 
 후에 이제 컬럼 수를 확인하기 위해 **normaltic'+order+by+5--+**를 입력했을 때 게시물이 출력되지 않았고,
 **normaltic'+order+by+4--+**까지는 정상적으로 게시물이 출력되는 것을 확인하여 칼럼 수가 **4개**임을 유추할 수 있었다.
 
-![union select](/assets/screenshots/union-sqli/sql_1_database.png)
+![union select](/assets/web-screenshots/union-sqli/sql_1_database.png)
 
 컬럼 수가 확인된 뒤, `UNION SELECT` 문을 통해 데이터를 삽입해보았다.
 
@@ -56,7 +56,7 @@ normaltic'+union+select+1,'lll',3,(select+flag+from+flag_table+limit+0,1)--+
 
 쿼리를 사용하면
 
-![sql1 flag](/assets/screenshots/union-sqli/sql_1_flag.png)
+![sql1 flag](/assets/web-screenshots/union-sqli/sql_1_flag.png)
 
 **flag를 획득**하였다.
 
@@ -64,7 +64,7 @@ normaltic'+union+select+1,'lll',3,(select+flag+from+flag_table+limit+0,1)--+
 
 ## SQL Injection 2 
 
-![가장 처음 게시판](/assets/screenshots/union-sqli/sql_2_board.png)
+![가장 처음 게시판](/assets/web-screenshots/union-sqli/sql_2_board.png)
 
 이번 페이지는 검색어(`ID`)를 입력하면 해당 `ID`에 대한 게시판 정보가 출력되는 구조였으며, **ID 값은 무조건 입력한 그대로 출력**된다.
 
@@ -75,7 +75,7 @@ normaltic'+union+select+1,'lll',3,(select+flag+from+flag_table+limit+0,1)--+
 **normaltic'+order+by+6%23** 를 입력했을 때 게시물이 정상 출력되었고,
 **normaltic'+order+by+7%23** 을 입력하면 게시물이 출력되지 않아, 해당 SELECT 문은 **6개의 컬럼**으로 구성되어 있다는 것을 확인하였다.
 
-![union select](/assets/screenshots/union-sqli/sql_2_database.png)
+![union select](/assets/web-screenshots/union-sqli/sql_2_database.png)
 
 이후 `UNION SELECT` 구문을 통해 데이터 삽입이 가능한지 확인하였다.
 아래의 페이로드를 사용하자 검색 결과 중 하나에 현재 사용 중인 데이터베이스 이름이 출력되었다.
@@ -108,7 +108,7 @@ normaltic'+union+select+1,'lll',3,(select+flag+from+flag_table+limit+0,1)--+
 '+union+select+1,2,3,4,5,(select+flag+from+secret+limit+1,1)%23
 ```
 
-![sql2 flag](/assets/screenshots/union-sqli/sql_2_flag.png)
+![sql2 flag](/assets/web-screenshots/union-sqli/sql_2_flag.png)
 
 이렇게 **flag를 획득** 하였다.
 
@@ -116,13 +116,13 @@ normaltic'+union+select+1,'lll',3,(select+flag+from+flag_table+limit+0,1)--+
 
 ## 도박 관리자
 
-![가장 처음 게시판](/assets/screenshots/union-sqli/casino_board.png)
+![가장 처음 게시판](/assets/web-screenshots/union-sqli/casino_board.png)
 
 처음 게시판은 다음과 같은 형태로 구성되어 있다.
 
 사용자가 직접 입력할 수 있는 검색창이나 입력 필드는 보이지 않았기 때문에, **Burp Suite를 이용해 내부적으로 전달되는 파라미터가 있는지** 확인해보았다. 이를 통해 서버가 어떤 인자를 받아 처리하는지 파악하고자 하였다.
 
-![파라미터](/assets/screenshots/union-sqli/casino_parameter.png)
+![파라미터](/assets/web-screenshots/union-sqli/casino_parameter.png)
 
 Burp Suite로 트래픽을 분석한 결과,
 `/spec1/game_info.php` 경로에서 `game_name`이라는 **GET 파라미터**를 통해 게임 정보를 전달받고 있는 것을 확인할 수 있었다.
@@ -158,7 +158,7 @@ Lucky%20Slots'%20order%20by%2012--+
 
 후에 이제 `UNION SELECT` 문을 통해 데이터베이스 정보를 추출해보았다.
 
-![union select](/assets/screenshots/union-sqli/spec1_database.png)
+![union select](/assets/web-screenshots/union-sqli/spec1_database.png)
 
 ```html
 Lucky%20Slots'%20union%20select%201,2,3,4,5,6,7,8,9,10,11,database()--+
@@ -189,7 +189,7 @@ Lucky%20Slots'%20union%20select%201,2,3,4,5,6,7,8,9,10,11,(select+flag_value+fro
 ```
 
 결과
-![spec1 flag](/assets/screenshots/union-sqli/spec1_flag.png)
+![spec1 flag](/assets/web-screenshots/union-sqli/spec1_flag.png)
 
 **flag**를 얻을 수 있었다.
 
@@ -197,12 +197,12 @@ Lucky%20Slots'%20union%20select%201,2,3,4,5,6,7,8,9,10,11,(select+flag_value+fro
 
 ## SNS Hacking 1
 
-![sns 1 board](/assets/screenshots/union-sqli/sns_1_board.png)
+![sns 1 board](/assets/web-screenshots/union-sqli/sns_1_board.png)
 
 이 게시판도 사용자가 직접 입력할 수 있는 검색창이나 파라미터 입력란이 존재하지 않았다.
 따라서 이전과 마찬가지로 Burp Suite를 활용하여 트래픽을 분석하고, 서버로 전달되는 파라미터가 있는지 확인해보았다.
 
-![sns 1 parameter](/assets/screenshots/union-sqli/sns_1_parameter.png)
+![sns 1 parameter](/assets/web-screenshots/union-sqli/sns_1_parameter.png)
 
 페이지 코드 상에서는 사용자가 직접 쿼리 문자열을 조작할 수 있는 입력 필드는 존재하지 않았다.
 그러나 JavaScript 코드를 분석한 결과, **post.php?id= 및 comments.php?post_id=** 형태로 동작하는 요청이 존재함을 확인할 수 있었다.
@@ -225,7 +225,7 @@ Lucky%20Slots'%20union%20select%201,2,3,4,5,6,7,8,9,10,11,(select+flag_value+fro
 13+union+select+database(),2,3,4,5,6,7,8--+
 ```
 
-![union select](/assets/screenshots/union-sqli/spec2_database.png)
+![union select](/assets/web-screenshots/union-sqli/spec2_database.png)
 
 > 데이터베이스 이름 **spec2**
 
@@ -255,7 +255,7 @@ Lucky%20Slots'%20union%20select%201,2,3,4,5,6,7,8,9,10,11,(select+flag_value+fro
 
 이 결과를 통해 `flag_name` 의 5번째 행이 **real_flag** 임을 확인할 수 있었고, 나머지 행들은 모두 `fake_flag`로 설정되어 있었다.
 
-![spec2 flag](/assets/screenshots/union-sqli/spec2_flag.png)
+![spec2 flag](/assets/web-screenshots/union-sqli/spec2_flag.png)
 
 **이렇게 flag를 얻었다.**
 
@@ -285,7 +285,7 @@ JavaScript 코드를 분석한 결과, SNS 해킹 1 문제랑 똑같은 **post.p
 -1+union+select+database(),2,3,4,5--+
 ```
 
-![union select](/assets/screenshots/union-sqli/spec3_database.png)
+![union select](/assets/web-screenshots/union-sqli/spec3_database.png)
 
 > 데이터베이스 이름 **spec3**
 
@@ -324,6 +324,6 @@ JavaScript 코드를 분석한 결과, SNS 해킹 1 문제랑 똑같은 **post.p
 
 아까와 똑같이 `flag_name` 의 5번째 행이 **`real_flag`**임을 확인할 수 있었고, 나머지 행들은 모두 `fake_flag`로 설정되어 있었다.
 
-![spec3 flag](/assets/screenshots/union-sqli/spec3_flag.png)
+![spec3 flag](/assets/web-screenshots/union-sqli/spec3_flag.png)
 
 이렇게 **flag**를 얻어냈다.

