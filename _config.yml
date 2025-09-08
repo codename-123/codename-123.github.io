@@ -351,6 +351,7 @@ defaults:
       path: ""
       type: web
     values:
+      author_profile: true
       layout: single
       comments: true
       show_date: true
@@ -362,6 +363,7 @@ defaults:
       path: ""
       type: hackthebox-linux
     values:
+      author_profile: true
       layout: single
       toc: true
       comments: true
@@ -373,6 +375,7 @@ defaults:
       path: ""
       type: hackthebox-windows
     values:
+      author_profile: true
       layout: single
       toc: true
       sidebar:
@@ -382,6 +385,7 @@ defaults:
       path: ""
       type: hackthebox-ad
     values:
+      author_profile: true
       layout: single
       toc: true
       sidebar:
@@ -391,6 +395,7 @@ defaults:
       path: ""
       type: redteam-simulation
     values:
+      author_profile: true
       layout: single
       toc: true
 
