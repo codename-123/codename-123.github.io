@@ -1,5 +1,5 @@
 ---
-title: "Web Hacking"
+title: ""
 layout: collection
 permalink: /web/
 collection: web
