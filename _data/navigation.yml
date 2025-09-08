@@ -32,4 +32,4 @@ web:
       - title: "회원가입 & 로그인 기능 구현"
         url: /web/user-auth/
       - title: "User name"
-        url: /web/dog/
+        url: /web/login-jwt/

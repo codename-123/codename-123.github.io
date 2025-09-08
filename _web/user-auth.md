@@ -13,8 +13,8 @@ header:
 
 # 개요
 
-- 회원가입 폼, 로그인 폼을 직접 제작하고, 입력값 유효성 검사 및 서버와의 JSON 통신을 구현
-- DB 연동과 비밀번호 해시 처리, ID 중복 검사 등 실제 서비스에 가까운 흐름을 구현
+회원가입·로그인 폼을 직접 제작하고, 입력값 유효성 검사 및 서버와의 JSON 통신을 구현하였습니다. 
+또한 DB 연동, 비밀번호 해시 처리, ID 중복 검사 등 실제 서비스에 가까운 흐름도 구현하였습니다.
 
 ---
 
@@ -23,6 +23,7 @@ header:
 ## 회원가입 기능 구현
 
 우선 처음에 member DB 를 추가해주고 
+
 ![DATABASE 구현](/assets/images/database.png)
 
 user 테이블 까지 추가해줬다. 사용자 식별을 위해 idx를 Primary Key로 지정하여 테이블에 추가했다.
@@ -168,8 +169,8 @@ JS 파일로 돌아가
 
 ![회원 사용자 홈](/assets/screenshots/user-auth/login_success_ui_rendered.png)
 
-정상적으로 잘 나오는 걸 볼수 있다.
+정상적으로 잘 나오는 걸 볼 수 있다.
 
 ![데이터베이스 해시 비밀번호 적용](/assets/screenshots/user-auth/db_userinfo_password_hashed.png)
 
-DB에도 해시 비밀번호와 함게 잘 저장이 된 것을 확인할 수 있다.
+DB에도 해시 비밀번호와 함께 잘 저장이 된 것을 확인할 수 있다.
