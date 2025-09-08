@@ -1,6 +1,6 @@
 ---
 title: "식별/인증 로그인 구현 & JWT"
-date: 2025-05-13
+date: 2025-04-13
 layout: single
 toc: true
 toc_label: "Login & JWT"

@@ -1,6 +1,6 @@
 ---
 title: "Blind & Error Based SQL Injection"
-date: 2025-06-25
+date: 2025-05-25
 layout: single
 toc: true
 toc_label: "Blind, Error Based SQLI"

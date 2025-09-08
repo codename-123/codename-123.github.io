@@ -1,6 +1,6 @@
 ---
 title: "게시판 CRUD"
-date: 2025-05-22
+date: 2025-04-22
 layout: single
 toc: true
 toc_label: "CRUD"

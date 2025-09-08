@@ -1,6 +1,6 @@
 ---
 title: "UNION SQL Injection"
-date: 2025-06-02
+date: 2025-05-02
 layout: single
 toc: true
 toc_label: "Union SQLI"

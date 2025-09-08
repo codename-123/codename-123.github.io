@@ -1,6 +1,6 @@
 ---
 title: "SQL Injection Point"
-date: 2025-07-04
+date: 2025-06-05
 layout: single
 toc: true
 toc_label: "SQLI Point"
