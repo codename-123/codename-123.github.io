@@ -25,7 +25,7 @@ hackthebox:
       - title: "Active Directory"
         url: /hackthebox/ad/
 
-hackthebox:
+hackthebox-linux:
   - title: "Easy"
     children:
       - title: "/hackthebox/linux/Lame/"
