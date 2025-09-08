@@ -45,3 +45,5 @@ web:
         url: /web/sqli-point/
       - title: "Stored & Reflected XSS"
         url: /web/stored-reflected-xss/
+      - title: "Stealing DOM data via XSS"
+        url: /web/xss-dom-steal/
