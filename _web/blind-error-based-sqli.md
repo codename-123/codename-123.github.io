@@ -1,6 +1,6 @@
 ---
 title: "Blind & Error Based SQL Injection"
-date: 2025-06-14
+date: 2025-06-25
 layout: single
 toc: true
 toc_label: "Blind, Error Based SQLI"
@@ -14,6 +14,7 @@ header:
 # 개요
 
 이 페이지는 Blind SQL Injection과 Error Based SQL Injection을 활용한 CTF 문제 풀이 기록입니다.
+
 각 문제는 로그인 우회, 세션 처리 방식, 그리고 SQL 쿼리 구조의 취약점을 분석하여 flag를 획득하는 과정을 담고 있습니다.
 
 ---
@@ -31,8 +32,14 @@ header:
  - 존재하지 않는 ID일 경우 → "**존재하지않는 아이디입니다.**"
 
 우선 SQL 인젝션이 가능한지 확인하기 위해 다음과 같이 테스트를 진행했다.
+
+| 입력값 (`query` 파라미터)      | 응답 메시지          | 의미                  |
+| ----------------------- | --------------- | ------------------- |
+| `normaltic' and '1'='1` | 존재하는 아이디입니다.    | 조건이 참(True) → 성공 |
+| `normaltic' and '1'='2` | 존재하지않는 아이디입니다. | 조건이 거짓(False) → 실패  |
+
 `query=normaltic' and '1'='1`을 입력했을 때는 **"존재하는 아이디입니다."**라는 응답이 나왔고,
-`query=normaltic' and '1'='2`를 입력했을 때는 **"존재하지 않는 아이디입니다."**라는 응답이 출력되었다.
+`query=normaltic' and '1'='2`를 입력했을 때는 **"존재하지않는 아이디입니다."**라는 응답이 출력되었다.
 
 이를 통해 입력값이 SQL 쿼리에 제대로 반영되고 있으며, **Boolean 기반 Blind SQL Injection이 가능한 상태**임을 확인할 수 있었다.
 
@@ -101,7 +108,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 이전과 동일하게 SQL 인젝션이 가능한지 확인하기 위해 다음과 같이 테스트를 진행하였다.
 
 마찬가지로 `query=normaltic' and '1'='1`을 입력했을 때는 **"존재하는 아이디입니다."**라는 응답이 나왔고,
-`query=normaltic' and '1'='2`를 입력했을 때는 **"존재하지 않는 아이디입니다."**라는 응답이 출력되었다.
+`query=normaltic' and '1'='2`를 입력했을 때는 **"존재하지않는 아이디입니다."**라는 응답이 출력되었다.
 
 이를 바탕으로, 이번에는 **Error Based SQL Injection 공격**을 시도해볼 것이다.
 
@@ -156,8 +163,14 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 로그인에 성공하면 서버는 `302 Found` 응답과 함께 `index.php`로 리다이렉션시킨다.
 이를 통해 로그인 로직이 정상 동작함을 확인했으며, 이제 이를 바탕으로 SQL Injection 테스트를 진행해볼 것이다.
 
-실행 결과, `normaltic' and '1'='1`을 입력했을 때는 **302 리다이렉션**이 발생하고,
-`normaltic' and '1'='2`를 입력했을 때는 **200 OK 응답**이 반환되었다.
+| 입력값 (`UserId` 파라미터)      | HTTP 응답           | 의미                 |
+| ----------------------- | ----------------- | ------------------ |
+| `normaltic' and '1'='1` | 302 Found (리다이렉션) | 조건이 참(True) → 성공   |
+| `normaltic' and '1'='2` | 200 OK            | 조건이 거짓(False) → 실패 |
+
+
+실행 결과, `UserId=normaltic' and '1'='1`을 입력했을 때는 **302 리다이렉션**이 발생하고,
+`UserId=normaltic' and '1'='2`를 입력했을 때는 **200 OK 응답**이 반환되었다.
 
 이제 이 결과를 바탕으로, **Error Based SQL Injection 공격**을 시도해볼 것이다.
 

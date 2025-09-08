@@ -41,3 +41,5 @@ web:
         url: /web/union-sqli/
       - title: "Blind & Error Based SQL Injection"
         url: /web/blind-error-based-sqli/
+      - title: "SQL Injection Point"
+        url: /web/sqli-point/
