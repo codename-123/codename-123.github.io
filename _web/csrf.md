@@ -1,6 +1,6 @@
 ---
 title: "CSRF"
-date: 2025-06-23
+date: 2025-07-10
 layout: single
 toc: true
 toc_label: "CSRF"

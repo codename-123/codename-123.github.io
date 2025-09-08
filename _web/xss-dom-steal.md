@@ -1,6 +1,6 @@
 ---
 title: "Stealing DOM data via XSS (Same-Origin DOM Exfiltration)"
-date: 2025-06-23
+date: 2025-07-01
 layout: single
 toc: true
 toc_label: "Stealing DOM data via XSS"
