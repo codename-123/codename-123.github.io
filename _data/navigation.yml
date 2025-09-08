@@ -33,3 +33,5 @@ web:
         url: /web/user-auth/
       - title: "식별/인증 로그인 구현 & JWT"
         url: /web/login-jwt/
+      - title: "게시판 CRUD"
+        url: /web/crud/

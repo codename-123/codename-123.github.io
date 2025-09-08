@@ -161,7 +161,7 @@ if (password_verify($password, $user['password'])) {
 
 - **이 로그인 로직은 Named Placeholder(`:id`)를 사용한 Prepared Statement를 통해 SQL Injection을 방어하며, 식별과 인증을 명확히 분리하여 구현한 안전한 방식. 비밀번호는 `password_verify()`를 통해 해시 기반으로 검증됨.**
 
-따라서 대부분의 SQL 쿼리를 작성할 때는, **Prepared Statement를 사용하는 방식**이 가장 안전한 방법입니다.
+따라서 대부분의 SQL 쿼리를 작성할 때는, **Prepared Statement를 사용하는 방식**이 가장 안전한 방법이다.
 
 ---
 

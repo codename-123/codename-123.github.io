@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, register, login]
 header:
-  teaser: /assets/images/database.png
+  teaser: /assets/images/register-login.png
 ---
 
 # 개요
@@ -24,7 +24,7 @@ header:
 
 우선 처음에 member DB 를 추가해주고 
 
-![DATABASE 구현](/assets/images/database.png)
+![DATABASE 구현](/assets/screenshots/user-auth/database.png)
 
 user 테이블 까지 추가해줬다. 사용자 식별을 위해 idx를 Primary Key로 지정하여 테이블에 추가했다.
 
