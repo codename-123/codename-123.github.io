@@ -47,3 +47,5 @@ web:
         url: /web/stored-reflected-xss/
       - title: "Stealing DOM data via XSS"
         url: /web/xss-dom-steal/
+      - title: "CSRF"
+        url: /web/csrf/

@@ -1,5 +1,5 @@
 ---
-title: "Stealing DOM data via XSS   (Same-Origin DOM Exfiltration)"
+title: "Stealing DOM data via XSS (Same-Origin DOM Exfiltration)"
 date: 2025-06-23
 layout: single
 toc: true
@@ -19,7 +19,7 @@ header:
 
 ---
 
-# CTF 문제 풀이
+# 문제 풀이 정리
 
 ## Steal Info
 
