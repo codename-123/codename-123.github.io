@@ -5,19 +5,22 @@ main:
 
   - title: "Categories"
     url: /categories/
-    children:
-      - title: "HackTheBox"
-        url: /categories/hackthebox/
-      - title: "WEB"
-        url: /categories/web/
-      - title: "Red Team"
-        url: /categories/redteam/
 
   - title: "Tags"
     url: /tags/
 
   - title: "About"
     url: /about/
+
+categories_nav:
+  - title: "Categories"
+    children:
+      - title: "HackTheBox"
+        url: /categories/hackthebox/
+      - title: "WEB"
+        url: /categories/web/
+      - title: "Red Team"
+        url: /categories/redteam-simulation/
 
 hackthebox:
   - title: "Machine"
