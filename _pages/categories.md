@@ -6,7 +6,7 @@ author_profile: true
 ---
 
 <style>
-/* scoped styles for a clearly clickable list */
+/* scoped styles for a clearly clickable list with checkmark on hover */
 .categories-page { padding: 0 0.5rem 2rem; }
 
 .categories-page h1 {
@@ -53,23 +53,36 @@ author_profile: true
   outline: none;
 }
 
-/* arrow that appears on hover to hint 'go' */
+/* checkmark that appears on hover to hint 'go' */
+/* using heavy check mark glyph; hidden by default, fades & scales in on hover */
 .category-item a::after {
-  content: '\2192'; /* → */
+  content: '\2714'; /* ✔ */
   opacity: 0;
-  transform: translateX(-6px);
+  transform: translateX(-6px) scale(0.85);
   transition: opacity .15s ease, transform .15s ease;
   margin-left: 12px;
+  font-size: 1.05em;
+  color: #6fc3a2; /* accent green */
+  display: inline-block;
+  line-height: 1;
 }
 
-/* arrow visible on hover/focus */
+/* show check on hover/focus */
 .category-item a:hover::after,
 .category-item a:focus::after {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
 }
 
-/* optional accent color on hover (adjust hex if you prefer) */
+/* optional: make the check inside a subtle round background on hover */
+.category-item a:hover::after,
+.category-item a:focus::after {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(111,195,162,0.08);
+}
+
+/* optional accent color on hover (text) */
 .category-item a:hover,
 .category-item a:focus {
   color: #6fc3a2;
@@ -85,6 +98,8 @@ author_profile: true
 </style>
 
 <div class="categories-page">
+  <h1>Posts by Category</h1>
+
   <ul class="category-list">
     {% for item in site.data.navigation.categories_nav %}
       <li class="category-item">
