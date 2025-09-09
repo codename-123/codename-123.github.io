@@ -30,7 +30,7 @@ hackthebox-linux:
     children:
       - title: achine-foo
         url: "/hackthebox/linux/machine-foo/"
-  - title: "Midium"
+  - title: "Medium"
     children:
       - title: RedCross
         url: "/hackthebox/linux/redcross/"
