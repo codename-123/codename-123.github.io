@@ -1,9 +1,0 @@
-- title: "HackTheBox"
-  slug: "hackthebox"
-  collection: "hackthebox"   # 컬렉션 이름(있으면)
-- title: "WEB"
-  slug: "web"
-  collection: "web"
-- title: "Red Team"
-  slug: "red-team"
-  collection: "redteam-simulation"
