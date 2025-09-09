@@ -34,22 +34,24 @@ author_profile: true
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 1rem 1.1rem;
+  padding: 0.85rem 1.1rem;  /* 글씨 크기에 맞춰 패딩 조금 줄임 */
   text-decoration: none;
-  color: inherit;
-  font-weight: 800;
+  color: #ddd;              /* 기본 글자색을 살짝 어둡게 */
+  font-weight: 700;          /* 800 → 700으로 조금 줄임 */
+  font-family: 'Inter', sans-serif; /* 버튼/링크 느낌 */
+  font-size: 0.95rem;        /* 글씨 조금 작게 */
   cursor: pointer;
-  transition: background-color .15s ease, transform .12s ease, color .12s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
   border-radius: 6px;
+  border-bottom: 1px solid transparent; /* hover 시 밑줄 느낌용 */
 }
 
-/* subtle hover background + slight move for 'pressable' feel */
 .category-item a:hover,
 .category-item a:focus {
-  background-color: rgba(255,255,255,0.02);
+  color: #6fc3a2;              /* 강조 색상 */
+  border-bottom: 1px solid #6fc3a2; /* hover 밑줄 */
+  background-color: rgba(111,195,162,0.08);
   transform: translateX(2px);
-  text-decoration: none;
-  outline: none;
 }
 
 /* checkmark that appears on hover to hint 'go' */
