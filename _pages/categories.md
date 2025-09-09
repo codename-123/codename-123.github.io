@@ -5,12 +5,21 @@ author_profile: true
 ---
 
 <style>
-/* scoped styles for a clearly clickable list with checkmark on hover */
-.categories-page { padding: 0 0.5rem 2rem; }
+/* 전체 페이지 여백 조정 (필요하면 조절) */
+.categories-page {
+  padding: 0 0.75rem 2rem;
+}
 
-.categories-page h1 {
-  font-size: 1.8rem;
-  margin: 0 0 1rem 0;
+/* 박스(첫번째 사진처럼 중앙의 카드) */
+.categories-box {
+  position: relative;
+  background: #ffffff;
+  color: #222;
+  border-radius: 8px;
+  padding: 1.1rem;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 2rem;
 }
 
 /* 3-column grid */
@@ -23,76 +32,63 @@ author_profile: true
   gap: 0;
 }
 
-/* each item has a full-width clickable link */
+/* 각 항목 */
 .category-item {
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
-/* make anchor fill the item and look like a real clickable control */
+/* 링크가 항목 전체를 채움 */
 .category-item a {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0.85rem 1.1rem;
+  padding: 0.75rem 1rem;
   text-decoration: none;
-  color: #eee;  /* 조금 더 밝게 */
+  color: #222;
   font-weight: 700;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   font-size: 0.95rem;
-  cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease, border-bottom-color 0.15s ease;
-  border-radius: 6px;
-  border-bottom: 1px solid rgba(255,255,255,0.1); /* 기본 얇은 밑줄 */
-  background-color: rgba(255,255,255,0.01); /* 살짝 배경 추가 */
+  transition: background .12s ease, transform .08s ease, color .12s ease;
+  background: transparent;
 }
 
+/* hover */
 .category-item a:hover,
 .category-item a:focus {
-  color: #6fc3a2;                 /* 강조 색상 */
-  border-bottom-color: #6fc3a2;   /* 밑줄 강조 */
-  background-color: rgba(111,195,162,0.08);
+  background: rgba(111,195,162,0.06);
+  color: #0b6b49;
   transform: translateX(2px);
 }
 
-/* checkmark that appears on hover to hint 'go' */
-/* using heavy check mark glyph; hidden by default, fades & scales in on hover */
-.category-item a::after {
-  content: '\2714'; /* ✔ */
-  opacity: 0;
-  transform: translateX(-6px) scale(0.85);
-  transition: opacity .15s ease, transform .15s ease;
-  margin-left: 12px;
-  font-size: 1.05em;
-  color: #6fc3a2; /* accent green */
-  display: inline-block;
-  line-height: 1;
+/* count 오른쪽 정렬 */
+.category-item .count {
+  color: #7a7a7a;
+  font-weight: 600;
+  margin-left: 1rem;
+  white-space: nowrap;
 }
 
-/* show check on hover/focus */
-.category-item a:hover::after,
-.category-item a:focus::after {
-  opacity: 1;
-  transform: translateX(0) scale(1);
+/* 데스크톱에서 열 구분선: 박스 가로 기준으로 33% 와 66% 위치에 세로선 */
+.categories-box::before,
+.categories-box::after {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 1px;
+  background: rgba(0,0,0,0.06);
+  display: block;
+  pointer-events: none;
 }
+.categories-box::before { left: calc(33.333% - 0.5px); }
+.categories-box::after  { left: calc(66.666% - 0.5px); }
 
-/* optional: make the check inside a subtle round background on hover */
-.category-item a:hover::after,
-.category-item a:focus::after {
-  padding: 3px 6px;
-  border-radius: 999px;
-  background: rgba(111,195,162,0.08);
-}
-
-/* optional accent color on hover (text) */
-.category-item a:hover,
-.category-item a:focus {
-  color: #6fc3a2;
-}
-
-/* responsive: 2 cols / 1 col */
+/* 모바일/태블릿에서는 2/1열로 변경 및 세로선 제거 */
 @media (max-width: 900px) {
   .category-list { grid-template-columns: repeat(2, 1fr); }
+  .categories-box::before,
+  .categories-box::after { display: none; }
 }
 @media (max-width: 600px) {
   .category-list { grid-template-columns: repeat(1, 1fr); }
@@ -100,13 +96,20 @@ author_profile: true
 </style>
 
 <div class="categories-page">
-  <ul class="category-list">
-    {% for item in site.data.navigation.categories_nav %}
-      <li class="category-item">
-        <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <div class="categories-box">
+    <h1 style="margin:0 0 0.6rem 0; font-size:1.6rem;">Posts by Category</h1>
+    <ul class="category-list">
+      {%- assign sorted = site.categories | sort_natural: "first" -%}
+      {%- for cat in sorted -%}
+        {%- assign name = cat[0] -%}
+        {%- assign posts = cat[1] -%}
+        <li class="category-item">
+          <a href="{{ '/categories/' | append: name | slugify | append: '/' | relative_url }}">
+            <span class="cat-title">{{ name }}</span>
+            <span class="count">{{ posts | size }}</span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
 </div>
-
-## 1
