@@ -1,9 +1,7 @@
 ---
-title: "Example Post"
-date: 2025-09-10
-categories: hackthebox/linux
-tags:
-  - linux
-  - enumeration
-  - privilege-escalation
+layout: archive
+title: "Tags"
+permalink: /tags/
+type: "tag"
 ---
+
