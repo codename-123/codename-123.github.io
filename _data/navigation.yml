@@ -21,38 +21,24 @@ categories_nav:
     url: /categories/redteam-simulation/
 
 hackthebox:
-  - title: "Machine"
+  - title: "Linux"
     children:
-      - title: "Linux"
-        children:
-          - title: "Easy"
-            children:
-              - title: "machine-foo"
-                url: /hackthebox/machine-foo/
-          - title: "Medium"
-            children:
-              - title: "RedCross"
-                url: /hackthebox/redcross/
-      - title: "Windows"
-        children:
-          - title: "Easy"
-            children:
-              - title: "RedCross"
-                url: /hackthebox/machine-foo/
-          - title: "Medium"
-            children:
-              - title: "RedCross"
-                url: /hackthebox/redcross/
-      - title: "Active Directory"
-        children:
-          - title: "Easy"
-            children:
-              - title: "RedCross"
-                url: /hackthebox/machine-foo/
-          - title: "Medium"
-            children:
-              - title: "RedCross"
-                url: /hackthebox/redcross/
+      - title: "machine-foo (Easy)"
+        url: /hackthebox/machine-foo/
+      - title: "RedCross (Medium)"
+        url: /hackthebox/redcross/
+  - title: "Windows"
+    children:
+      - title: "chine-foo (Hard)"
+        url: /hackthebox/machine-foo/
+      - title: "Red (Easy)"
+        url: /hackthebox/redcross/
+  - title: "Active Directory"
+    children:
+      - title: "Cross (Insane)"
+        url: /hackthebox/machine-foo/
+      - title: "RedCross (Hard)"
+        url: /hackthebox/redcross/
 
 web:
   - title: "Web Development"
