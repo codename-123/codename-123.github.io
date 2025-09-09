@@ -3,8 +3,6 @@ layout: archive
 title: "Categories"
 permalink: /categories/
 author_profile: true
-sidebar:
-  nav: categories_nav
 ---
 
 
@@ -25,28 +23,30 @@ sidebar:
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid rgba(255,255,255,0.03);
 }
 
 /* each row = one category item */
 .category-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
   font-weight: 700;
 }
 
-/* visual tweak for links */
-.category-item a { text-decoration: none; color: inherit; }
+/* make the whole left area clickable like a link (text styles) */
+.category-item a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
 
-/* count on the right */
-.cat-count {
-  min-width: 2ch;
-  text-align: right;
-  opacity: 0.85;
-  font-weight: 600;
+/* add subtle hover */
+.category-item a:hover {
+  text-decoration: underline;
+  opacity: 0.95;
 }
 
 /* responsive */
@@ -63,25 +63,13 @@ sidebar:
 
   <ul class="category-list">
     {% comment %}
-      Use site.data.navigation.categories_nav for order/selection.
-      For count: try exact match, downcased match, or slugified match between
-      navigation title and site.categories keys.
+      site.data.navigation.categories_nav 를 순서대로 사용.
+      숫자는 표시하지 않고, 링크만 출력합니다.
     {% endcomment %}
 
     {% for item in site.data.navigation.categories_nav %}
-      {% assign cnt = 0 %}
-
-      {% for pair in site.categories %}
-        {% assign cat_key = pair[0] %}
-        {% if cat_key == item.title or cat_key == item.title | downcase or cat_key | slugify == item.title | slugify %}
-          {% assign cnt = pair[1] | size %}
-          {% break %}
-        {% endif %}
-      {% endfor %}
-
       <li class="category-item">
         <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
-        <span class="cat-count">{{ cnt }}</span>
       </li>
     {% endfor %}
   </ul>
