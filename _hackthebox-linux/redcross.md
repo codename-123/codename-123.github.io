@@ -9,8 +9,9 @@ tags: [linux, priv-esc, web]
 arch: linux
 ---
 
-## 요약
-짧은 한줄 요약.
+# Enumeration
+
+## Portscan
 
 ## 초기 접근
 명령어, 스크린샷, 발견한 서비스 등 (**실제 공격 코드/취약점 익스플로잇은 게시 시 주의**).
