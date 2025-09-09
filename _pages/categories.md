@@ -98,8 +98,6 @@ author_profile: true
 </style>
 
 <div class="categories-page">
-  <h1>Posts by Category</h1>
-
   <ul class="category-list">
     {% for item in site.data.navigation.categories_nav %}
       <li class="category-item">
@@ -108,3 +106,5 @@ author_profile: true
     {% endfor %}
   </ul>
 </div>
+
+## 위쪽 클릭하면됌
