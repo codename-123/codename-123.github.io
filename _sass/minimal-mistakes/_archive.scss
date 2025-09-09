@@ -178,17 +178,16 @@
     a:link,
     a:visited,
     a:active {
-      color: #fff !important;
+      color: #fff !important; /* 기본 글자색 */
       text-decoration: none !important;
-      background-image: none !important;
-      box-shadow: none !important;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease; /* 색과 밑줄 부드럽게 변화 */
     }
 
     a:hover,
     a:active {
-      color: #fff !important;
-      opacity: 0.92;
-      text-decoration: none !important;
+      color: #ccc !important;           /* hover 시 연한 회색으로 */
+      border-bottom-color: #ccc; 
     }
 
     a:focus-visible {
