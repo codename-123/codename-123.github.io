@@ -23,51 +23,51 @@ hackthebox:
   - title: "Machine"
     children:
       - title: "Linux"
-        url: /categories/hackthebox/linux/
+        url: /hackthebox/linux/
       - title: "Windows"
-        url: /categories/hackthebox/windows/
+        url: /hackthebox/windows/
       - title: "Active Directory"
-        url: /categories/hackthebox/ad/
+        url: /hackthebox/ad/
 
 hackthebox-linux:
   - title: "Easy"
     children:
       - title: achine-foo
-        url: "/categories/hackthebox/linux/machine-foo/"
+        url: "/hackthebox/linux/machine-foo/"
   - title: "Medium"
     children:
       - title: RedCross
-        url: "/categories/hackthebox/linux/redcross/"
+        url: "/hackthebox/linux/redcross/"
 
 
 web:
   - title: "Web Development"
     children:
       - title: "회원가입 & 로그인 기능 구현"
-        url: /categories/web/user-auth/
+        url: /web/user-auth/
       - title: "식별/인증 로그인 구현 & JWT"
-        url: /categories/web/login-jwt/
+        url: /web/login-jwt/
       - title: "게시판 CRUD"
-        url: /categories/web/crud/
+        url: /web/crud/
       - title: "Web Development"
-        url: /categories/web/web-development/
+        url: /web/web-development/
   - title: "Web Hacking"
     children:
       - title: "UNION SQL Injection"
-        url: /categories/web/union-sqli/
+        url: /web/union-sqli/
       - title: "Blind & Error Based SQL Injection"
-        url: /categories/web/blind-error-based-sqli/
+        url: /web/blind-error-based-sqli/
       - title: "SQL Injection Point"
-        url: /categories/web/sqli-point/
+        url: /web/sqli-point/
       - title: "Stored & Reflected XSS"
-        url: /categories/web/stored-reflected-xss/
+        url: /web/stored-reflected-xss/
       - title: "Stealing DOM data via XSS"
-        url: /categories/web/xss-dom-steal/
+        url: /web/xss-dom-steal/
       - title: "CSRF"
-        url: /categories/web/csrf/
+        url: /web/csrf/
       - title: "File Upload"
-        url: /categories/web/file-upload/
+        url: /web/file-upload/
       - title: "File Download & LFI"
-        url: /categories/web/file-download-lfi/
+        url: /web/file-download-lfi/
       - title: "Authorization"
-        url: /categories/web/authorization/
+        url: /web/authorization/
