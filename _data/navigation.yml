@@ -23,11 +23,11 @@ hackthebox:
   - title: "Machine"
     children:
       - title: "Linux"
-        url: /hackthebox/linux/
+        url: /categories/hackthebox/linux/
       - title: "Windows"
-        url: /hackthebox/windows/
+        url: /categories/hackthebox/windows/
       - title: "Active Directory"
-        url: /hackthebox/ad/
+        url: /categories/hackthebox/ad/
 
 hackthebox-linux:
   - title: "Easy"
