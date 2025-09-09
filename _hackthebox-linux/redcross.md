@@ -1,12 +1,11 @@
 ---
-title: "Lame (Hard)"
+title: "RedCross (Medium)"
 date: 2025-09-06
 layout: single
 toc: true
 header:
-  teaser: /assets/images/lame.png
+  teaser: /assets/images/redcross.png
 tags: [linux, priv-esc, web]
-difficulty: "Hard"
 arch: linux
 ---
 
