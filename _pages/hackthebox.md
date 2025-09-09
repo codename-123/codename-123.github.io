@@ -1,7 +1,7 @@
 ---
 title: "HackTheBox Index"
 layout: collection
-permalink: /hackthebox/
+permalink: /categories/hackthebox/
 collection: hackthebox
 entries_layout: grid
 classes: wide
