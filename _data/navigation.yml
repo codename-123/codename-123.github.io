@@ -3,18 +3,37 @@ main:
   - title: "Home"
     url: /
 
-  - title: "HackTheBox"
-    url: /hackthebox/
+  - title: "Categories"
+    url: /categories/
+    sub_nav:
+      - title: "HackTheBox"
+        url: /categories/hackthebox/
+        sub_nav:
+          - title: "Linux"
+            url: /categories/hackthebox-linux/
+          - title: "Windows"
+            url: /categories/hackthebox-windows/
+          - title: "Active Directory"
+            url: /categories/hackthebox-ad/
+      - title: "WEB"
+        url: /categories/web/
+        sub_nav:
+          - title: "Web Development"
+            url: /categories/web-development/
+          - title: "Web Hacking"
+            url: /categories/web-hacking/
+      - title: "Red Team"
+        url: /categories/redteam/
+        sub_nav:
+          - title: "Red Team Simulation"
+            url: /categories/redteam-simulation/
 
-  - title: "WEB"
-    url: /web/
-
-  - title: "Red Team"
-    url: /redteam-simulation/
+  - title: "Tags"
+    url: /tags/
 
   - title: "About"
     url: /about/
-
+    
 hackthebox:
   - title: "Machine"
     children:
