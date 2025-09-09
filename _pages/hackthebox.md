@@ -123,7 +123,25 @@ sidebar:
 
 <div class="collection-page">
   <ul class="collection-grid">
-    {% assign docs = site.collections['hackthebox'].docs | sort: 'date' | reverse %}
+    {% comment %}
+    안전하게 컬렉션을 찾음.
+    1) 우선 'hackthebox' 시도
+    2) 없으면 'hackthebox-linux' 시도
+    3) 둘 다 없으면 빈 배열 할당 -> 빌드 오류 방지
+    {% endcomment %}
+
+    {% assign docs = "" | split: "" %}
+
+    {% assign coll1 = site.collections['hackthebox'] %}
+    {% assign coll2 = site.collections['hackthebox-linux'] %}
+
+    {% if coll1 and coll1.docs %}
+    {% assign docs = coll1.docs | sort: 'date' | reverse %}
+    {% elsif coll2 and coll2.docs %}
+    {% assign docs = coll2.docs | sort: 'date' | reverse %}
+    {% else %}
+    {% comment %} 둘 다 없으면 docs는 빈 배열로 남음 {% endcomment %}
+    {% endif %}
     {% for doc in docs %}
       <li class="entry-card">
         <a href="{{ doc.url | relative_url }}">
