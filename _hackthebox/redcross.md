@@ -2,6 +2,7 @@
 title: "RedCross (Medium)"
 date: 2025-09-06
 layout: single
+author_profile: true
 toc: true
 header:
   teaser: /assets/images/redcross.png

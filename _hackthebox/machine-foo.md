@@ -2,6 +2,7 @@
 title: "Machine Foo — PrivEsc (Linux)"
 date: 2025-09-06
 layout: single
+author_profile: true
 toc: true
 header:
   teaser: /assets/images/awesome_face.png
