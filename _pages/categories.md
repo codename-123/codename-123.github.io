@@ -34,22 +34,23 @@ author_profile: true
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0.85rem 1.1rem;  /* 글씨 크기에 맞춰 패딩 조금 줄임 */
+  padding: 0.85rem 1.1rem;
   text-decoration: none;
-  color: #ddd;              /* 기본 글자색을 살짝 어둡게 */
-  font-weight: 700;          /* 800 → 700으로 조금 줄임 */
-  font-family: 'Inter', sans-serif; /* 버튼/링크 느낌 */
-  font-size: 0.95rem;        /* 글씨 조금 작게 */
+  color: #eee;  /* 조금 더 밝게 */
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.12s ease, border-bottom-color 0.15s ease;
   border-radius: 6px;
-  border-bottom: 1px solid transparent; /* hover 시 밑줄 느낌용 */
+  border-bottom: 1px solid rgba(255,255,255,0.1); /* 기본 얇은 밑줄 */
+  background-color: rgba(255,255,255,0.01); /* 살짝 배경 추가 */
 }
 
 .category-item a:hover,
 .category-item a:focus {
-  color: #6fc3a2;              /* 강조 색상 */
-  border-bottom: 1px solid #6fc3a2; /* hover 밑줄 */
+  color: #6fc3a2;                 /* 강조 색상 */
+  border-bottom-color: #6fc3a2;   /* 밑줄 강조 */
   background-color: rgba(111,195,162,0.08);
   transform: translateX(2px);
 }
