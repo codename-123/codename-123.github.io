@@ -307,15 +307,9 @@ collections:
   web:
     output: true
     permalink: /web/:path/
-  hackthebox-linux:
+  hackthebox:
     output: true
-    permalink: /hackthebox/linux/:path/
-  hackthebox-windows:
-    output: true
-    permalink: /hackthebox/windows/:path/
-  hackthebox-ad:
-    output: true
-    permalink: /hackthebox/ad/:path/
+    permalink: /hackthebox/:path/
   redteam-simulation:
     output: true
     permalink: /redteam-simulation/:path/
@@ -360,32 +354,14 @@ defaults:
 
   - scope:
       path: ""
-      type: hackthebox-linux
+      type: hackthebox
     values:
       layout: single
       toc: true
       comments: true
       show_date: true
       sidebar:
-        nav: hackthebox-linux
-
-  - scope:
-      path: ""
-      type: hackthebox-windows
-    values:
-      layout: single
-      toc: true
-      sidebar:
-        nav: hackthebox-windows
-
-  - scope:
-      path: ""
-      type: hackthebox-ad
-    values:
-      layout: single
-      toc: true
-      sidebar:
-        nav: hackthebox-ad
+        nav: hackthebox
 
   - scope:
       path: ""

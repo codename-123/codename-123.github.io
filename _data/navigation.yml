@@ -24,22 +24,35 @@ hackthebox:
   - title: "Machine"
     children:
       - title: "Linux"
-        url: /categories/hackthebox/linux/
+        children:
+          - title: "Easy"
+            children:
+              - title: "machine-foo"
+                url: /hackthebox/machine-foo/
+          - title: "Medium"
+            children:
+              - title: "RedCross"
+                url: /hackthebox/redcross/
       - title: "Windows"
-        url: /categories/hackthebox/windows/
+        children:
+          - title: "Easy"
+            children:
+              - title: "RedCross"
+                url: /hackthebox/machine-foo/
+          - title: "Medium"
+            children:
+              - title: "RedCross"
+                url: /hackthebox/redcross/
       - title: "Active Directory"
-        url: /categories/hackthebox/ad/
-
-hackthebox-linux:
-  - title: "Easy"
-    children:
-      - title: achine-foo
-        url: "/hackthebox/linux/machine-foo/"
-  - title: "Medium"
-    children:
-      - title: RedCross
-        url: "/hackthebox/linux/redcross/"
-
+        children:
+          - title: "Easy"
+            children:
+              - title: "RedCross"
+                url: /hackthebox/machine-foo/
+          - title: "Medium"
+            children:
+              - title: "RedCross"
+                url: /hackthebox/redcross/
 
 web:
   - title: "Web Development"
