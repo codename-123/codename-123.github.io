@@ -59,8 +59,6 @@ author_profile: true
 </style>
 
 <div class="categories-page">
-  <h1>Posts by Category</h1>
-
   <ul class="category-list">
     {% comment %}
       site.data.navigation.categories_nav 를 순서대로 사용.
@@ -74,3 +72,5 @@ author_profile: true
     {% endfor %}
   </ul>
 </div>
+
+# 안녕 
