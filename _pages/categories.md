@@ -51,29 +51,37 @@ author_profile: true
     <h1>Posts by Category</h1>
 
     <ul class="mm-cat-list">
-      {% comment %} site.data.categories에 있는 항목들을 순회함 {% endcomment %}
+      {% comment %}
+        site.data.categories 예시 구조:
+        - title: "HackTheBox"
+          slug: "hackthebox"
+          collection: "hackthebox"  # optional
+      {% endcomment %}
       {% for cat in site.data.categories %}
         {% assign title = cat.title %}
         {% assign slug = cat.slug %}
         {% assign coll_name = cat.collection %}
 
         {%- comment -%}
-          pages에서 categories 필드에 title이 포함된 것만 찾기
-          조건식을 문자열로 만들어서 where_exp에 넘긴다.
+          pages에서 title이 포함된 것을 직접 세기 (where_exp 대신)
         {%- endcomment -%}
-        {% assign expr_pages = "p.categories and p.categories contains '" | append: title | append: "'" %}
-        {% assign pages_match = site.pages | where_exp: "p", expr_pages %}
-        {% assign pages_count = pages_match | size %}
+        {% assign pages_count = 0 %}
+        {% for p in site.pages %}
+          {% if p.categories and p.categories contains title %}
+            {% assign pages_count = pages_count | plus: 1 %}
+          {% endif %}
+        {% endfor %}
 
         {%- comment -%}
-          컬렉션이 지정되어 있으면 그 컬렉션의 docs들 중
-          front matter categories에 title을 포함한 문서만 센다.
+          컬렉션이 있으면 그 컬렉션의 문서들에서 카테고리 포함 여부를 세기
         {%- endcomment -%}
         {% assign coll_count = 0 %}
         {% if coll_name and site.collections[coll_name] %}
-          {% assign expr_coll = "d.categories and d.categories contains '" | append: title | append: "'" %}
-          {% assign coll_match = site.collections[coll_name].docs | where_exp: "d", expr_coll %}
-          {% assign coll_count = coll_match | size %}
+          {% for d in site.collections[coll_name].docs %}
+            {% if d.categories and d.categories contains title %}
+              {% assign coll_count = coll_count | plus: 1 %}
+            {% endif %}
+          {% endfor %}
         {% endif %}
 
         {% assign total = pages_count | plus: coll_count %}
