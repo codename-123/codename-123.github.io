@@ -73,7 +73,6 @@ author_profile: true
 }
 </style>
 
-
 <div class="categories-page">
   <ul class="category-list">
     {% for item in site.data.navigation.categories_nav %}
@@ -86,6 +85,8 @@ author_profile: true
     {% endfor %}
   </ul>
 </div>
+
+---
 
 <div class="category-section">
   <p>
