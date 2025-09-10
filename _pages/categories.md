@@ -60,15 +60,15 @@ author_profile: true
 }
 
 .category-section h2 {
-  font-size: 1.4rem;
+  font-size: 1rem;
   margin-top: 2rem;
 }
 .category-section p {
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   line-height: 1.6;
 }
 .category-section ul {
-  font-size: 0.9rem;
+  font-size: 0.6rem;
   line-height: 1.5;
 }
 </style>
@@ -87,13 +87,12 @@ author_profile: true
   </ul>
 </div>
 
----
-
-이 페이지는 블로그의 주요 주제별 모음입니다.  
-각 카테고리는 관련 글들을 모아둔 인덱스이며, 관심 있는 주제를 빠르게 찾아볼 수 있도록 정리되어 있습니다.  
-원하시는 카테고리 버튼을 클릭하면 해당 주제의 글 목록으로 이동합니다.
-
 <div class="category-section">
+  <p>
+    이 페이지는 블로그의 주요 주제별 모음입니다.  
+    각 카테고리는 관련 글들을 모아둔 인덱스이며, 관심 있는 주제를 빠르게 찾아볼 수 있도록 정리되어 있습니다.  
+    원하시는 카테고리 버튼을 클릭하면 해당 주제의 글 목록으로 이동합니다.
+  </p>
   <h2>HackTheBox</h2>
   <p>
     해킹 실습 플랫폼(Hack The Box)에서 풀었던 머신·문제들의 풀이 기록을 모아둔 곳입니다.<br>
