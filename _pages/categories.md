@@ -6,6 +6,15 @@ author_profile: true
 ---
 
 <style>
+
+.category-section {
+  width: 100%;
+  max-width: 1200px; /* 필요시 */
+  margin: 0 auto; /* 가운데 정렬 */
+  padding: 0 1rem; /* 양쪽 여백 */
+  box-sizing: border-box; /* 패딩 포함 너비 계산 */
+}
+
 /* 가로 나열용 (충돌 방지 네임스페이스) */
 .categories-page .category-list {
   display: flex !important;
