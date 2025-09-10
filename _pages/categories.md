@@ -1,4 +1,5 @@
 ---
+title: "Category"
 layout: archive
 permalink: /categories/
 author_profile: true
@@ -71,8 +72,6 @@ author_profile: true
   line-height: 1.5;
 }
 </style>
-
-<h2>Category</h2>
 
 <div class="categories-page">
   <ul class="category-list">
