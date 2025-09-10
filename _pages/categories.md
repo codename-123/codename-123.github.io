@@ -7,14 +7,6 @@ author_profile: true
 
 <style>
 
-.category-section {
-  width: 100%;
-  max-width: 1200px; /* 필요시 */
-  margin: 0 auto; /* 가운데 정렬 */
-  padding: 0 1rem; /* 양쪽 여백 */
-  box-sizing: border-box; /* 패딩 포함 너비 계산 */
-}
-
 /* 가로 나열용 (충돌 방지 네임스페이스) */
 .categories-page .category-list {
   display: flex !important;
@@ -69,15 +61,15 @@ author_profile: true
 }
 
 .category-section h2 {
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin-top: 2rem;
 }
 .category-section p {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   line-height: 1.6;
 }
 .category-section ul {
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 </style>
