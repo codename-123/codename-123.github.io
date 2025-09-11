@@ -226,10 +226,9 @@ psql -h 127.0.0.1 -U unixusrmgr unix
 ```bash
 unix=> \dp
 ```
-
-![DB 테이블 탐색](/assets/htb-linux/redcross/psql-prlv.png)
-
 그 결과, `passwd_table` 이라는 중요한 테이블을 발견하였다. 
+
+![DB 테이블 탐색](/assets/htb-linux/redcross/psql-priv.png)
 
 특히 이 테이블의 대한 권한을 상세히 살펴본 결과,
 `unixusrmgr` 사용자는 passwd_table의 `username`, `passwd`, `gid` 컬럼에 aw 권한을 가지고 있다.
