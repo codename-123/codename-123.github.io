@@ -130,7 +130,7 @@ PDF에 안내된 대로 `contact` 페이지를 통해 `credentials`를 제목으
 
 ![로그인 성공](/assets/htb-linux/redcross/app.png)
 
-`/?pages/app` 페이지로 리다이렉션되었고 내부 새로운 페이지에 접근할 수 있다.
+`/?page=app` 페이지로 리다이렉션되었고 내부 새로운 페이지에 접근할 수 있다.
 
 ## SQL Injection
 
