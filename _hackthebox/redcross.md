@@ -116,7 +116,7 @@ $ gobuster dir -u https://intra.redcross.htb/documentation -w /usr/share/wordlis
 
 `account-signup.pdf` 파일을 열어본 결과, 계정 생성을 위한 자격 증명 요청 방법이 명시되어 있었다.
 
-이 정보를 활용하여 임의의 사용자명으로 계정 생성을 요청하는 테스트를 진행할 예정이다.
+이 정보를 활용하여 임의의 사용자명으로 계정 생성을 요청하는 테스트를 진행할 것 이다.
 
 ![자격 증명 요청](/assets/htb-linux/redcross/contact.png)
 
