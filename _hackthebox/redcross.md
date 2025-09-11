@@ -4,6 +4,9 @@ date: 2025-09-10
 layout: single
 author_profile: true
 toc: true
+toc_label: "RedCross"
+toc_icon: "book"
+toc_sticky: true
 header:
   teaser: /assets/images/redcross.png
 tags: [linux, priv-esc, web]
