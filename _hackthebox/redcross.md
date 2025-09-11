@@ -24,7 +24,7 @@ RedCross는 XSS, OS 명령 실행, SQL 인젝션, 원격 취약점 공격, PAM/N
 먼저 대상 Host(`10.10.10.113`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
 
 ```bash
-$ nmap -sC -sV 10.10.10.113 -oA nmap
+$ nmap -sC -sV 10.10.10.113 | tee nmap
 
 Nmap scan report for intra.redcross.htb (10.10.10.113)
 Host is up (0.22s latency).
@@ -134,7 +134,7 @@ PDF에 안내된 대로 `contact` 페이지를 통해 `credentials`를 제목으
 
 ## SQL Injection
 
-페이지를 탐색하던 중, URL의 **UserID(`/?o=1`)** 부분에서 SQL Injection 취약점의 가능성을 확인했다.
+페이지를 탐색하던 중, URL의 **UserID(`/?o=`)** 부분에서 SQL Injection 취약점의 가능성을 확인했다.
 
 ![SQLI 공격](/assets/htb-linux/redcross/sqli.png)
 
@@ -285,7 +285,7 @@ $ ssh gidroot@10.10.10.113
 gidroot@redcross:/etc$ psql -h 127.0.0.1 -U unixnssroot unix
 ```
 
-PostgreSQL 내부에서 `\dp` 명령어를 사용하여 테이블 권한을 확인한 결과, `unixnssroot` 계정이 주요 테이블 `passwd_table`에 **루트 권한(rwU, arwdDxt)** 을 가지고 있음을 확인할 수 있었다.  
+PostgreSQL 내부에서 `\dp` 명령어를 사용하여 테이블 권한을 확인한 결과, `unixnssroot` 계정이 테이블 `passwd_table`에 **루트 권한(arwdDxt)** 을 가지고 있음을 확인할 수 있었다.  
 
 ![DB 루트 권한](/assets/htb-linux/redcross/psql-root-user.png)
 
