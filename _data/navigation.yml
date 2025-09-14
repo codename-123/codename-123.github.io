@@ -15,10 +15,12 @@ main:
 categories_nav:
   - title: "HackTheBox"
     url: /categories/hackthebox/
-  - title: "WEB"
+  - title: "Web"
     url: /categories/web/
   - title: "Red Team"
     url: /categories/redteam-simulation/
+  - title: "Network"
+    url: "/categories/network/"
 
 hackthebox:
   - title: "Linux"
