@@ -342,8 +342,6 @@ defaults:
       related: true
       show_date: true
 
-
-    # add these two entries for the collections
   - scope:
       path: ""
       type: web
@@ -365,7 +363,6 @@ defaults:
       toc: true
       sidebar:
         nav: network
-
 
   - scope:
       path: ""
