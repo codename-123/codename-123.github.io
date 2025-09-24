@@ -10,6 +10,8 @@ toc_sticky: true
 header:
   teaser: /assets/images/ftp.png
 tags: [network, ftp]
+difficulty: "Medium"
+arch: linux
 ---
 
 
