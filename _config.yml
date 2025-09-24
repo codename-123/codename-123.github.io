@@ -354,6 +354,18 @@ defaults:
       toc: true
       sidebar:
         nav: web
+  
+  - scope:
+      path: ""
+      type: network
+    values:
+      layout: single
+      comments: true
+      show_date: true
+      toc: true
+      sidebar:
+        nav: network
+
 
   - scope:
       path: ""
