@@ -307,6 +307,9 @@ collections:
   web:
     output: true
     permalink: /web/:path/
+  network:
+    output: true
+    permalink: /network/:path/
   hackthebox:
     output: true
     permalink: /hackthebox/:path/
