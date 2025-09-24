@@ -78,5 +78,5 @@ web:
 network:
   - title: footprinting
     children:
-        - title: "FTP"
-          url: /network/ftp/
+      - title: "FTP"
+        url: /network/ftp/
