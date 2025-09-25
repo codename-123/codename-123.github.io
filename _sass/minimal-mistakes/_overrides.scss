@@ -1,0 +1,33 @@
+/* _sass/minimal-mistakes/_overrides.scss */
+
+/* 테이블 고정 레이아웃, 칼럼 폭 지정, 긴 텍스트 줄바꿈 허용 */
+.post-content table,
+.entry-content table,
+.article-content table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.post-content table th,
+.post-content table td,
+.entry-content table th,
+.entry-content table td,
+.article-content table th,
+.article-content table td {
+  word-break: break-word;   /* 단어 중간에서도 줄바꿈 */
+  white-space: normal;
+  padding: 0.6rem;
+}
+
+/* 칼럼 비율 — 필요시 % 조정 (예: 35/65) */
+.post-content table col:first-child,
+.entry-content table col:first-child,
+.article-content table col:first-child {
+  width: 35%;
+}
+.post-content table col:last-child,
+.entry-content table col:last-child,
+.article-content table col:last-child {
+  width: 65%;
+}

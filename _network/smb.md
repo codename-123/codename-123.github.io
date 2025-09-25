@@ -23,12 +23,12 @@ SMB는 네트워크 상의 다른 호스트가 공유한 리소스(share)에 접
 # SMB 개요 및 버전
 
 - **역할**: 파일/프린터 공유, 원격 실행·관리, 네임/보안 관리 등  
-- **포트**: 445/tcp (CIFS 포함), NetBIOS: 137/138/139 (레거시)  
+- **프로토콜/포트**: 445/tcp (CIFS 포함), NetBIOS: 137/138/139 (레거시)  
 - **주요 버전**
   - CIFS (SMB1) — Windows NT4 / NetBIOS 기반
   - SMB 1.0 — Windows 2000
-  - SMB 2.0 / 2.1 — Vista/Server2008 이상 (성능·메시지 최적화)
-  - SMB 3.0 / 3.1.1 — Windows 8/10, 암호화·무결성 등 보안 기능 추가
+  - SMB 2.0 / 2.1 — Vista/Server2008 이상 (성능/메시지 최적화)
+  - SMB 3.0 / 3.1.1 — Windows 8/10, 암호화/무결성 등 보안 기능 추가
 
 | SMB Version | 지원 OS (예시) | 주요 기능 |
 |-------------|----------------|----------|
@@ -74,4 +74,7 @@ $ cat /etc/samba/smb.conf | grep -v "#\|\;" # (주석/세미콜론 라인 제외
 | enable privileges = yes | SID 기반 특권(권한) 허용 |
 | create mask = 0777 / directory mask = 0777 | 과도한 권한 부여 |
 | unix password sync = yes / pam password change | 계정 동기화 위험 |
+
+
+# 실습
 
