@@ -79,3 +79,5 @@ network:
     children:
       - title: "FTP"
         url: /network/ftp/
+      - title: "SMB"
+        url: /network/smb/

@@ -96,22 +96,22 @@ $ cat /etc/vsftpd.conf | grep -v "#"
 
 | 설정                  | 설명               |
 | ------------------- | ---------------- |
-| listen=NO           | inetd 방식으로 실행 여부 |
-| listen_ipv6=YES     | IPv6 리스닝 활성화     |
-| anonymous_enable=NO | 익명 로그인 허용 여부     |
-| local_enable=YES    | 로컬 사용자 로그인 허용    |
-| xferlog_enable=YES  | 업/다운로드 로그 기록     |
-| ssl_enable=NO       | SSL 암호화 연결       |
+| listen = NO           | inetd 방식으로 실행 여부 |
+| listen_ipv6 = YES     | IPv6 리스닝 활성화     |
+| anonymous_enable = NO | 익명 로그인 허용 여부     |
+| local_enable = YES    | 로컬 사용자 로그인 허용    |
+| xferlog_enable = YES  | 업/다운로드 로그 기록     |
+| ssl_enable = NO       | SSL 암호화 연결       |
 
 
 또한, FTP는 암호를 평문으로 전송하기 때문에, 다음과 같은 설정은 실서비스에서 매우 위험하다.
 
 | 설정 | 설명 |
 |------|------|
-| anonymous_enable=YES | 익명 로그인 허용 |
-| anon_upload_enable=YES | 익명 업로드 허용 |
-| anon_mkdir_write_enable=YES | 익명 디렉터리 생성 허용 |
-| no_anon_password=YES | 비밀번호 없이 접속 |
+| anonymous_enable = YES | 익명 로그인 허용 |
+| anon_upload_enable = YES | 익명 업로드 허용 |
+| anon_mkdir_write_enable = YES | 익명 디렉터리 생성 허용 |
+| no_anon_password = YES | 비밀번호 없이 접속 |
 
 ---
 
