@@ -113,6 +113,8 @@ $ cat /etc/vsftpd.conf | grep -v "#"
 | anon_mkdir_write_enable=YES | 익명 디렉터리 생성 허용 |
 | no_anon_password=YES | 비밀번호 없이 접속 |
 
+---
+
 # 실습
 
 ## Portscan
