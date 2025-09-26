@@ -167,7 +167,7 @@ Nmap done: 1 IP address (1 host up) scanned in 76.43 seconds
 ```
 
 Nmap 스캔을 통해 `SSH`, `DNS`, `SMB`, `FTP` 등 총 5개의 주요 서비스가 확인되었으며,
-특히 **ProFTPD FTP(2121)** 와 Samba 공유(139/445) 는 인증 우회, 익명 접근 시도를 통해
+특히 **ProFTPD FTP(2121)** 는 인증 우회, 익명 접근 시도를 통해
 파일 획득이나 초기 침투 지점으로 활용될 가능성이 있다.
 
 ## FTP 서버 접속
