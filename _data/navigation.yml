@@ -85,3 +85,5 @@ network:
         url: /network/nfs/
       - title: "DNS"
         url: /network/dns/
+      - title: "SMTP"
+        url: /network/smtp/

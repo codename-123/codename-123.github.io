@@ -10,8 +10,6 @@ toc_sticky: true
 header:
   teaser: /assets/images/ftp.png
 tags: [network, ftp]
-difficulty: "Medium"
-arch: linux
 ---
 
 **FTP** 는 TCP 기반, 제어 채널(포트 21)과 데이터 채널(주로 포트 20 또는 서버가 제시한 포트)을 사용한다. 인증 가능(계정 필요)하고 브라우저/클라이언트 지원이 널리된다.
