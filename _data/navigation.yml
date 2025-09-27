@@ -81,3 +81,5 @@ network:
         url: /network/ftp/
       - title: "SMB"
         url: /network/smb/
+      - title: "NFS"
+        url: /network/nfs/

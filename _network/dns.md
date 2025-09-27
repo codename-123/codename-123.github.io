@@ -1,0 +1,190 @@
+---
+title: "DNS"
+date: 2025-09-26
+layout: single
+author_profile: true
+toc: true
+toc_label: "DNS"
+toc_icon: "network-wired"
+toc_sticky: true
+header:
+  teaser: /assets/images/dns.png
+tags: [network, dns]
+---
+
+**DNS**(Domain Name System)는 **도메인 이름 → IP 주소**를 매핑하는 서비스다.  
+이름을 전화번호부처럼 분산 저장하며, 전 세계 수천 개의 네임 서버가 협력해 동작한다.
+
+---
+
+# 기본 개념
+
+- **도메인 계층**  
+  Root(`.`) → TLD(`com`, `org`, `net` …) → 2차 도메인(`example.com`) → 서브도메인(`www.example.com`)  
+- **역할**  
+  사용자가 `www.inlanefreight.com`에 접속하면, DNS가 해당 도메인의 **IP 주소**를 찾아 웹 서버와 연결한다.
+
+![Domain](/assets/network-screenshots/dns/tooldev-dns.png)
+
+---
+
+# DNS 서버 종류
+
+| 서버 종류 | 설명 |
+|----------|-----|
+| Root Server | TLD(`.com`, `.net` 등)로 연결하는 최상위. ICANN 관리. 전 세계 13개 클러스터 존재 |
+| Authoritative | 특정 도메인/존에 대한 최종 답변을 제공 |
+| Non-authoritative | 다른 서버에서 정보를 가져와 캐싱 후 응답 |
+| Caching Server | 조회 결과를 TTL 동안 저장해 재사용 |
+| Forwarding Server | 질의를 다른 서버로 단순 포워딩 |
+| Resolver | 사용자의 로컬 컴퓨터/라우터가 수행하는 이름 해석 |
+
+---
+
+# 주요 DNS 레코드
+
+| 레코드 | 설명 |
+|-------|----|
+| A | 도메인의 IPv4 주소 반환 |
+| AAAA | IPv6 주소 반환 |
+| MX | 메일 서버 정보 |
+| NS | 해당 도메인의 네임서버 |
+| TXT | SPF·DMARC·SSL 검증 등 텍스트 정보 |
+| CNAME | 별칭(다른 도메인 이름으로 리다이렉트) |
+| PTR | 역방향 조회: IP → 도메인 |
+| SOA | 존 관리 정보(관리자 메일, 시리얼 등) |
+
+```bash
+# SOA 레코드 조회 예시
+$ dig soa www.inlanefreight.com
+```
+
+---
+
+# DNS 동작 흐름
+
+1. **사용자 입력**: 브라우저에 `academy.hackthebox.com` 입력  
+2. **로컬 Resolver** → 캐시 확인  
+3. **Recursive Query**: 캐시에 없으면 Root → TLD → Authoritative 순서로 탐색  
+4. **응답**: IP 주소 반환 후 브라우저가 웹 서버와 연결
+
+---
+
+# BIND9 기본 설정 예시
+
+리눅스에서 많이 쓰이는 **Bind9**는 `named.conf` 파일로 설정하며,  
+`zone` 블록을 통해 각 도메인의 **Zone File**을 지정한다.
+
+```bash
+$ cat /etc/bind/named.conf.local
+
+zone "domain.com" {
+    type master;
+    file "/etc/bind/db.domain.com";
+    allow-update { key rndc-key; };
+};
+```
+
+## Zone File
+
+도메인의 **레코드 집합**을 BIND 포맷으로 정의한다.
+
+```bash
+$ cat /etc/bind/db.domain.com
+
+$ORIGIN domain.com
+$TTL 86400
+@   IN SOA ns1.domain.com. hostmaster.domain.com. (
+        2001062501 ; serial
+        21600      ; refresh
+        3600       ; retry
+        604800     ; expire
+        86400 )    ; minimum
+
+    IN NS   ns1.domain.com.
+    IN NS   ns2.domain.com.
+    IN MX 10 mx.domain.com.
+server1 IN A 10.129.14.5
+ftp     IN CNAME server1
+```
+
+### Reverse Zone File
+IP → 도메인 역방향 매핑(`PTR`)한다.
+
+```bash
+$ cat /etc/bind/db.10.129.14
+
+$ORIGIN 14.129.10.in-addr.arpa
+5   IN PTR server1.domain.com.
+```
+
+---
+
+# 위험한 설정
+
+| 옵션 | 설명 |
+|------|------|
+| allow-query | 질의를 허용할 호스트 범위 |
+| allow-recursion | 재귀 질의를 허용할 호스트 |
+| allow-transfer | Zone Transfer 허용 대상 (잘못 설정 시 전체 도메인 정보가 유출될 수 있음) |
+
+**Zone Transfer(AXFR)** 를 아무 IP나 허용하면 공격자가 `dig axfr domain.com @ns1.domain.com` 으로 전체 호스트와 서비스 구조를 한 번에 덤프할 수 있으니 주의해야 한다.
+
+---
+
+# 실습
+
+## Portscan
+
+먼저 대상 Host(`10.129.174.197`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+
+```bash
+$ nmap 10.129.174.197  
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-27 07:31 EDT
+Nmap scan report for 10.129.174.197
+Host is up (0.26s latency).
+Not shown: 992 closed tcp ports (reset)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+25/tcp   open  smtp
+53/tcp   open  domain
+110/tcp  open  pop3
+143/tcp  open  imap
+993/tcp  open  imaps
+995/tcp  open  pop3s
+3306/tcp open  mysql
+
+Nmap done: 1 IP address (1 host up) scanned in 4.46 seconds
+```
+
+Nmap 스캔을 통해 대상 호스트에서 TCP 53 PORT(`DNS`) 가 개방되어 있음을 확인하였다.
+외부에서 접근 가능한 DNS 서버는 버전 정보 노출, **Zone Transfer(AXFR) 허용**, **불필요한 레코드 공개** 등을 통해
+조직 내부 네트워크와 서비스 구조가 유출될 수 있으며,
+이는 공격자가 초기 침투 지점으로 활용할 수 있는 가능성이 있다.
+
+## DNS Enumeration
+
+문제에서 제공된 도메인 inlanefreight.htb 를 대상으로 `dig` 명령을 이용해
+AXFR 가능 여부 등 `DNS` 관련 정보를 수집하였다.
+
+```bash
+$ dig axfr inlanefreight.htb @10.129.174.197
+```
+
+명령 실행 결과, 여러 하위 도메인(Subdomain) 이 반환되어 나왔다.
+
+![Domain](/assets/network-screenshots/dns/domain.png)
+
+위 도메인 결과를 토대로 `internal` 하위 도메인의 내부 정보를 추가로 탐색하였다.
+
+```bash
+$ dig axfr internal.inlanefreight.htb @10.129.174.197
+```
+
+## Flag 획득
+
+탐색 결과, TXT 레코드에 플래그 값이 포함되어 있는 것을 확인하였다.
+
+![Domain](/assets/network-screenshots/dns/flag.png)
+
+이렇게 최종적으로 **flag**를 확보할 수 있었다.

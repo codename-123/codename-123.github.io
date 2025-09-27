@@ -64,6 +64,10 @@ $ cat /etc/samba/smb.conf | grep -v "#\|\;" # (주석/세미콜론 라인 제외
 | map to guest = bad user | 인증 실패 시 guest로 매핑 규칙 | 
 | create mask / directory mask = 0700 | 새 파일/디렉터리 권한 |
 
+---
+
+# 위험한 설정
+
 아래 설정들은 편의성 때문에 활성화하면 보안상 큰 위험을 초래할 수 있다.
 
 | 설정 | 설명 |
