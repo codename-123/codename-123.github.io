@@ -83,3 +83,5 @@ network:
         url: /network/smb/
       - title: "NFS"
         url: /network/nfs/
+      - title: "DNS"
+        url: /network/dns/
