@@ -77,12 +77,12 @@ NFS를 사용하더라도 잘못된 설정은 회사와 인프라에 위험할 �
 
 ## Portscan
 
-먼저 대상 Host(`10.129.202.5`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+먼저 대상 Host(`10.129.135.242`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
 
 ```bash
-$ nmap -sC -sV 10.129.202.5                        
+$ nmap -sC -sV 10.129.135.242                        
 Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-26 07:59 EDT
-Nmap scan report for 10.129.202.5
+Nmap scan report for 10.129.135.242
 Host is up (0.27s latency).
 Not shown: 994 closed tcp ports (reset)
 PORT     STATE SERVICE     VERSION
@@ -149,11 +149,43 @@ Nmap 스캔 결과 `FTP(21)`, `SSH(22)`, `SMB(139/445)`, `NFS(2049)` 등 여러 
 특히 **NFS(Network File System)** 서비스가 2049/TCP에서 열려 있으며 `rpcbind(111)`도 함께 노출되어 있어,  
 네트워크를 통한 원격 파일 시스템 공유가 이루어지고 있음을 알 수 있다.
 
-## NFS
+## NFS 탐색
 
 `showmount` 명령어를 이용하여 어떤 공유 파일이 있는지 열거해보았다.
 
 ```bash
-$ showmount -e 10.129.202.5
+$ showmount -e 10.129.135.242
 ```
+
+실행 결과, 원격 호스트는 다음 두 경로를 NFS로 내보내고 있었다.
+
+![Domain](/assets/network-screenshots/nfs/showmount.png)
+
+`/var/nfs`와 `/mnt/nfsshare`가 `10.0.0.0/8` 대역(대규모 내부 네트워크)에 대해 마운트 허용되어 있다.
+
+즉, 동일 네트워크 내의 어느 호스트에서든 접근 가능할 수 있다.
+
+## 공유 마운트
+
+이제 해당 공유를 마운트 하여 파일 목록을 확인하고 민감한 파일이 있는지 조사하였다.
+
+우선, `mkdir` 명령어를 통하여 마운트 할 디렉토리를 만들었다.
+
+```bash
+$ mkdir mount
+```
+
+후에, 만든 디렉토리를 마운트 포인트로 사용하여 원격 NFS 공유를 로컬 시스템에 연결하였다.
+
+```bash
+$ sudo mount -t nfs 10.129.135.242:/ ./mount/ -o nolock
+```
+
+## Flag 획득
+
+마운트된 디렉토리로 이동 후, `mnt/mntshare` 경로에 플래그가 존재함을 확인하였다.
+
+![Domain](/assets/network-screenshots/nfs/flag.png)
+
+이렇게 최종적으로 **flag**를 확보할 수 있었다.
 
