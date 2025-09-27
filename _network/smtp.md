@@ -214,7 +214,7 @@ hydra -l marlin@inlanefreight.htb -P ./Desktop/pws.list -f 10.129.179.133 pop3
 
 ## telnet POP3 접속
 
-POP3 관련 절차는 별도 포스트에 있습니다 — [POP3 포스트 보기](../imap-pop3.md).
+POP3 관련 절차는 별도 포스트에 있습니다 → [POP3 포스트 보기](../imap-pop3.md).
 
 `telnet`로 POP3 프토토콜에 접속하여 브루트포싱으로 획득한 자격증명으로 로그인 성공을 확인하였다.
 
