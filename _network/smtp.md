@@ -74,7 +74,7 @@ home_mailbox = /home/postfix
 
 ---
 
-# 명령/검증 예시
+# 명령어 예시
 
 ## 1. 서버 연결(기본)
 
@@ -111,9 +111,9 @@ EHLO mail1
 ```bash
 VRFY root
 
-252 2.0.0 victim
+252 2.0.0 root
 
-VRFY cry0l1t3
+VRFY victim
 
 252 2.0.0 victim
 ```
