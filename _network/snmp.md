@@ -85,6 +85,3 @@ rouser         authPrivUser authpriv -V systemonly
 
 > 불필요한 `rw*` 옵션 제거, v3 전환, 방화벽 제한 필수
 
----
-
-# 실습

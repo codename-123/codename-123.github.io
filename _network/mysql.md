@@ -1,0 +1,96 @@
+---
+title: "MySQL"
+date: 2025-09-28
+layout: single
+author_profile: true
+toc: true
+toc_label: "MySQL"
+toc_icon: "database"
+toc_sticky: true
+header:
+  teaser: /assets/images/mysql.png
+tags: [database, mysql, mariadb]
+---
+
+**MySQL**은 Oracle이 개발/지원하는 오픈소스 **관계형 데이터베이스 관리 시스템(RDBMS)** 이다.  
+데이터를 테이블 단위로 저장, 조회하며, SQL 언어를 통해 고속으로 대량 데이터를 처리할 수 있다.  
+
+MySQL은 클라이언트/서버 구조로 동작하며, 실제 데이터 관리 역할을 하는 MySQL 서버와 SQL 질의를 전달하는 클라이언트로 구성된다.
+
+---
+
+# MySQL 개요
+
+오픈소스 관계형 DBMS로 `TCP 3306` 포트에서 서버, 클라이언트 구조로 동작하며 SQL을 통해 데이터 저장/조회/수정/삭제 및 스키마 관리가 가능해, WordPress 등 동적 웹서비스와 LAMP/LEMP 스택에서 핵심 백엔드 역할을 한다.
+
+---
+
+# MySQL 클라이언트
+
+MySQL 클라이언트는 SQL 질의를 통해 **데이터 삽입/수정/삭제/조회**를 수행한다.  
+
+내부망 또는 외부 인터넷을 통해 다수의 데이터베이스를 동시에 관리할 수 있으며  다중 질의와 트랜잭션 처리를 지원한다.
+
+---
+
+# 데이터베이스 예시
+
+웹 서비스에서 MySQL은 게시글, 사용자, 비밀번호, 메타데이터 등 웹 애플리케이션이 필요한 정보를 중앙 DB에 저장한다.  
+
+비밀번호 등 민감 정보는 평문 저장도 가능하나, 보통 PHP 등에서 해시(One-Way-Encryption) 후 저장한다.
+
+| 데이터 예시 | 설명 |
+|-------------|------|
+| 게시글, 텍스트, 메타태그 | 콘텐츠 관리 |
+| 사용자명/이메일/권한 | 인증/권한 관리 |
+| 외부/내부 링크 | 파일 경로/참조 |
+
+---
+
+# MariaDB
+MySQL의 창시자가 Oracle 인수 후 **포크(fork)** 하여 개발한 RDBMS.  
+MySQL과 호환되며, 오픈소스로 유지, 개발되는 대안으로 많이 사용된다.
+
+---
+
+# 기본 설정
+아래는 Ubuntu 환경에서 MySQL 설치 및 기본 설정 파일(`mysqld.cnf`) 예시이다.
+
+```bash
+sudo apt install mysql-server -y
+cat /etc/mysql/mysql.conf.d/mysqld.cnf | grep -v "#" | sed -r '/^\s*$/d'
+
+[client]
+port        = 3306
+socket      = /var/run/mysqld/mysqld.sock
+
+[mysqld_safe]
+pid-file    = /var/run/mysqld/mysqld.pid
+socket      = /var/run/mysqld/mysqld.sock
+
+[mysqld]
+skip-host-cache
+skip-name-resolve
+user        = mysql
+pid-file    = /var/run/mysqld/mysqld.pid
+socket      = /var/run/mysqld/mysqld.sock
+port        = 3306
+basedir     = /usr
+datadir     = /var/lib/mysql
+tmpdir      = /tmp
+lc-messages-dir = /usr/share/mysql
+explicit_defaults_for_timestamp
+symbolic-links=0
+!includedir /etc/mysql/conf.d/
+```
+
+---
+
+# 위험한 설정
+
+| 설정                       | 설명                                     |
+| ------------------------ | -------------------------------------- |
+| user/password     | MySQL 서비스 계정과 비밀번호가 평문 저장              |
+| admin_address   | 관리자 접속 허용 IP 설정 (외부 노출 위험)             |
+| debug/sql_warnings | 에러/디버그 출력 → 내부 구조 노출                   |
+| secure_file_priv    | 파일 Import/Export 경로 제한 미설정 시 데이터 유출 가능 |
