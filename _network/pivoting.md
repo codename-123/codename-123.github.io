@@ -8,7 +8,7 @@ toc_label: "Pivoting"
 toc_icon: "network-wired"
 toc_sticky: true
 header:
-  teaser: /assets/images/pivoting.png
+  teaser: /assets/images/pivoting.gif
 tags: [network, pivoting, tunneling]
 ---
 
