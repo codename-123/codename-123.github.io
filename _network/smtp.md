@@ -47,7 +47,7 @@ SMTP는 원래 평문 프로토콜이므로 **인증 정보와 명령이 그대�
 
 ---
 
-#  기본 구성
+# 기본 구성
 
 ```bash
 $ cat /etc/postfix/main.cf | grep -v "#" | sed -r "/^\s*$/d"

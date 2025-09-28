@@ -157,10 +157,7 @@ PORT     STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 4.46 seconds
 ```
 
-Nmap 스캔을 통해 대상 호스트에서 TCP 53 PORT(`DNS`) 가 개방되어 있음을 확인하였다.
-외부에서 접근 가능한 DNS 서버는 버전 정보 노출, **Zone Transfer(AXFR) 허용**, **불필요한 레코드 공개** 등을 통해
-조직 내부 네트워크와 서비스 구조가 유출될 수 있으며,
-이는 공격자가 초기 침투 지점으로 활용할 수 있는 가능성이 있다.
+Nmap 스캔을 통해 대상 호스트에서 `DNS`가 개방되어 있음을 확인하였다.
 
 ## DNS Enumeration
 

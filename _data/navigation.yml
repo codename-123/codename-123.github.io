@@ -87,3 +87,5 @@ network:
         url: /network/dns/
       - title: "SMTP"
         url: /network/smtp/
+      - title: "IMAP/POP3"
+        url: /network/imap-pop3/
