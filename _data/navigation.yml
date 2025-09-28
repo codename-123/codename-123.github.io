@@ -91,3 +91,5 @@ network:
         url: /network/imap-pop3/
       - title: "SNMP"
         url: /network/snmp/
+      - title: "MySQL"
+        url: /network/mysql/
