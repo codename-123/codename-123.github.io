@@ -12,11 +12,9 @@ header:
 tags: [network, smb]
 ---
 
-**SMB (Server Message Block)**는 파일, 디렉터리뿐 아니라 프린터, IPC(인터프로세스 통신) 등 네트워크 자원 접근을 규정하는 클라이언트-서버 프로토콜이다. Windows 계열의 네트워크 서비스에서 주로 사용되며, Samba 프로젝트를 통해 Linux/Unix에서도 호환, 운영이 가능하다.
+**SMB (Server Message Block)**는 파일, 디렉터리뿐 아니라 프린터, IPC 등 네트워크 자원 접근을 규정하는 클라이언트/서버 프로토콜이다. Windows 계열의 네트워크 서비스에서 주로 사용되며, Samba 프로젝트를 통해 Linux/Unix에서도 호환, 운영이 가능하다.
 
 SMB는 네트워크 상의 다른 호스트가 공유한 리소스(share)에 접속해 파일을 읽고 쓰는 방식으로 동작한다. SMB 통신은 TCP를 통해 이루어지며(기본적으로 445/tcp, 과거 NetBIOS 연동시 137/138/139), 연결 수립 전 TCP 3-way handshake를 거친다.
-
-> 주의: SMB v1(CIFS)은 구형이며 보안 취약점(예: WannaCry 등)으로 인해 실서비스에서는 비활성화하고 SMB2/3를 권장한다.
 
 ---
 

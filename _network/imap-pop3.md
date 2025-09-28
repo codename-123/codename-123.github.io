@@ -13,6 +13,7 @@ tags: [network, mail, imap, pop3]
 ---
 
 **IMAP(Internet Message Access Protocol)**은 메일 서버 상의 메일을 온라인으로 관리할 수 있게 해주는 프로토콜이다.
+
 **POP3(Post Office Protocol v3)**는 서버에서 메일을 가져오고 로컬에 저장하는 데 초점이 맞춰져 있으며, IMAP처럼 서버 상에서 폴더 구조를 관리하거나 동기화하는 기능은 제한적이다.
 
 ---
