@@ -8,7 +8,7 @@ toc_label: "IMAP/POP3"
 toc_icon: "envelope"
 toc_sticky: true
 header:
-teaser: /assets/images/imap-pop3.png
+  teaser: /assets/images/imap-pop3.png
 tags: [network, mail, imap, pop3]
 ---
 
