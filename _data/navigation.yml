@@ -93,3 +93,7 @@ network:
         url: /network/snmp/
       - title: "MySQL"
         url: /network/mysql/
+  - title: Pivoting, Tunneling, Port Forwarding
+    children:
+      - title: "Pivoting, Tunneling, Port Forwarding"
+        url: /network/pivoting/
