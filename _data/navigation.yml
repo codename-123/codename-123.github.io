@@ -97,3 +97,5 @@ network:
     children:
       - title: "Pivoting, Tunneling, Port Forwarding"
         url: /network/pivoting/
+      - title: "Local Port Forwarding"
+        url: /network/local-port-forwarding/
