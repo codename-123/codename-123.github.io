@@ -1,6 +1,6 @@
 ---
 title: "Dynamic Port Forwarding"
-date: 2025-09-30
+date: 2025-09-29
 layout: single
 author_profile: true
 toc: true
@@ -66,7 +66,7 @@ SOCKS 프록시는 두 가지 버전이 존재한다.
 ```bash
 $ nmap -sC -sV 10.129.185.108  
 
-Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-28 23:21 EDT
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-28 22:09 EDT
 Nmap scan report for 10.129.185.108
 Host is up (0.27s latency).
 Not shown: 998 closed tcp ports (reset)
