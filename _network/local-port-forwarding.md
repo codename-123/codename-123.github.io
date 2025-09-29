@@ -72,7 +72,7 @@ $ ssh ubuntu@10.129.202.64
 
 접속 후, `ifconfig` 명령어를 통하여 내부망 IP 를 탐색하였다.
 
-![Domain](/assets/network-screenshots/local-port-forwarding/dynamic-port-forwarding.png)
+![Domain](/assets/network-screenshots/local-port-forwarding/ifconfig.png)
 
 문제에서 제공된 내부망 IP(`172.16.5.19`) 를 이용하여 RDP(`3389 포트`)의 서비스가 열려 있는 것을 확인하였다.
 
