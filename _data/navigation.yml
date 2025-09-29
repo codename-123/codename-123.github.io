@@ -99,3 +99,5 @@ network:
         url: /network/pivoting/
       - title: "Local Port Forwarding"
         url: /network/local-port-forwarding/
+      - title: "Dynamic Port Forwarding"
+        url: /network/dynamic-port-forwarding/

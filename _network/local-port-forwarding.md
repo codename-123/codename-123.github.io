@@ -40,7 +40,8 @@ SSH는 로컬 포트 `1234`에서 트래픽을 수신하고, 이를 MySQL의 `lo
 먼저 대상 Host(`10.129.202.64`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
 
 ```bash
-$ nmap -sC -sV 10.129.202.64                                                 
+$ nmap -sC -sV 10.129.202.64  
+                                               
 Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-28 21:17 EDT
 Nmap scan report for 10.129.202.64
 Host is up (0.27s latency).
@@ -78,6 +79,7 @@ $ ssh ubuntu@10.129.202.64
 
 ```bash
 $ nc -vz 172.16.5.19 3389
+
 Connection to 172.16.5.19 3389 port [tcp/ms-wbt-server] succeeded!
 ```
 
@@ -94,7 +96,8 @@ $ ssh -L localhost:1234:172.16.5.19:3389 ubuntu@10.129.202.64
 설정 후, 로컬 호스트에서 `netstat` 명령어를 사용해 `1234` 포트가 정상적으로 열려 있는지 확인하였다.
 
 ```bash
-$ netstat -antp | grep 1234   
+$ netstat -antp | grep 1234 
+
 (Not all processes could be identified, non-owned process info
  will not be shown, you would have to be root to see it all.)
 tcp        0      0 127.0.0.1:1234          0.0.0.0:*               LISTEN      17895/ssh           
