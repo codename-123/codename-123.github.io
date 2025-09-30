@@ -106,6 +106,6 @@ network:
       - title: "SSH Pivoting with Sshuttle"
         url: /network/sshuttle/
       - title: "Web Server Pivoting with Rpivot"
-        url: /network/rpivot
+        url: /network/rpivot/
       
       
