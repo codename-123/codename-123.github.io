@@ -9,7 +9,7 @@ toc_icon: "network-wired"
 toc_sticky: true
 tags: [networking, ssh, tunneling, pivoting, socks, reverse]
 header:
-  teaser: /assets/network-screenshots/rpivot/rpivot-teaser.png
+  teaser: /assets/network-screenshots/rpivot/pivot-network.png
 ---
 
 **Rpivot**은 Python으로 작성된 **역방향(Reverse) SOCKS 프록시 도구**로, 내부망 호스트가 외부 서버로 연결을 맺고  
