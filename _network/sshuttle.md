@@ -12,20 +12,116 @@ header:
   teaser: /assets/network-screenshots/sshuttle/sshuttle.png
 ---
 
-**Sshuttle**은 파이썬으로 작성된 툴로, 별도의 프록시 설정(proxychains 등) 없이도 SSH 기반으로 네트워크 피벗(pivoting)을 쉽게 구성해 줍니다.  
-주요 아이디어는 로컬 머신(공격자)이 원격 호스트(피벗)를 통해 특정 네트워크 대역으로 라우팅을 설정하여, 원격 내부망 리소스에 접근하거나 스캐닝·접속을 수행하는 것입니다.
+**Sshuttle**은 파이썬으로 작성된 툴로, 별도의 프록시 설정(proxychains 등) 없이도 SSH 기반으로 네트워크 피벗(pivoting)을 쉽게 구성해 준다.  
 
-Sshuttle은 내부에서 `iptables` 규칙을 자동으로 구성하고 SSH 터널을 이용해 트래픽을 전달하므로 사용이 간편합니다. 다만 이 도구는 **오직 SSH 기반 피벗**에 한정되며 TOR나 HTTPS 프록시 같은 다른 채널을 통한 피벗 옵션은 제공하지 않습니다.
+로컬 머신(공격자)이 원격 호스트(피벗)를 통해 특정 네트워크 대역으로 라우팅을 설정하여, 원격 내부망 리소스에 접근하거나 스캐닝/접속을 수행하는 것이다.
+
+Sshuttle은 내부에서 `iptables` 규칙을 자동으로 구성하고 SSH 터널을 이용해 트래픽을 전달하므로 사용이 간편하다. 
+다만, 이 도구는 **오직 SSH 기반 피벗**에 한정되며 TOR나 HTTPS 프록시 같은 다른 채널을 통한 피벗 옵션은 제공하지 않는다.
 
 ---
 
-## 설치 (Ubuntu pivot에서)
-```bash
-# Ubuntu / Debian
-sudo apt update
-sudo apt install -y python3-pip
-sudo pip3 install sshuttle
+# 설치
 
-# 또는 배포판 패키지로 설치 가능 (환경에 따라 다름)
-# sudo apt install sshuttle
+```bash
+$ sudo apt-get install sshuttle
+
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Suggested packages:
+  autossh
+The following NEW packages will be installed:
+  sshuttle
+0 upgraded, 1 newly installed, 0 to remove and 1174 not upgraded.
+Need to get 124 kB of archives.
+After this operation, 882 kB of additional disk space will be used.
+Get:1 http://mirror.zzunipark.com/kali kali-rolling/main amd64 sshuttle all 1.3.2-1 [124 kB]
+Fetched 124 kB in 1s (162 kB/s)   
+Selecting previously unselected package sshuttle.
+(Reading database ... 418237 files and directories currently installed.)
+Preparing to unpack .../sshuttle_1.3.2-1_all.deb ...
+Unpacking sshuttle (1.3.2-1) ...
+Setting up sshuttle (1.3.2-1) ...
+Processing triggers for doc-base (0.11.2) ...
+Processing 1 added doc-base file...
+Processing triggers for man-db (2.13.1-1) ...
+Processing triggers for kali-menu (2025.2.7) ...
 ```
+
+---
+
+# 실습
+
+## Portscan
+
+먼저 대상 Host(`10.129.202.64`)에 대해 기본 스크립트와 서비스 버전 탐지를 수행하였다.
+
+```bash
+$ nmap -sC -sV 10.129.202.64  
+                                               
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-29 22:47 EDT
+Nmap scan report for 10.129.202.64
+Host is up (0.27s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 3f:4c:8f:10:f1:ae:be:cd:31:24:7c:a1:4e:ab:84:6d (RSA)
+|   256 7b:30:37:67:50:b9:ad:91:c0:8f:f7:02:78:3b:7c:02 (ECDSA)
+|_  256 88:9e:0e:07:fe:ca:d0:5c:60:ab:cf:10:99:cd:6c:a7 (ED25519)
+80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-title: Apache2 Ubuntu Default Page: It works
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 19.75 seconds
+```
+
+Nmap 스캔 결과 `SSH(22)`, `http(80)` 등 서비스가 확인되었다.
+
+## sshuttle 실행
+
+문제에서 제공한 아이디/비밀번호(`ubuntu:HTB_@cademy_stdnt!`) 를 이용하여 `sshuttle`을 실행하였다.
+
+- `-r`  
+  sshuttle이 사용할 **원격(피벗) SSH 호스트**를 지정. 이 옵션은 필수로 지정해야 하며, `user@host` 형태로 SSH 접속 정보를 넣음. 예: `-r ubuntu@10.129.202.64`
+
+- `-v`  
+  **verbose(상세 출력)** 모드로, sshuttle이 내부적으로 어떤 연결을 처리하는지, 라우팅/iptables 변경 상태 등을 콘솔에 출력. 디버깅이나 진행상황 확인용으로 유용.
+
+![Domain](/assets/network-screenshots/sshuttle/sshuttle-start.png)
+
+실행 후, 나의 로컬에서 `nc` 명령어를 사용하여 내부망 RDP IP `172.16.5.19`에 연결을 시도한 결과
+
+```bash
+$ nc -vz 172.16.5.19 3389
+
+172.16.5.19: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.5.19] 3389 (ms-wbt-server) open
+```
+
+위 결과로 **로컬에서도 `ubuntu` 사용자를 통해 내부망으로의 연결이 가능**함을 확인할 수 있다.
+
+문제에서 제공된 RDP 계정 아이디/비밀번호(`victor:pass@123`)를 이용하여 RDP 연결을 시도하였다.
+
+```bash
+$ xfreerdp3 /v:172.16.5.19 /u:victor /p:pass@123
+```
+
+정상적으로 RDP 세션에 접속하는 데 성공하였다.
+
+![Domain](/assets/network-screenshots/sshuttle/rdp-connect.png)
+
+## Flag 획득
+
+`victor` 유저 데스크톱에 존재하는 `flag.txt` 파일을 읽어서 플래그를 획득하였다.
+
+![Domain](/assets/network-screenshots/sshuttle/flag.png)
+
+이로써 **Sshuttle** 사용법에 대한 실습을 마무리하였다.
+
+
+
+
