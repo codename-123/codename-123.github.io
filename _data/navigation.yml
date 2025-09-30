@@ -103,3 +103,5 @@ network:
         url: /network/dynamic-port-forwarding/
       - title: "Remote(Reverse) Port Forwarding"
         url: /network/remote-port-forwarding/
+      - title: "SSH Pivoting with Sshuttle"
+        url: /network/sshuttle/
