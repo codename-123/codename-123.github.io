@@ -1,5 +1,5 @@
 ---
-title: "Remote Port Forwarding"
+title: "Remote(Reverse) Port Forwarding"
 date: 2025-09-29
 layout: single
 author_profile: true

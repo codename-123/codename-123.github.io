@@ -101,3 +101,5 @@ network:
         url: /network/local-port-forwarding/
       - title: "Dynamic Port Forwarding"
         url: /network/dynamic-port-forwarding/
+      - title: "Remote(Reverse) Port Forwarding"
+        url: /network/remote-port-forwarding/
