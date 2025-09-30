@@ -105,3 +105,7 @@ network:
         url: /network/remote-port-forwarding/
       - title: "SSH Pivoting with Sshuttle"
         url: /network/sshuttle/
+      - title: "Web Server Pivoting with Rpivot"
+        url: /network/rpivot
+      
+      
