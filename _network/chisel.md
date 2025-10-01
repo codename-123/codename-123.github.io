@@ -1,0 +1,129 @@
+---
+title: "SOCKS5 Tunneling with Chisel"
+date: 2025-10-02
+layout: single
+author_profile: true
+toc: true
+toc_label: "Chisel Pivoting"
+toc_icon: "network-wired"
+toc_sticky: true
+tags: [networking, tunneling, pivoting, chisel, socks5]
+header:
+  teaser: /assets/network-screenshots/chisel/chisel.png
+---
+
+**Chisel**은 Go로 작성된 경량 TCP/UDP 터널링 도구로, HTTP를 전송계층으로 사용하며 내부적으로 SSH 스타일의 보안(암호화)을 제공한다. 
+
+방화벽 제약이 있는 환경에서도 클라이언트/서버 형태로 터널을 만들어 원격 포트포워딩, 리버스 포트포워딩, SOCKS 프로바이더 등을 빠르게 구성할 수 있다.
+
+---
+
+# 설치 및 빌드
+
+먼저 `chisel` 저장소를 클론한다.
+
+```bash
+$ git clone https://github.com/jpillora/chisel.git
+
+Cloning into 'chisel'...
+remote: Enumerating objects: 2391, done.
+remote: Counting objects: 100% (728/728), done.
+remote: Compressing objects: 100% (286/286), done.
+remote: Total 2391 (delta 573), reused 442 (delta 442), pack-reused 1663 (from 3)
+Receiving objects: 100% (2391/2391), 3.47 MiB | 27.30 MiB/s, done.
+Resolving deltas: 100% (1212/1212), done.
+```
+
+이후 `chisel` 디렉토리로 이동하여 Go로 빌드한다.
+
+```bash
+$ cd chisel
+
+$ go build
+```
+
+---
+
+# 실습
+
+## SCP 파일 전송
+
+클론한 `chisel` 파일을 문제에서 제공한 SSH 계정(`ubuntu`)을 통해 원격 호스트로 전송한다.
+
+```bash
+$ scp chisel ubuntu@10.129.202.64:/home/ubuntu
+```
+
+전송이 완료되면, 동일한 SSH 계정(`ubuntu`)으로 원격 호스트에 접속한다.
+
+```bash
+$ ssh ubuntu@10.129.202.64
+```
+
+## Chisel 서버 실행
+
+SSH로 접속한 후 로컬에서 전송한 `chisel` 실행파일에 실행 권한을 부여하고 서버를 실행한다.
+
+- `--socks5` 옵션으로 서버가 SOCKS 요청을 허용하도록 한다.
+
+```bash
+$ chmod +x ./chisel
+
+$ ./chisel server -v -p 9999 --socks5
+
+2025/10/01 19:11:52 server: Fingerprint XQjen5Kna5Dwuw1sNg2WR3YFSYitJG+FYFLPekMOLFE=
+2025/10/01 19:11:52 server: Listening on http://0.0.0.0:9999
+```
+
+
+## Chisel 서버 연결
+
+원격 호스트(피벗)에서 `chisel` 서버를 실행한 뒤, **로컬에서 클라이언트를 실행하여 해당 서버에 접속**하였다.
+
+```bash
+$ ./chisel client -v 10.129.202.64:9999 socks
+```
+
+정상적으로 연결되면 서버(피벗) 쪽 로그와 함께 로컬 호스트에 SOCKS 리스너(`127.0.0.1:1080`)가 열리는 것을 확인할 수 있다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/chisel/chisel-connect.png)
+
+## proxychains.conf 설정
+
+연결 성공 후, 로컬의 `/etc/proxychains.conf`(`/etc/proxychains4.conf`)를 편집하여 SOCKS 리스너를 `127.0.0.1:1080`으로 변경했다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/chisel/proxychains.png)
+
+## 내부망 RDP 연결
+
+SOCKS 리스너가 정상 동작하는지 `nc` 명령어로 확인했다.
+
+```bash
+$ proxychains nc -vz 172.16.5.19 3389
+
+[proxychains] config file found: /etc/proxychains4.conf
+[proxychains] preloading /usr/lib/x86_64-linux-gnu/libproxychains.so.4
+[proxychains] DLL init: proxychains-ng 4.17
+[proxychains] Strict chain  ...  127.0.0.1:1080  ...  172.16.5.19:3389  ...  OK
+172.16.5.19 [172.16.5.19] 3389 (ms-wbt-server) open : Operation now in progress
+```
+
+연결 시도가 성공하여, SOCKS 리스너를 통한 내부망 RDP 접근이 가능함을 확인하였다.
+
+이제 `proxychains`를 적용하여 문제에서 제공한 RDP IP `172.16.5.19`에 연결을 시도하였다.
+
+```bash
+$ proxychains xfreerdp3 /v:172.16.5.19 /u:victor /p:pass@123
+```
+
+정상적으로 연결에 성공하였다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/chisel/rdp-connect.png)
+
+## Flag 획득
+
+문제에서 제공한 Flag 파일 경로 `C:\Users\victor\Documents\flag.txt`를 읽어 플래그를 획득하였다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/chisel/flag.png)
+
+이로써 **chisel** 실습을 마무리하였다.

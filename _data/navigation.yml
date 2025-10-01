@@ -111,5 +111,7 @@ network:
         url: /network/netsh/
       - title: "DNS Tunneling with Dnscat2"
         url: /network/dnscat2/
+      - title: "SOCKS5 Tunneling with Chisel"
+        url: /network/chisel/
       
       
