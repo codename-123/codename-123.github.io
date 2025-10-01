@@ -109,5 +109,7 @@ network:
         url: /network/rpivot/
       - title: "Port Forwarding with Windows Netsh"
         url: /network/netsh/
+      - title: "DNS Tunneling with Dnscat2"
+        url: /network/dnscat2/
       
       
