@@ -113,5 +113,7 @@ network:
         url: /network/dnscat2/
       - title: "SOCKS5 Tunneling with Chisel"
         url: /network/chisel/
+      - title: "ICMP Tunneling with ptunnel-ng"
+        url: /network/ptunnel/
       
       

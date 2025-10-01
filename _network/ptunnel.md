@@ -1,0 +1,171 @@
+---
+title: "ICMP Tunneling with ptunnel-ng"
+date: 2025-10-02
+layout: single
+author_profile: true
+toc: true
+toc_label: "ICMP Tunneling"
+toc_icon: "network-wired"
+toc_sticky: true
+tags: [networking, tunneling, pivoting, icmp, ptunnel]
+header:
+  teaser: /assets/network-screenshots/ptunnel/ptunnel-teaser.png
+---
+
+**ICMP tunneling**은 ICMP(예: ping)의 echo request/response 메시지에 데이터를 캡슐화하여 양방향 통신 채널을 만드는 기법이다.  
+
+내부 네트워크에서 외부로의 ping(icmp echo)이 허용되는 환경에서는 ICMP를 이용한 터널링으로 제한된 통로를 확보할 수 있다.  
+
+> 내부 호스트 → (ICMP) → 외부 서버 (ptunnel-ng)  
+> ICMP 패킷의 페이로드에 터널화한 데이터를 담아 주고받는 방식으로 동작한다.
+
+---
+
+# 설치 및 빌드
+
+먼저 `ptunnel-ng` 저장소를 클론한다.
+
+```bash
+$ git clone https://github.com/utoni/ptunnel-ng.git
+
+Cloning into 'ptunnel-ng'...
+remote: Enumerating objects: 1413, done.
+remote: Counting objects: 100% (319/319), done.
+remote: Compressing objects: 100% (137/137), done.
+remote: Total 1413 (delta 186), reused 296 (delta 174), pack-reused 1094 (from 1)
+Receiving objects: 100% (1413/1413), 710.67 KiB | 15.45 MiB/s, done.
+Resolving deltas: 100% (908/908), done.
+```
+
+클론이 완료되면 `ptunnel-ng` 디렉토리로 이동 후 `autogen.sh` 를 사용하여 `Ptunnel-ng` 를 빌드한다.
+
+```bash
+$ sudo ./autogen.sh 
+```
+
+## 1. Autotools 기반 소스 빌드
+
+빌드에 필요한 패키지들을 설치한다.
+
+```bash
+$ sudo apt update
+
+$ sudo apt install -y build-essential automake autoconf libpcap-dev pkg-config libssl-dev
+```
+
+일반 사용자로 `autogen.sh`를 실행하여 `configure` 스크립트를 생성하고, `configure` → `make` → `sudo make` `install` 순으로 진행한다.
+
+```bash
+$ ./autogen.sh
+
+$ ./configure
+
+$ make -j$(nproc)
+
+$ sudo make install
+```
+
+> `./autogen.sh`, `./configure`, `make` 단계는 일반 사용자로 실행해야 한다.
+> (`autogen.sh`를 `sudo`로 실행하면 생성된 파일이 root 소유가 되어 권한 문제가 발생할 수 있음.)
+
+## 2. 정적 바이너리 구축 빌드
+
+표준 빌드에서 호환성 문제가 발생하거나 타깃 환경과 라이브러리 불일치가 예상되면 정적 빌드를 시도할 수 있다.
+
+```bash
+$ sudo apt install automake autoconf -y
+
+$ cd ptunnel-ng/
+
+$ sed -i '$s/.*/LDFLAGS=-static "${NEW_WD}\/configure" --enable-static $@ \&\& make clean \&\& make -j${BUILDJOBS:-4} all/' autogen.sh
+
+$ ./autogen.sh
+```
+
+---
+
+# 실습
+
+## SCP 파일 전송
+
+클론한 `ptunnel-ng` 디렉토리를 문제에서 제공한 SSH 계정(`ubuntu`)을 통해 원격 호스트로 전송한다.
+
+```bash
+$ scp -r ptunnel-ng ubuntu@10.129.184.183:/home/ubuntu
+```
+
+전송이 완료되면, 동일한 SSH 계정(`ubuntu`)으로 원격 호스트에 접속한다.
+
+```bash
+$ ssh ubuntu@10.129.184.183
+```
+
+## ptunnel-ng 서버 시작
+
+원격 호스트에서 ICMP 터널링을 위한 `ptunnel-ng` 서버를 실행하였다.
+
+`-r 10.129.184.183`은 원격 서버의 IP를 지정하고, `-R 22`는 원격 서버의 SSH 포트(22)를 로컬로 포워딩해 ICMP 터널을 통해 원격 SSH 접속을 중계한다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/ptunnel/server-start.png)
+
+## ptunnel-ng 서버에 연결
+
+나의 로컬 호스트로 돌아가 `ptunnel-ng` 서버에 연결하는 명령어를 입력하였다.
+
+ICMP 터널을 통해 원격 서버(`10.129.184.183`)의 **SSH 포트(22)를 로컬 PORT 2222로 포워딩**한다.
+
+```bash
+$ sudo ./ptunnel-ng -p10.129.184.183 -l2222 -r10.129.184.183 -R22
+```
+
+ICMP 터널이 성공적으로 설정되면 `PORT ​​2222`를 통해 SSH를 사용하여 대상에 연결을 시도할 수 있다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/ptunnel/ssh-connect.png)
+
+## SSH를 통한 동적 포트 포워딩
+
+ICMP 터널 위에서 `proxychains` 를 이용하여 동적 포트 포워딩을 적용하면 다음과 같이 접속할 수 있다.
+
+```bash
+$ ssh -D 9050 -p 2222 -l ubuntu 127.0.0.1
+```
+
+## proxychains.conf 설정
+
+연결 성공 후, 로컬의 `/etc/proxychains.conf`(`/etc/proxychains4.conf`)를 편집하여 SOCKS 리스너를 `127.0.0.1:9050`으로 변경했다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/ptunnel/proxychains.png)
+
+## 내부망 RDP 연결
+
+SOCKS 리스너가 정상 동작하는지 `nc` 명령어로 확인했다.
+
+```bash
+$ proxychains nc -vz 172.16.5.19 3389
+
+[proxychains] config file found: /etc/proxychains4.conf
+[proxychains] preloading /usr/lib/x86_64-linux-gnu/libproxychains.so.4
+[proxychains] DLL init: proxychains-ng 4.17
+[proxychains] Strict chain  ...  127.0.0.1:9050  ...  172.16.5.19:3389  ...  OK
+172.16.5.19 [172.16.5.19] 3389 (ms-wbt-server) open : Operation now in progress
+```
+
+연결 시도가 성공하여, SOCKS 리스너를 통한 내부망 RDP 접근이 가능함을 확인하였다.
+
+이제 `proxychains`를 적용하여 문제에서 제공한 RDP IP `172.16.5.19`에 연결을 시도하였다.
+
+```bash
+$ proxychains xfreerdp3 /v:172.16.5.19 /u:victor /p:pass@123
+```
+
+정상적으로 연결에 성공하였다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/ptunnel/rdp-connect.png)
+
+## Flag 획득
+
+문제에서 제공한 Flag 파일 경로 `C:\Users\victor\Documents\flag.txt`를 읽어 플래그를 획득하였다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/ptunnel/flag.png)
+
+이로써 **ptunnel** 실습을 마무리하였다.
