@@ -48,6 +48,10 @@ $ xfreerdp3 /v:10.129.77.99 /u:htb-student /p:HTB_@cademy_stdnt!
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/port-1080.png)
 
+`netstat` 명령어로 확인한 결과 `1080` 포트가 **ESTABLISHED 상태로 실행 중**임을 확인하였다.
+
+![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/netstat.png)
+
 이후 문제에서 제공한 내부망 RDP 아이디/비밀번호(`victor/pass@123`)을 입력하여 접속에 성공하였다.
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/victor-connect.png)
@@ -58,7 +62,7 @@ $ xfreerdp3 /v:10.129.77.99 /u:htb-student /p:HTB_@cademy_stdnt!
 
 ## Proxifier 구성
 
-다시 원격 데스크톱으로 넘어가 `Proxifier` 를 실행시킨 후, `Proxy Server` 설정을 추가하여 타입을 `SOCKS5`로, 주소를 `127.0.0.1`, 포트를 `1080`으로 지정했다.
+원격 데스크톱으로 넘어가 `Proxifier` 를 실행시킨 후, `Proxy Server` 설정을 추가하여 타입을 `SOCKS5`로, 주소를 `127.0.0.1`, 포트를 `1080`으로 지정했다.
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/proxy-server.png)
 
