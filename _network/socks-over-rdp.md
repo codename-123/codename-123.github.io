@@ -66,7 +66,7 @@ $ xfreerdp3 /v:10.129.77.99 /u:htb-student /p:HTB_@cademy_stdnt!
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/proxy-server.png)
 
-원격 데스크톱 클라이언트(Remote Desktop Connection)을 이용하여 문제에서 제공한 RDP IP `172.16.6.155` 로 접속을 시도하였다.
+문제에서 제공한 RDP IP `172.16.6.155`로 원격 데스크톱 클라이언트(Remote Desktop Connectio)를 이용해 접속을 시도했다.
 
 Proxifier 창에서 `mstsc.exe` 프로세스가 `172.16.6.155:3389` 의 연결을 생성했으며, 해당 트래픽이 설정된 프록시 규칙(`127.0.0.1:1080`)을 통해 우회된 것을 확인하였다.
 
