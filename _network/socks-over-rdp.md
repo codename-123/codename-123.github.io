@@ -30,7 +30,7 @@ header:
 $ xfreerdp3 /v:10.129.77.99 /u:htb-student /p:HTB_@cademy_stdnt! 
 ```
 
-접속이 완료되면, 위에서 준비한 `SocksOverRDP`와` Proxifier 바이너리`를 원격 데스크톱 세션으로 복사(파일 전송)했다.
+접속이 완료되면, 위에서 준비한 `SocksOverRDP`와` Proxifier 바이너리`를 원격 데스크톱 세션으로 복사(파일 전송)를 하였다.
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/copy.png)
 
@@ -44,7 +44,7 @@ $ xfreerdp3 /v:10.129.77.99 /u:htb-student /p:HTB_@cademy_stdnt!
 
 ## 내부망 RDP 접속
 
-문제에서 제공한 내부망 RDP IP `172.16.5.19`에 원격 데스크톱 클라이언트(Remote Desktop Connection)를 이용해 접속을 시도하면, `SocksOverRDP 플러그인`이 활성화되어 **`127.0.0.1:1080`로 SOCKS 리스너를 열었다**는 메시지가 표시된다.
+문제에서 제공한 내부망 RDP IP `172.16.5.19`에 원격 데스크톱 클라이언트(Remote Desktop Connection)를 이용해 접속을 시도하면, `SocksOverRDP 플러그인`이 활성화되어 **`127.0.0.1:1080`로 SOCKS 리스너를 열었다**는 메시지가 표시되었다.
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/port-1080.png)
 
@@ -72,7 +72,7 @@ Proxifier 창에서 `mstsc.exe` 프로세스가 `172.16.6.155:3389` 의 연결�
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/mstsc.png)
 
-최종적으로 내부망 `172.16.6.155` 의 계정(`jason/WellConnected123!`) 자격증명 입력창이 뜨며 내부망으로의 접근에 성공하였다.
+최종적으로 내부망 `172.16.6.155` 의 로그인 창이 표시되었고, 문제에서 제공한 계정(`jason/WellConnected123!`) 을 입력하여 내부망 접근에 성공했다.
 
 ![Netsh Port Forward Diagram](/assets/network-screenshots/socks-over-rdp/rdp-connect.png)
 
