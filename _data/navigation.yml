@@ -93,7 +93,7 @@ network:
         url: /network/snmp/
       - title: "MySQL"
         url: /network/mysql/
-  - title: Pivoting, Tunneling, Port Forwarding
+  - title: Tunnels Quickstart
     children:
       - title: "Pivoting, Tunneling, Port Forwarding"
         url: /network/pivoting/
@@ -103,19 +103,23 @@ network:
         url: /network/dynamic-port-forwarding/
       - title: "Remote(Reverse) Port Forwarding"
         url: /network/remote-port-forwarding/
+  - title: Traffic Bypass
+    children: 
       - title: "SSH Pivoting with Sshuttle"
         url: /network/sshuttle/
       - title: "Web Server Pivoting with Rpivot"
         url: /network/rpivot/
       - title: "Port Forwarding with Windows Netsh"
         url: /network/netsh/
+  - title: Tunneling Extensions
+    children: 
       - title: "DNS Tunneling with Dnscat2"
         url: /network/dnscat2/
       - title: "SOCKS5 Tunneling with Chisel"
         url: /network/chisel/
       - title: "ICMP Tunneling with ptunnel-ng"
         url: /network/ptunnel/
-      - title: "RDP and SOCKS Tunneling with SocksOverRDP"
+      - title: "RDP-SOCKS Tunneling (SocksOverRDP)"
         url: /network/socks-over-rdp/
       
       
