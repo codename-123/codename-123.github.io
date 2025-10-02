@@ -115,5 +115,7 @@ network:
         url: /network/chisel/
       - title: "ICMP Tunneling with ptunnel-ng"
         url: /network/ptunnel/
+      - title: "RDP and SOCKS Tunneling with SocksOverRDP"
+        url: /network/socks-over-rdp/
       
       
