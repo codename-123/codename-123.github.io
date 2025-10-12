@@ -21,6 +21,8 @@ categories_nav:
     url: /categories/redteam-simulation/
   - title: "Network"
     url: "/categories/network/"
+  - title: "Active Directory"
+    url: "/categories/ad/"
 
 hackthebox:
   - title: "Linux"
