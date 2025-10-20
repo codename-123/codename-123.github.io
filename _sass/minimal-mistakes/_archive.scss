@@ -71,35 +71,55 @@
   height: 100%;
   object-fit: cover;
 
-  /* 위로 살짝 올리기: 값 조절해서 원하는 위치로 */
-  transform: translateY(-18px);
+  /* 위로 살짝 올리기: 현재 -18px이면 좀 과할 수 있음 -> -12px 권장 */
+  transform: translateY(-12px);
 }
 
-/* 작은 화면(모바일)에서 겹치지 않도록 해제 */
+/* 모바일(좁은 화면)에서는 원래 위치로 */
 @include breakpoint($small) {
   .archive__item-teaser--home img {
     transform: none;
   }
 }
 
-s
+
+
+/* excerpt: 최대 4줄로 보이게 */
 .archive__item-excerpt {
-  white-space: nowrap;
+  margin-top: 0;
+  font-size: $type-size-6;
+  line-height: 1.6;                /* 줄높이: 필요시 조정 */
+  margin-right: 160px;             /* 썸네일 공간에 맞춰 조정 (없으면 제거) */
+  position: relative;
+  white-space: normal;             /* 여러 줄 허용 */
+
+  /* WebKit 계열: 정확한 4줄 클램프 (Chrome, Edge, Safari) */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-right: 160px; /* 썸네일 공간에 맞춰 조정 */
+
+  /* 폴백: WebKit 아닌 브라우저용 (max-height로 4줄까지만 보이게) */
+  max-height: calc(1.6em * 4);
+
+  /* 시각적 페이드 아웃 (선택사항: 깔끔하게 잘린 느낌) */
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+  mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
 }
 
-.archive__item-teaser {
-  position: relative;
-  border-radius: $border-radius;
-  overflow: hidden;
-
-  img {
-    width: 100%;
+/* 모바일 등 좁은 화면에서 썸네일이 내려가면 클램프 해제 */
+@include breakpoint($small) {
+  .archive__item-excerpt {
+    margin-right: 0;
+    -webkit-line-clamp: unset;
+    display: block;
+    max-height: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    white-space: normal;
   }
 }
-
 .archive__item-caption {
   position: absolute;
   bottom: 0;
