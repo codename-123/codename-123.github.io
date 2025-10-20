@@ -59,7 +59,7 @@
   margin-right: 10px;
   margin-left: 20px;
   margin-bottom: 10px;
-  width: 120px;       /* 필요에 따라 조정 */
+  width: 120px;
   height: 120px;
   overflow: hidden;
 
@@ -68,9 +68,19 @@
     height: 100%;
     object-fit: cover;
     display: block;
+
+    /* 위로 이동: 음수값을 키우면 더 위로 올라감 */
+    transform: translateY(-8px);
+    /* 애니메이션 없이 즉시 이동하려면 transition 제거(선택) */
   }
 }
 
+/* 반응형: 작은 화면에서는 translate 해제해서 레이아웃이 깨지지 않게 함 */
+@include breakpoint($small) {
+  .archive__item-teaser--home img {
+    transform: none;
+  }
+}
 .archive__item-excerpt {
   white-space: nowrap;
   overflow: hidden;
