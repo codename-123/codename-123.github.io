@@ -10,6 +10,7 @@ toc_sticky: true
 tags: [networking, ssh, socks, proxychains, pivoting]
 header:
   teaser: /assets/network-screenshots/dynamic-port-forwarding/dynamic-port-forwarding.png
+  teaser_home_page: true
 ---
 
 # 개요

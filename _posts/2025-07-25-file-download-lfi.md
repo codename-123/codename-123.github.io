@@ -9,6 +9,7 @@ toc_sticky: true
 tags: [web, file download, lfi, hacking]
 header:
   teaser: /assets/web-screenshots/file-download-lfi/file-download.png
+  teaser_home_page: true
 ---
 
 # 개요

@@ -9,6 +9,7 @@ toc_sticky: true
 tags: [web, sqli, blind, error based, hacking]
 header:
   teaser: /assets/web-screenshots/blind-error-based-sqli/union-sqli.png
+  teaser_home_page: true
 ---
 
 # 개요

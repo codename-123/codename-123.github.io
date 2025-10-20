@@ -9,6 +9,7 @@ toc_sticky: true
 tags: [web, authorization, hacking]
 header:
   teaser: /assets/web-screenshots/authorization/authorization.png
+  teaser_home_page: true
 ---
 
 # 개요

@@ -9,6 +9,7 @@ toc_sticky: true
 tags: [web, xss, hacking]
 header:
   teaser: /assets/web-screenshots/stored-reflected-xss/stored-reflected-xss.png
+  teaser_home_page: true
 ---
 
 # 개요
