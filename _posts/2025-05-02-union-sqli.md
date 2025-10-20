@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, sqli, union, hacking]
 header:
-  teaser: /assets/images/union-sqli.png
+  teaser: /assets/web-screenshots/union-sqli/union-sqli.png
 ---
 
 # 문제 풀이 정리

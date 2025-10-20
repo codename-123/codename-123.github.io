@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, sqli, hacking]
 header:
-  teaser: /assets/images/sqli-point.png
+  teaser: /assets/web-screenshots/sqli-point/sqli-point.png
 ---
 
 # 개요

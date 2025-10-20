@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, file download, lfi, hacking]
 header:
-  teaser: /assets/images/file-download.png
+  teaser: /assets/web-screenshots/file-download-lfi/file-download.png
 ---
 
 # 개요

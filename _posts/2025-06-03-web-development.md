@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, development]
 header:
-  teaser: /assets/images/web-development.png
+  teaser: /assets/web-screenshots/web-development/web-development.png
 ---
 
 # 웹 개발 레포지토리

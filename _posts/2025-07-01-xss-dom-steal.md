@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, xss, hacking]
 header:
-  teaser: /assets/images/stored-reflected-xss.png
+  teaser: /assets/web-screenshots/xss-dom-steal/stored-reflected-xss.png
 ---
 
 # 개요

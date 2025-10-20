@@ -8,7 +8,7 @@ toc_icon: "book"
 toc_sticky: true
 tags: [web, sqli, blind, error based, hacking]
 header:
-  teaser: /assets/images/union-sqli.png
+  teaser: /assets/web-screenshots/blind-error-based-sqli/union-sqli.png
 ---
 
 # 개요
