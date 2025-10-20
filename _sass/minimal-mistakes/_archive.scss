@@ -54,72 +54,29 @@
   }
 }
 
-.archive__item-teaser--home {
-  float: right;
-  margin-right: 10px;
-  margin-left: 20px;
-  margin-bottom: 10px;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-
-}
-
-.archive__item-teaser--home img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-
-  /* 위로 살짝 올리기: 현재 -18px이면 좀 과할 수 있음 -> -12px 권장 */
-  transform: translateY(-12px);
-}
-
-/* 모바일(좁은 화면)에서는 원래 위치로 */
-@include breakpoint($small) {
-  .archive__item-teaser--home img {
-    transform: none;
-  }
-}
-
-
-
-/* excerpt: 최대 4줄로 보이게 */
 .archive__item-excerpt {
   margin-top: 0;
   font-size: $type-size-6;
-  line-height: 1.6;                /* 줄높이: 필요시 조정 */
-  margin-right: 160px;             /* 썸네일 공간에 맞춰 조정 (없으면 제거) */
-  position: relative;
-  white-space: normal;             /* 여러 줄 허용 */
 
-  /* WebKit 계열: 정확한 4줄 클램프 (Chrome, Edge, Safari) */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  & + p {
+    text-indent: 0;
+  }
 
-  /* 폴백: WebKit 아닌 브라우저용 (max-height로 4줄까지만 보이게) */
-  max-height: calc(1.6em * 4);
-
-  /* 시각적 페이드 아웃 (선택사항: 깔끔하게 잘린 느낌) */
-  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
-  mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
-}
-
-/* 모바일 등 좁은 화면에서 썸네일이 내려가면 클램프 해제 */
-@include breakpoint($small) {
-  .archive__item-excerpt {
-    margin-right: 0;
-    -webkit-line-clamp: unset;
-    display: block;
-    max-height: none;
-    -webkit-mask-image: none;
-    mask-image: none;
-    white-space: normal;
+  a {
+    position: relative;
   }
 }
+
+.archive__item-teaser {
+  position: relative;
+  border-radius: $border-radius;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+  }
+}
+
 .archive__item-caption {
   position: absolute;
   bottom: 0;
@@ -237,16 +194,6 @@
     @include breakpoint($medium) {
       display: block;
       font-size: $type-size-6;
-
-      /* grid 아이템에서도 동일한 4줄 규칙 적용 */
-      white-space: normal;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 4;
-      overflow: hidden;
-      max-height: calc(1.6em * 4);
-      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
-      mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
     }
   }
 
