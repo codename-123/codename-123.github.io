@@ -65,6 +65,12 @@
   a {
     position: relative;
   }
+
+  display: -webkit-box;
+  -webkit-line-clamp: 1;   // 최대 1줄
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .archive__item-teaser {
