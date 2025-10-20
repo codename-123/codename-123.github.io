@@ -112,6 +112,7 @@ blockquote {
   padding-right: 1em;
   font-style: italic;
   border-left: 0.25em solid $primary-color;
+  background-color: rgba(233, 233, 233, 0.35);
 
   cite {
     font-style: italic;
@@ -126,6 +127,10 @@ blockquote {
 /* links */
 
 a {
+
+  /* devinlife : a link 하이퍼링크 밑줄 없애기 */
+  text-decoration: none;
+
   &:focus {
     @extend %tab-focus;
   }

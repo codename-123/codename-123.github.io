@@ -8,17 +8,21 @@ html {
   /* apply a natural box layout model to all elements */
   box-sizing: border-box;
   background-color: $background-color;
-  font-size: 12px;
+  font-size: 16px;
 
   @include breakpoint($medium) {
-    font-size: 14px;
+    font-size: 18px;
   }
 
   @include breakpoint($large) {
-    font-size: 16px;
+    /* devinlife : large 페이지 일때 폰트 사이즈 축소 20px->18px */
+    /* font-size: 20px; */
+    font-size: 18px;
   }
 
   @include breakpoint($x-large) {
+    /* devinlife : large 페이지 일때 폰트 사이즈 축소 20px->18px */
+    /* font-size: 20px; */
     font-size: 18px;
   }
 
@@ -76,7 +80,6 @@ audio:not([controls]) {
 
 a {
   color: $link-color;
-  text-decoration: none;
 }
 
 /* Apply focus state */
