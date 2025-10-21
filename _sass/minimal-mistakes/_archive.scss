@@ -1,5 +1,3 @@
-아니면
-
 /* ==========================================================================
    ARCHIVE
    ========================================================================== */
@@ -84,7 +82,7 @@
   }
 }
 
-
+s
 .archive__item-excerpt {
   white-space: nowrap;
   overflow: hidden;
@@ -96,6 +94,10 @@
   position: relative;
   border-radius: $border-radius;
   overflow: hidden;
+
+  img {
+    width: 100%;
+  }
 }
 
 .archive__item-caption {
