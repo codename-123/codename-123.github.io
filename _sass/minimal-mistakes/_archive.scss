@@ -1,6 +1,10 @@
-/* ==========================================================================
+/* ========================================================================== 
    ARCHIVE
    ========================================================================== */
+
+/* --- list teaser size 설정 (필요하면 조정) --- */
+$list-teaser-size: 120px;  // 썸네일 크기 (정사각형)
+$list-teaser-gap: 20px;    // 제목과 썸네일 사이 여백
 
 .archive {
   margin-top: 1em;
@@ -74,6 +78,9 @@
 
   img {
     width: 100%;
+    display: block;
+    /* height:auto kept so it doesn't stretch in non-list contexts */
+    height: auto;
   }
 }
 
@@ -110,6 +117,51 @@
   .page__meta {
     margin: 0 0 4px;
     font-size: 0.6em;
+  }
+
+  /* --- 리스트 뷰에서 썸네일을 오른쪽 상단에 배치 --- */
+  .archive__item {
+    /* .archive__item는 이미 position:relative 이지만 안전하게 다시 명시 */
+    position: relative;
+    /* 오른쪽 공간 확보: 썸네일 크기 + 간격 */
+    padding-right: calc(#{$list-teaser-size} + #{$list-teaser-gap});
+  }
+
+  .archive__item-teaser {
+    /* 리스트 뷰 전용 절대 위치 */
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: $list-teaser-size;
+    height: $list-teaser-size;
+    overflow: hidden;
+    border-radius: $border-radius;
+    z-index: 3;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 영역을 채우며 잘라냄 */
+      display: block;
+    }
+  }
+
+  /* 작은 화면에서는 절대 배치 해제 (세로 스택 흐름) */
+  @include breakpoint($small) {
+    .archive__item {
+      padding-right: 0;
+    }
+    .archive__item-teaser {
+      position: relative;
+      width: 100%;
+      height: auto;
+      margin-bottom: 1em;
+      img {
+        width: 100%;
+        height: auto;
+        object-fit: initial;
+      }
+    }
   }
 }
 
