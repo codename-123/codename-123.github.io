@@ -83,10 +83,16 @@
 }
 
 .archive__item-excerpt {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 160px; /* 썸네일 공간에 맞춰 조정 */
+  margin-top: 0;
+  font-size: $type-size-6;
+
+  & + p {
+    text-indent: 0;
+  }
+
+  a {
+    position: relative;
+  }
 }
 
 .archive__item-teaser {
