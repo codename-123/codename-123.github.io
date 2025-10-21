@@ -12,7 +12,7 @@
 
 # theme                  : "minimal-mistakes-jekyll"
 remote_theme             : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+minimal_mistakes_skin    : "haxor" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
 locale                   : "en-US"
@@ -303,20 +303,6 @@ tag_archive:
 #     category: /categories/:name/
 #     tag: /tags/:name/
 # --- insert this at top-level somewhere (e.g. after permalink:) ---
-collections:
-  web:
-    output: true
-    permalink: /web/:path/
-  network:
-    output: true
-    permalink: /network/:path/
-  hackthebox:
-    output: true
-    permalink: /hackthebox/:path/
-  redteam-simulation:
-    output: true
-    permalink: /redteam-simulation/:path/
-
 
 
 # HTML Compression
@@ -337,48 +323,6 @@ defaults:
       layout: single
       author_profile: true
       read_time: false
-      comments: true
-      share: true
+      comments: false
+      share: false
       related: true
-      show_date: true
-
-  - scope:
-      path: ""
-      type: web
-    values:
-      layout: single
-      comments: true
-      show_date: true
-      toc: true
-      sidebar:
-        nav: web
-  
-  - scope:
-      path: ""
-      type: network
-    values:
-      layout: single
-      comments: true
-      show_date: true
-      toc: true
-      sidebar:
-        nav: network
-
-  - scope:
-      path: ""
-      type: hackthebox
-    values:
-      layout: single
-      toc: true
-      comments: true
-      show_date: true
-      sidebar:
-        nav: hackthebox
-
-  - scope:
-      path: ""
-      type: redteam-simulation
-    values:
-      layout: single
-      toc: true
-
