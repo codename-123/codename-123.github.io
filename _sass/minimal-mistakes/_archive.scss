@@ -54,9 +54,16 @@
   }
 }
 
+/* --------------------------
+   excerpt: 기본 스타일
+   -------------------------- */
 .archive__item-excerpt {
   margin-top: 0;
   font-size: $type-size-8;
+  /* 텍스트가 홈 썸네일과 겹치지 않도록 우측 여백 확보.
+     (이미지 너비 180px + 여유 40px = 220px) 필요시 조정 */
+  margin-right: 220px;
+  white-space: normal;
 
   & + p {
     text-indent: 0;
@@ -67,6 +74,9 @@
   }
 }
 
+/* --------------------------
+   teaser: 공통
+   -------------------------- */
 .archive__item-teaser {
   position: relative;
   border-radius: $border-radius;
@@ -77,22 +87,46 @@
   }
 }
 
-.archive__item-teaser--home img {
-  width: 180px;            /* 이미지 너비 고정 */
-  height: 120px;           /* 이미지 높이 고정 */
-  object-fit: cover;       /* 비율 유지하면서 잘라냄 */
-  border-radius: 4px;      /* 모서리 살짝 라운드 (선택) */
-  display: block;
-
+/* --------------------------
+   teaser--home: 홈 리스트용 썸네일(고정 크기)
+   -------------------------- */
+.archive__item-teaser--home {
+  float: right;
+  margin-right: 10px;
+  margin-left: 20px;
+  margin-bottom: 10px;
+  width: 180px;   /* 고정 너비 (원하면 변경 가능) */
+  height: 120px;  /* 고정 높이 (원하면 변경 가능) */
+  overflow: hidden;
+  border-radius: 4px;
 }
 
-@media screen and (max-width: 768px) {
+.archive__item-teaser--home img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 비율 유지하며 잘라냄 */
+}
+
+/* 모바일: 썸네일을 풀폭으로, 텍스트 우측 여백 제거 */
+@include breakpoint($small) {
+  .archive__item-teaser--home {
+    float: none;
+    width: 100%;
+    height: auto;
+    margin: 0 0 10px 0;
+  }
+
   .archive__item-teaser--home img {
     width: 100%;
     height: auto;
+    object-fit: cover;
+  }
+
+  .archive__item-excerpt {
+    margin-right: 0;
   }
 }
-
 
 .archive__item-caption {
   position: absolute;
@@ -211,6 +245,9 @@
     @include breakpoint($medium) {
       display: block;
       font-size: $type-size-6;
+      /* grid 내부에서도 이미지와 겹치지 않게 같은 여백 적용(필요시 조정) */
+      margin-right: 220px;
+      white-space: normal;
     }
   }
 
