@@ -84,7 +84,7 @@
 
 .archive__item-excerpt {
   margin-top: 0;
-  font-size: $type-size-9;
+  font-size: $type-size-4;
 
   & + p {
     text-indent: 0;
@@ -113,7 +113,7 @@
   padding: 2px 5px;
   color: #fff;
   font-family: $caption-font-family;
-  font-size: $type-size-4;
+  font-size: $type-size-6;
   background: #000;
   text-align: right;
   z-index: 5;
