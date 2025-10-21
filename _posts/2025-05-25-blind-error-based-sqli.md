@@ -14,7 +14,7 @@ header:
   teaser_home_page: true
 ---
 
-## 개요
+# 개요
 
 이 페이지는 Blind SQL Injection과 Error Based SQL Injection을 활용한 CTF 문제 풀이 기록입니다.
 
@@ -22,9 +22,9 @@ header:
 
 ---
 
-## 문제 풀이 정리
+# 문제 풀이 정리
 
-### SQL Injection (Blind SQLI)
+## SQL Injection (Blind SQLI)
 
 ![blindsql](/assets/web-screenshots/blind-error-based-sqli/sqli_blind_1.png)
 
@@ -102,7 +102,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 ---
 
-### SQL Injection (Error Based SQLi)
+## SQL Injection (Error Based SQLi)
 
 이 문제는 Error Based SQLi Injection 취약점이 존재하는 CTF 문제이다. 
 
@@ -152,7 +152,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 ---
 
-### SQL Injection 3 (Error Based SQLI)
+## SQL Injection 3 (Error Based SQLI)
 
 ![sqli3 home](/assets/web-screenshots/blind-error-based-sqli/sqli3_home.png)
 
@@ -215,7 +215,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 ---
 
-### SQL Injection 4 (Error Based SQLI)
+## SQL Injection 4 (Error Based SQLI)
 
 이번 문제 이전과 동일한 로그인 화면으로 시작된다.
 
@@ -269,7 +269,7 @@ normalti' or ascii(substr(database(),{i},1))={ascii} and '1'='1
 
 ---
 
-### SQL Injection 5 (Error Based SQLI)
+## SQL Injection 5 (Error Based SQLI)
 
 이번 문제 역시 이전과 동일한 로그인 화면으로 시작된다.
 
@@ -326,7 +326,7 @@ normaltic' and '1'='2
 
 ---
 
-### SQL Injection 6 (Blind SQLI)
+## SQL Injection 6 (Blind SQLI)
 
 이번 문제 역시 이전과 동일한 로그인 화면으로 시작된다.
 
@@ -392,7 +392,7 @@ print(f"Flag → {flag}")
 ---
 
 
-### 테마 고르기 (Error Based SQLI)
+## 테마 고르기 (Error Based SQLI)
 
 ![theme board](/assets/web-screenshots/blind-error-based-sqli/theme_board.png)
 
@@ -464,7 +464,7 @@ neon'%0aor%0aextractvalue(1,concat(0x7e,(SELECT%0asubstring(flag,31,32)%0afrom%0
 
 ---
 
-### 보안 커뮤니티 (Blind SQLI)
+## 보안 커뮤니티 (Blind SQLI)
 
 
 ![보안 커뮤니티 board](/assets/web-screenshots/blind-error-based-sqli/spec5.png)
