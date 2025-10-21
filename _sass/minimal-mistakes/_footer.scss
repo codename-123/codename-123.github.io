@@ -1,19 +1,38 @@
-/* ==========================================================================
-   FOOTER
+/* ========================================================================== 
+   FOOTER (flexbox sticky footer 적용)
    ========================================================================== */
 
+/* 페이지 전체 레이아웃을 flex로 만들어서 푸터가 항상 아래로 밀려가게 함 */
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 콘텐츠 영역이 가변적으로 늘어나 푸터를 아래로 밀어내도록 설정 */
+.initial-content,
+.search-content {
+  flex: 1 0 auto;
+}
+
+/* 기존 footer 스타일 (position:absolute 제거, float 제거) */
 .page__footer {
   @include clearfix;
-  float: left;
+  /* float: left; 제거 */
+  float: none;
   margin-left: 0;
   margin-right: 0;
   width: 100%;
   clear: both;
-  /* sticky footer fix start */
-  position: absolute;
-  bottom: 0;
-  height: auto;
-  /* sticky footer fix end */
+
+  /* sticky footer fix 제거 (absolute/bottom 대신 흐름에 맡김) */
+  position: static;
+  /* height: auto; 필요 시 유지 (기본적으로 auto) */
+
   margin-top: 3em;
   color: $muted-text-color;
   -webkit-animation: $intro-transition;
