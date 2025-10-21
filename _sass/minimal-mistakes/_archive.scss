@@ -7,6 +7,11 @@ $list-teaser-size: 120px !default;     // 썸네일 크기 (정사각)
 $list-teaser-gap: 20px !default;       // 제목과 썸네일 사이 여백
 $list-teaser-top-offset: 0px !default; // 제목과의 수직 보정 (필요시 값 조정)
 
+$breakpoint-small: 600px !default;
+$breakpoint-medium: 768px !default;
+$breakpoint-large: 1024px !default;
+$breakpoint-x-large: 1280px !default;
+
 .archive {
   margin-top: 1em;
   margin-bottom: 2em;
@@ -183,9 +188,6 @@ $list-teaser-top-offset: 0px !default; // 제목과의 수직 보정 (필요시 
       }
     }
   }
-
-/* 끝 */
-
 }
 
 /*
