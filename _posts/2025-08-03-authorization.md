@@ -1,6 +1,7 @@
 ---
 title: "Authorization"
 date: 2025-08-03
+excerpt: "Authorization(인가) 우회 취약점을 활용한 CTF 문제 풀이 기록으로, 로그인 이후 사용자의 권한을 검증하는 로직의 불완전함을 악용하여, 일반 사용자 계정으로 관리자 기능에 접근하거나 타인의 정보를 탈취하는 과정을 다룬다."
 layout: single
 toc: true
 toc_label: "Authorization"

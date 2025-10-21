@@ -1,6 +1,7 @@
 ---
 title: "SQL Injection Point"
 date: 2025-06-05
+excerpt: "SQL Injection 포인트를 활용한 CTF 문제 풀이 기록으로, 게시판/로그인/쿠키 등 다양한 입력 지점을 탐색해 취약점을 발견하고 플래그를 획득한 과정을 담고 있다."
 layout: single
 toc: true
 toc_label: "SQLI Point"

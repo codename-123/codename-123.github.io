@@ -2,6 +2,7 @@
 title: "Dynamic Port Forwarding"
 date: 2025-09-29
 layout: single
+excerpt: "동적 포트 포워딩(Dynamic Port Forwarding)은 **SOCKS 프록시를 이용해 다양한 내부망 서비스로의 트래픽을 유연하게 전달**하는 기술이다. 공격자는 SSH 세션을 통해 로컬 호스트에 **SOCKS 리스너(프록시)** 를 열고, 이를 통해 방화벽이나 라우팅 제한을 우회하여 **여러 IP/포트를 동적으로 스캔**하거나 서비스에 접근할 수 있다. 이 방식은 방화벽으로 보호된 네트워크에서 **프록시 체인(proxychains)** 과 함께 사용되어, 외부 공격자가 직접 라우팅할 수 없는 서브넷으로 패킷을 전달하는 데 매우 효과적이다."
 author_profile: true
 toc: true
 toc_label: "Dynamic Port Forwarding"

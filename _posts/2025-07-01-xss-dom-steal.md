@@ -1,6 +1,7 @@
 ---
 title: "Stealing DOM data via XSS (Same-Origin DOM Exfiltration)"
 date: 2025-07-01
+excerpt: "Same-Origin 정책을 악용한 DOM 정보 탈취 시나리오 실습 기록으로, 게시판에 악성 HTML을 업로드해 피해 사용자가 열도록 유도하여 사용자가 모르게 DOM 내 민감 정보가 유출되도록 구성한 과정을 정리하였다."
 layout: single
 toc: true
 toc_label: "Stealing DOM data via XSS"

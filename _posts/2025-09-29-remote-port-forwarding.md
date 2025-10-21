@@ -3,6 +3,7 @@ title: "Remote(Reverse) Port Forwarding"
 date: 2025-09-29
 layout: single
 author_profile: true
+excerpt: "**Remote(Reverse) Port Forwarding**은 로컬에서 실행 중인 서비스를 원격 SSH 서버의 특정 포트에 바인딩하여, 원격 네트워크 또는 내부망 호스트가 그 포트를 통해 해당 서비스에 접근할 수 있게 하는 기술이다. 공격자는 SSH의 `-R` 옵션으로 피벗 호스트에 리스닝 포트를 생성하고, 이를 통해 NAT/방화벽으로 인해 직접 라우팅이 불가능한 환경에서 **역방향 연결(예: 리버스 셸)** 을 중계할 수 있다. 이 기법은 파일 전송, 원격 명령 실행, Meterpreter 같은 리버스 세션 확보 등 직접 접속이 어려운 내부 자원에 대한 접근을 가능하게 해 자주 활용된다."
 toc: true
 toc_label: "Remote Port Forwarding"
 toc_icon: "network-wired"

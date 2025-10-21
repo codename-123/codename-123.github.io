@@ -1,6 +1,7 @@
 ---
 title: "File Download & LFI"
 date: 2025-07-25
+excerpt: "File Download 기능과 LFI(Local File Inclusion) 취약점을 활용한 CTF 문제 풀이 기록으로, 파일 다운로드 기능의 파라미터 조작을 통해 서버 내 임의 파일을 열람하거나, LFI를 통해 PHP 코드 실행 흐름으로 확장하는 과정을 다룬다."
 layout: single
 toc: true
 toc_label: "File Download & LFI"

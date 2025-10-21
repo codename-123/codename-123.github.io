@@ -2,6 +2,7 @@
 title: "File Upload"
 date: 2025-07-19
 layout: single
+excerpt: "File Upload 취약점을 활용한 실습 기록으로, 웹 애플리케이션의 파일 업로드 기능을 우회하여 .php 웹쉘 파일을 업로드하고, 이를 실행하여 flag를 획득하는 과정을 담고 있다."
 toc: true
 toc_label: "File Upload"
 toc_icon: "book"

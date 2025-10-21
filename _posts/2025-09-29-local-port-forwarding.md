@@ -2,6 +2,7 @@
 title: "Local Port Forwarding"
 date: 2025-09-29
 layout: single
+excerpt: "포트 포워딩은 통신 요청을 한 포트에서 다른 포트로 리디렉션하는 기술이다. 포트 포워딩은 주로 TCP 계층에서 동작하며, 전달되는 포트에 대해 인터랙티브한 통신을 제공한다. 그러나 SSH나 SOCKS(비 애플리케이션 계층)과 같은 다른 프로토콜을 사용하여 트래픽을 캡슐화할 수도 있다. 이 방법은 방화벽을 우회하거나 이미 장악한 호스트를 통해 다른 네트워크로 피벗할 때 효과적이다."
 author_profile: true
 toc: true
 toc_label: "Local Port Forwarding"

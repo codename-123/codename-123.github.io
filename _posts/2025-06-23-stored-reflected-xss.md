@@ -1,6 +1,7 @@
 ---
 title: "Stored & Reflected XSS"
 date: 2025-06-23
+excerpt: "Stored XSS 및 Reflected XSS 취약점을 활용해 페이로드 작성, 관리자 봇 유도, 결과 분석을 통해 플래그를 획득한 문제 풀이 기록이다."
 layout: single
 toc: true
 toc_label: "Stored & Reflected XSS"
