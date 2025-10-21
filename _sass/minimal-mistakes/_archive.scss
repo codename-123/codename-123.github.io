@@ -1,16 +1,6 @@
-/* ========================================================================== 
+/* ==========================================================================
    ARCHIVE
    ========================================================================== */
-
-/* --- list teaser size 설정 (필요하면 조정) --- */
-$list-teaser-size: 120px !default;     // 썸네일 크기 (정사각)
-$list-teaser-gap: 20px !default;       // 제목과 썸네일 사이 여백
-$list-teaser-top-offset: 0px !default; // 제목과의 수직 보정 (필요시 값 조정)
-
-$breakpoint-small: 600px !default;
-$breakpoint-medium: 768px !default;
-$breakpoint-large: 1024px !default;
-$breakpoint-x-large: 1280px !default;
 
 .archive {
   margin-top: 1em;
@@ -84,9 +74,6 @@ $breakpoint-x-large: 1280px !default;
 
   img {
     width: 100%;
-    display: block;
-    /* height:auto kept so it doesn't stretch in non-list contexts */
-    height: auto;
   }
 }
 
@@ -123,70 +110,6 @@ $breakpoint-x-large: 1280px !default;
   .page__meta {
     margin: 0 0 4px;
     font-size: 0.6em;
-  }
-
-
-/* 리스트 뷰(archive list) 전용 오버라이드 */
-  .archive .list__item {
-
-    /* 각 아이템에 절대 위치용 기준과 오른쪽 여유 공간 확보 */
-    .archive__item {
-      position: relative !important;
-      padding-right: calc(#{$list-teaser-size} + #{$list-teaser-gap}) !important;
-    }
-
-    /* grid 뷰에서 사용되는 teaser 블록도 커버 */
-    .archive__item-teaser {
-      @media (min-width: $breakpoint-small) {
-        position: absolute;
-        top: $list-teaser-top-offset;
-        right: 0;
-        width: $list-teaser-size;
-        height: $list-teaser-size;
-        overflow: hidden;
-        border-radius: $border-radius;
-        z-index: 3;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-      }
-    }
-
-    /* 우리가 template에서 추가한 클래스(권장) */
-    .archive__item-excerpt > img.archive__excerpt-teaser {
-      @media (min-width: $breakpoint-small) {
-        position: absolute !important;
-        top: $list-teaser-top-offset !important;
-        right: 0 !important;
-        width: $list-teaser-size !important;
-        height: $list-teaser-size !important;
-        overflow: hidden !important;
-        border-radius: $border-radius !important;
-        z-index: 4 !important;
-        display: block !important;
-        object-fit: cover !important;
-      }
-
-      /* 모바일/작은 화면에서는 원래 흐름으로 */
-      @media (max-width: $breakpoint-small) {
-        position: static !important;
-        width: 100% !important;
-        height: auto !important;
-        margin-bottom: 1em !important;
-        object-fit: initial !important;
-      }
-    }
-
-    /* 안전장치: 인라인 스타일이 남아있을 때 우선 적용되도록 더 높은 우선순자 */
-    @media (min-width: $breakpoint-small) {
-      body .archive .list__item .archive__item-excerpt > img.archive__excerpt-teaser {
-        position: absolute !important;
-      }
-    }
   }
 }
 
