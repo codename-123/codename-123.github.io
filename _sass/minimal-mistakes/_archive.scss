@@ -22,7 +22,6 @@
   position: relative;
 }
 
-/* 연도 섹션 제목 */
 .archive__subtitle {
   margin: 1.414em 0 0;
   padding-bottom: 0.5em;
@@ -35,14 +34,12 @@
   }
 }
 
-/* 제목: 기본 스타일 + resize 시에도 글자 크기 고정 */
 .archive__item-title {
   margin-bottom: 0.25em;
   font-family: $sans-serif-narrow;
-  line-height: 1.2;                /* 안정적인 라인높이 */
+  line-height: initial;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: $type-size-5 !important; /* 창 줄여도 유지(요청사항) */
 
   a + a {
     opacity: 0.5;
@@ -57,16 +54,15 @@
   }
 }
 
-/* 작은 홈 썸네일 (오른쪽 고정 박스) */
-/* 기존 float 제거하고 grid/flex 기반 레이아웃에서 우측 고정 컬럼으로 배치할 예정 */
 .archive__item-teaser--home {
-  /* 이전 float 제거(덮어쓰기) -> grid 레이아웃 내에서 고정 칼럼으로 동작하게 처리 */
-  float: none !important;
-  margin: 0 !important;
+  float: right;
+  margin-right: 10px;
+  margin-left: 20px;
+  margin-bottom: 10px;
   width: 120px;
   height: 120px;
   overflow: hidden;
-  display: block;
+
 }
 
 .archive__item-teaser--home img {
@@ -86,10 +82,9 @@
   }
 }
 
-/* 요약 텍스트 기본 (요청: $type-size-5 고정) */
 .archive__item-excerpt {
   margin-top: 0;
-  font-size: $type-size-5 !important; /* 창 줄여도 유지(요청사항) */
+  font-size: $type-size-5;
 
   & + p {
     text-indent: 0;
@@ -139,116 +134,11 @@
    List view
    ========================================================================== */
 
-/* 기존 meta 스타일 유지(작게 보이게) */
 .list__item {
   .page__meta {
     margin: 0 0 4px;
     font-size: 0.6em;
   }
-}
-
-/* --------------------------------------------------------------------------
-   Layout fix: list view 항목에서 텍스트(왼쪽) / 썸네일(오른쪽 고정) 정렬
-   - 창을 줄여도 제목/요약 폰트 크기($type-size-5)가 유지되도록 강제
-   --------------------------------------------------------------------------*/
-
-/* 리스트(each item)의 루트 컨테이너를 grid로 전환 */
-.list__item > .archive__item,
-.entries-list > .archive__item {
-  display: grid;
-  grid-template-columns: 1fr 120px; /* 텍스트 1fr / 썸네일 고정 120px */
-  grid-auto-rows: auto;
-  gap: 1rem;
-  align-items: start;
-}
-
-/* teaser (홈/작은 썸네일)을 오른쪽 칼럼에 고정 */
-.list__item > .archive__item .archive__item-teaser--home,
-.entries-list > .archive__item .archive__item-teaser--home {
-  grid-column: 2;
-  grid-row: 1;
-  justify-self: end;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-  float: none !important;
-  margin: 0 !important;
-}
-
-/* grid 뷰용 일반 teaser도 오른쪽 고정 칼럼에 배치 */
-.list__item > .archive__item .archive__item-teaser,
-.entries-list > .archive__item .archive__item-teaser {
-  grid-column: 2;
-  grid-row: 1;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-  float: none !important;
-}
-
-/* 이미지가 박스에 꽉 차도록 */
-.list__item > .archive__item img,
-.entries-list > .archive__item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* 텍스트(왼쪽 컬럼): 제목/메타/요약이 세로로 쌓임 */
-.list__item > .archive__item .archive__item-title,
-.entries-list > .archive__item .archive__item-title {
-  font-size: $type-size-5 !important; /* 창 줄여도 유지(요청사항) */
-  line-height: 1.2;
-  margin: 0 0 0.35rem;
-}
-
-.list__item > .archive__item .archive__item-excerpt,
-.entries-list > .archive__item .archive__item-excerpt {
-  font-size: $type-size-5 !important; /* 강제 유지 */
-  margin-top: 0;
-}
-
-/* date/read-time 메타 스케일 조정 */
-.list__item > .archive__item .page__meta,
-.entries-list > .archive__item .page__meta {
-  font-size: 0.9em;
-  margin: 0 0 0.5rem;
-}
-
-/* 태그 버튼이 라인에서 깨지지 않게 */
-.list__item > .archive__item .page__meta.btn,
-.list__item > .archive__item .page__meta .btn {
-  display: inline-block;
-}
-
-/* 그리드 뷰 항목에도 비슷한 레이아웃 적용(필요 시) */
-.grid__item .archive__item {
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  gap: 1rem;
-}
-
-/* 모바일(작은 화면)에서는 원래 흐름(블록)으로 되돌림 */
-@include breakpoint($small) {
-  .list__item > .archive__item,
-  .entries-list > .archive__item,
-  .grid__item .archive__item {
-    display: block;
-  }
-
-  .list__item > .archive__item .archive__item-teaser--home,
-  .entries-list > .archive__item .archive__item-teaser--home,
-  .grid__item .archive__item .archive__item-teaser {
-    width: 100%;
-    height: auto;
-    margin: 0 0 0.75rem;
-    grid-column: auto;
-    float: none !important;
-  }
-
-  /* 모바일에서 폰트 크기 별도 지정 필요하면 여기서 바꿔주세요 */
-  /* .archive__item-title { font-size: $type-size-5; } */
 }
 
 /*
