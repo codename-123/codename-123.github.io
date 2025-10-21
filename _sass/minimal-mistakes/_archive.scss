@@ -84,7 +84,7 @@
   }
 }
 
-s
+
 .archive__item-excerpt {
   white-space: nowrap;
   overflow: hidden;
@@ -219,6 +219,17 @@ s
     @include breakpoint($medium) {
       display: block;
       font-size: $type-size-6;
+
+      /* grid 아이템에서도 동일한 4줄 규칙 적용 */
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      overflow: hidden;
+      max-height: calc(1.6em * 4);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+      mask-image: linear-gradient(180deg, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+      }
     }
   }
 
