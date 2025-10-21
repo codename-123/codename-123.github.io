@@ -7,6 +7,7 @@ toc: true
 toc_label: "SQLI Point"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, sqli, hacking]
 header:
   teaser: /assets/web-screenshots/sqli-point/sqli-point.png

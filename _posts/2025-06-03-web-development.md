@@ -7,6 +7,7 @@ toc: true
 toc_label: "Web Development"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, development]
 header:
   teaser: /assets/web-screenshots/web-development/web-development.png

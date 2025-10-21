@@ -7,6 +7,7 @@ toc: true
 toc_label: "Stealing DOM data via XSS"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, xss, hacking]
 header:
   teaser: /assets/web-screenshots/xss-dom-steal/stored-reflected-xss.png

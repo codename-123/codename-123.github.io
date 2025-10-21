@@ -9,6 +9,7 @@ toc_label: "Remote Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
 tags: [networking, ssh, tunneling, pivoting, reverse]
+categories: [network]
 header:
   teaser: /assets/network-screenshots/remote-port-forwarding/remote-port-forwarding.png
   teaser_home_page: true

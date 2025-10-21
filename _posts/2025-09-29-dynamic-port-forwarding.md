@@ -9,6 +9,7 @@ toc_label: "Dynamic Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
 tags: [networking, ssh, socks, proxychains, pivoting]
+categories: [network]
 header:
   teaser: /assets/network-screenshots/dynamic-port-forwarding/dynamic-port-forwarding.png
   teaser_home_page: true

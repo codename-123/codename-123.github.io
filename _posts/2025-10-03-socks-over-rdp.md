@@ -9,6 +9,7 @@ toc_label: "SocksOverRDP"
 toc_icon: "network-wired"
 toc_sticky: true
 tags: [rdp, socks, tunneling, pivoting]
+categories: [network]
 header:
   teaser: /assets/network-screenshots/socks-over-rdp/socks-over-rdp.png
   teaser_home_page: true

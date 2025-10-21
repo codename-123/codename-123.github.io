@@ -7,6 +7,7 @@ toc: true
 toc_label: "Union SQLI"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, sqli, union, hacking]
 header:
   teaser: /assets/web-screenshots/union-sqli/union-sqli.png

@@ -7,6 +7,7 @@ toc: true
 toc_label: "Authorization"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, authorization, hacking]
 header:
   teaser: /assets/web-screenshots/authorization/authorization.png

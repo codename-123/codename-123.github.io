@@ -7,6 +7,7 @@ toc: true
 toc_label: "Stored & Reflected XSS"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, xss, hacking]
 header:
   teaser: /assets/web-screenshots/stored-reflected-xss/stored-reflected-xss.png

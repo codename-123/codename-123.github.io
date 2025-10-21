@@ -7,6 +7,7 @@ toc: true
 toc_label: "File Upload"
 toc_icon: "book"
 toc_sticky: true
+categories: [web]
 tags: [web, file upload, hacking]
 header:
   teaser: /assets/web-screenshots/file-upload/file-upload.png
