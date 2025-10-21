@@ -26,10 +26,32 @@ layout: default
     <div class="page__inner-wrap">
       {% unless page.header.overlay_color or page.header.overlay_image %}
         <header>
-          {% if page.title %}<h1 id="page-title" class="page__title" itemprop="headline">{{ page.title | markdownify | remove: "<p>" | remove: "</p>" }}</h1>{% endif %}
-          {% if page.read_time %}
-            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> {% include read-time.html %}</p>
+          {% if page.title %}
+            <h1 id="page-title" class="page__title" itemprop="headline">
+              {{ page.title | markdownify | remove: "<p>" | remove: "</p>" }}
+            </h1>
           {% endif %}
+
+          <!-- 제목 바로 아래: 날짜(또는 수정일) + 읽기시간 -->
+          <p class="page__meta page__meta--header">
+            {% if page.last_modified_at %}
+              <i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
+              <time datetime="{{ page.last_modified_at | date: "%Y-%m-%d" }}">
+                {{ page.last_modified_at | date: "%B %d, %Y" }}
+              </time>
+              &emsp;
+            {% elsif page.date %}
+              <i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
+              <time datetime="{{ page.date | date_to_xmlschema }}">
+                {{ page.date | date: "%B %d, %Y" }}
+              </time>
+              &emsp;
+            {% endif %}
+
+            {% if page.read_time %}
+              <i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{% include read-time.html %}
+            {% endif %}
+          </p>
         </header>
       {% endunless %}
 
@@ -42,16 +64,12 @@ layout: default
             </nav>
           </aside>
         {% endif %}
-        <p class="page__meta">
-          {% if page.last_modified_at %}
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="{{ page.last_modified_at | date: "%Y-%m-%d" }}">{{ page.last_modified_at | date: "%B %d, %Y" }}</time>&emsp;
-          {% elsif page.date %}
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %d, %Y " }}</time>&emsp;
-          {% endif %}
-          {% if page.read_time %}<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{% include read-time.html %}{% endif %}
-        </p>
+
         {{ content }}
-        {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
+
+        {% if page.link %}
+          <div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>
+        {% endif %}
       </section>
 
       <footer class="page__meta">
