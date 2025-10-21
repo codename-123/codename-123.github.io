@@ -1,6 +1,7 @@
 ---
 title: "Blind & Error Based SQL Injection"
 date: 2025-05-25
+excerpt: "Blind SQL Injection 및 Error-based SQL Injection을 활용해 로그인 우회, 세션 처리 방식, 쿼리 취약점을 분석하고 플래그를 획득한 CTF 풀이 기록이다."
 layout: single
 toc: true
 toc_label: "Blind & Error Based SQLI"

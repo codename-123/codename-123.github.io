@@ -1,6 +1,7 @@
 ---
 title: "UNION SQL Injection"
 date: 2025-05-02
+excerpt: "UNION 기반 SQL Injection 기법을 활용해 데이터베이스 구조를 열람하고 플래그를 획득한 과정을 정리하였다."
 layout: single
 toc: true
 toc_label: "Union SQLI"

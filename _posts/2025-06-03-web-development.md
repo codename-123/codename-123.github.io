@@ -1,6 +1,7 @@
 ---
 title: "Web Development"
 date: 2025-06-03
+excerpt: "HTML/CSS/JavaScript 및 PHP 기반 예제, 실전 프로젝트 코드가 포함된 웹 개발 레포지토리입니다."
 layout: single
 toc: true
 toc_label: "Web Development"
