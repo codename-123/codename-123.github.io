@@ -291,7 +291,7 @@ if not os.path.isabs(filename):
 
 예를 들어, 아래와 같은 요청을 통해 시스템 파일을 직접 노출시킬 수 있다:
 
-```txt
+```ini
 image=/etc/passwd
 ```
 
