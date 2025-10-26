@@ -600,8 +600,8 @@ www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:3000:127.0.
 
 `8001` 포트에서는 내부용 로그인 페이지가 나타났다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/onlyforyou-localhost.png)
+![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-localhost.png)
 
 로그인 페이지에서 `admin/admin` 을 사용한 결과, 로그인에 성공하였고 `/dashboard` 경로로 리다이렉트되었다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/onlyforyou-dashboard.png)
+![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-dashboard.png)
