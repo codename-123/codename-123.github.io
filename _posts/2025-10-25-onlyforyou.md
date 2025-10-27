@@ -118,7 +118,7 @@ $ cat /etc/hosts | grep htb
 
 ### Directory Listing
 
-해당 도메인에 대해 디렉토리 및 파일 구조를 확인하기 위해 `gobuster` 를 활용한 디렉토리 브루트포싱을 수행하였다:
+해당 도메인에 대한 디렉토리 구조를 확인하기 위해 `gobuster` 를 활용한 디렉토리 브루트포싱을 수행하였다:
 
 ```bash
 $ gobuster dir -u http://beta.only4you.htb -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt                    
