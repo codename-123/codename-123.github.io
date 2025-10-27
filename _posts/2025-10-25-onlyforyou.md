@@ -98,13 +98,13 @@ $ cat /etc/hosts | grep htb
 
 ## only4you.htb
 
-`only4you.htb` 도메인은 기본적인 회사 소개용 랜딩 페이지로 구성되어 있으며,
+`only4you.htb` 도메인은 기본적인 회사 소개용 페이지로 구성되어 있으며,
 
 주요 섹션으로는 `Home`, `About`, `Services`, `Team`, `Contact`가 존재한다.
 
 ![OnlyForYou](/assets/htb-linux/onlyforyou/only4you.png)
 
-특별한 기능이나 로그인 페이지는 존재하지 않으며, 하단에는 다음과 같은 **이메일/연락처 입력 폼(Contact Form)**이 포함되어 있다:
+특별한 기능이나 로그인 페이지는 존재하지 않으며, 하단에는 다음과 같은 **이름, 이메일, 제목, 내용 입력 폼**이 포함되어 있다:
 
 ![OnlyForYou](/assets/htb-linux/onlyforyou/email-form.png)
 
