@@ -12,7 +12,7 @@ header:
   teaser: /assets/htb-linux/onlyforyou/onlyforyou.png
   teaser_home_page: true
 categories: [hackthebox linux]
-tags: [htb, web, medium, jwt, sqli, priv-esc]
+tags: [htb, linux, web, lfi, command-injection, rce, neo4j, priv-esc, cypher-injection, gogs, pip-exploit, sudo, chisel, reverse-shell]
 ---
 
 ![OnlyForYou](/assets/htb-linux/onlyforyou/onlyforyou.png)
