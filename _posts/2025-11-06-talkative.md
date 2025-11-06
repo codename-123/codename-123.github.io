@@ -586,7 +586,7 @@ view_livechat_queue_status
 
 이 중에서 가장 중요하다고 판단되는 `users` 테이블을 분석하였다:
 
-```json
+```bash
 rs0:PRIMARY> db.users.find().pretty()
 
 {
@@ -715,10 +715,10 @@ rs0:PRIMARY> db.users.updateOne({"_id":"Ei99ne8ZRaqS7pAds"},{$set:{"roles":["adm
 
 명령어 실행 후, 다시 `users` 테이블을 확인한 결과 `jisang@talkative.htb` 계정의 `"roles"` 값이 `"admin"` 으로 성공적으로 변경된 것을 확인할 수 있었다:
 
-```json
+```bash
 rs0:PRIMARY> db.users.find().pretty()
 
-// ...[SKIP]...
+# ...[SKIP]...
 {
         "_id" : "Ei99ne8ZRaqS7pAds",
         "createdAt" : ISODate("2025-11-06T10:49:55.574Z"),
