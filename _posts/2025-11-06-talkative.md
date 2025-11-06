@@ -182,6 +182,7 @@ $ cat /etc/hosts | grep htb
 ![로그인 화면](/assets/htb-linux/talkative/rocket-chat-login.png)
 
 해당 페이지는 이메일 또는 사용자명과 비밀번호 입력 필드를 포함하고 있으며, 하단에는 비밀번호 재설정 및 계정 생성 링크도 제공된다.
+
 또한 페이지 하단에는 "`Powered by Rocket.Chat`"이라는 문구가 표시되어, 해당 서비스가 오픈소스 채팅 플랫폼인 **Rocket.Chat** 기반임을 확인할 수 있다.
 
 계정을 생성한 뒤 로그인하면, 내부 **Rocket.Chat** 대시보드에 접근할 수 있다.
