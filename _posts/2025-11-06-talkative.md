@@ -858,7 +858,7 @@ voluntary_ctxt_switches:        16
 nonvoluntary_ctxt_switches:     28
 ```
 
-이 CapEff 필드를 기반으로 `capsh` 를 이용해 디코딩한 결과는 다음과 같다:
+이 **CapEff 필드**를 기반으로 `capsh` 를 이용해 디코딩한 결과는 다음과 같다:
 
 ```bash
 $ capsh --decode=00000000a80425fd
