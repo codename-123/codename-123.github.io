@@ -765,7 +765,7 @@ john@only4you:~$ sudo /usr/bin/pip3 download http://127.0.0.1:3000/john/Test/raw
 
 ![리버스 셸 획득](/assets/htb-linux/onlyforyou/root.png)
 
-최종적으로 `/root/root.txt` 파일을 읽어 플래그를 획득하였다:
+최종적으로 `/root/root.txt` 파일을 읽어 플래그를 획득하였다.
 
 ![루트 플래그 획득](/assets/htb-linux/onlyforyou/flag.png)
 
