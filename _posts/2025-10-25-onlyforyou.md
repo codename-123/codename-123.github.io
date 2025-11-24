@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/htb-linux/onlyforyou/onlyforyou.png
   teaser_home_page: true
-categories: [hackthebox linux]
+categories: [hackthebox-linux]
 tags: [htb, linux, web, lfi, command-injection, rce, neo4j, priv-esc, cypher-injection, gogs, pip-exploit, sudo, chisel, reverse-shell]
 ---
 

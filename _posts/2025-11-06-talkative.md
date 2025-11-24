@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/htb-linux/talkative/talkative.png
   teaser_home_page: true
-categories: [hackthebox linux]
+categories: [hackthebox-linux]
 tags: [htb, linux, docker, web, command-injection, rce, ssti, reverse-shell, priv-esc, mongodb, rocket.chat, twig, bolt-cms, chisel, capabilities, shadow, webhook]
 ---
 
