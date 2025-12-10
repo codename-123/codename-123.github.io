@@ -19,8 +19,7 @@ tags: [windows, active-directory, ldap, smb, winrm, bloodhound, impacket, certip
 
 ![Certified](/assets/htb-windows/certified/certified.png)
 
-Certified는 Medium 난이도의 Windows 머신이다.  
-도메인 열거 과정에서 `judith.mader` 계정이 **MANAGEMENT 그룹에 대한 WriteOwner 권한**을 가지고 있음이 확인된다.  
+**Certified**는 Medium 난이도의 Windows 머신이며, 도메인 열거 과정에서 `judith.mader` 계정이 **MANAGEMENT 그룹에 대한 WriteOwner 권한**을 가지고 있음이 확인된다.  
 해당 권한을 이용해 그룹의 소유자를 변경한 뒤, `dacledit.py`를 통해 MANAGEMENT 그룹의 권한을 수정한다.  
 이 그룹은 `management_svc` 계정에 대한 **GenericWrite 권한**을 가지고 있었으며,  
 이를 악용해 `management_svc` 계정으로의 인증이 가능해진다.  
