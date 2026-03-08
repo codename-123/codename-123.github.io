@@ -16,7 +16,7 @@ tags: [htb, linux, web, spring-boot, actuator, heapdump, credential-leak, eureka
 
 ---
 
-![Eureka](/assets/htb-linux/monitorsthree/monitorsthree.png)
+![MonitorsThree](/assets/htb-linux/monitorsthree/monitorsthree.png)
 
 **MonitorsThree**는 Medium 난이도의 Linux 머신으로, 네트워크 솔루션을 제공하는 회사의 웹사이트를 대상으로 한 공격 체인을 다룬다.  
 
