@@ -560,7 +560,7 @@ Source Data 단계에서는 백업할 데이터를 선택할 수 있다.
 
 이후 **Run now** 버튼을 클릭하여 백업 작업을 실행하였다.
 
-백업이 완료된 후 **Restore files…** 기능을 이용하여 복원 경로를 지정할 수 있으며, 여기서는 복원 경로를 `/source/root/.ssh`로 설정하였다:
+백업이 완료된 후 **Restore files** 기능을 이용하여 복원 경로를 지정할 수 있으며, 여기서는 복원 경로를 `/source/root/.ssh`로 설정하였다:
 
 > 이 과정에서 `root` 사용자의 `authorized_keys` 파일이 `marcus` 사용자의 SSH 키로 덮어쓰여지게 되며, 이를 통해 `marcus` 의 개인 키를 이용한 `root` SSH 접속이 가능해진다.
 
