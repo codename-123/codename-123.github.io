@@ -18,9 +18,13 @@ tags: [windows, active-directory, smb, mssql, linked-server, adidns, dns, respon
 
 ![Overwatch](/assets/htb-windows/overwatch/overwatch.png)
 
-**Overwatch**는 Medium 난이도의 Windows 머신으로, 초기에는 SMB null session을 통해 노출된 `software$` 공유에 접근하면서 시작된다. 해당 공유에서 **.NET 기반 모니터링 애플리케이션**을 획득한 뒤, 이를 디컴파일하여 하드코딩된 `sqlsvc` **MSSQL 자격증명**을 발견한다. 이후 MSSQL 서비스가 기본 포트가 아닌 `6520` 포트에서 동작 중임을 확인하고, `sqlsvc` 계정으로 데이터베이스에 접속한다.
+**Overwatch**는 Medium 난이도의 Windows 머신으로, 초기에는 SMB null session을 통해 노출된 `software$` 공유에 접근하면서 시작된다. 
 
-MSSQL 내부를 탐색하던 중 `SQL07` 이라는 linked server가 존재하지만 정상적으로 연결되지 않는 것을 확인하고, 해당 호스트명을 공격자 IP로 해석되도록 **DNS 레코드를 조작**한다. 이를 통해 linked server 연결 과정에서 사용되는 `sqlmgmt` 평문 자격증명을 `Responder` 로 획득하고, WinRM을 통해 대상 시스템에 접근한다.
+해당 공유에서 **.NET 기반 모니터링 애플리케이션**을 획득한 뒤, 이를 디컴파일하여 하드코딩된 `sqlsvc` **MSSQL 자격증명**을 발견한다. 이후 MSSQL 서비스가 기본 포트가 아닌 `6520` 포트에서 동작 중임을 확인하고, `sqlsvc` 계정으로 데이터베이스에 접속한다.
+
+MSSQL 내부를 탐색하던 중 `SQL07` 이라는 linked server가 존재하지만 정상적으로 연결되지 않는 것을 확인하고, 해당 호스트명을 공격자 IP로 해석되도록 **DNS 레코드를 조작**한다. 
+
+이를 통해 linked server 연결 과정에서 사용되는 `sqlmgmt` 평문 자격증명을 `Responder` 로 획득하고, WinRM을 통해 대상 시스템에 접근한다.
 
 최종적으로 내부에서만 접근 가능한 **WCF/SOAP 기반 MonitorService**를 분석하여 `KillProcess` 기능의 **PowerShell Command Injection** 취약점을 발견하고, 이를 악용해 SYSTEM 권한을 획득한다.
 
