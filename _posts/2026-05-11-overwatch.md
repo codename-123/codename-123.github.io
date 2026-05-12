@@ -330,7 +330,7 @@ TimeoutError: [Errno 110] Connection timed out
 
 기존 `nmap -sC -sV` 스캔은 기본적으로 일부 주요 포트만 대상으로 수행되므로, MSSQL 서비스가 비표준 포트에서 동작하고 있을 가능성을 고려하여 전체 고포트 대역에 대해 추가 스캔을 수행하였다:
 
-```BASH
+```bash
 $ nmap -sCV -p 6000-65535 -T4 --min-rate 5000 10.129.31.201
 Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-11 06:12 EDT
 Nmap scan report for overwatch.htb (10.129.31.201)
