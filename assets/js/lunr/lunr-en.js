@@ -23,20 +23,6 @@ var idx = lunr(function () {
 });
 
 $(document).ready(function() {
-  function truncateExcerpt(excerpt, limit) {
-    if (!excerpt) {
-      return "";
-    }
-
-    var words = excerpt.split(" ");
-
-    if (words.length <= limit) {
-      return excerpt;
-    }
-
-    return words.splice(0, limit).join(" ") + "...";
-  }
-
   $('input#search').on('keyup', function () {
     var resultdiv = $('#results');
     var query = $(this).val().toLowerCase();
@@ -58,7 +44,7 @@ $(document).ready(function() {
 
     for (var item in result) {
       var ref = result[item].ref;
-      var excerpt = truncateExcerpt(store[ref].excerpt, 100);
+      var excerpt = store[ref].excerpt || "";
 
       if(store[ref].teaser){
         var searchitem =
