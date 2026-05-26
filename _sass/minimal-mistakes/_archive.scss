@@ -71,11 +71,9 @@
   height: 100%;
   object-fit: cover;
 
-  /* 위로 살짝 올리기: 값 조절해서 원하는 위치로 */
   transform: translateY(-18px)
 }
 
-/* 작은 화면(모바일)에서 겹치지 않도록 해제 */
 @include breakpoint($small) {
   .archive__item-teaser--home img {
     transform: none;

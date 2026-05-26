@@ -515,7 +515,17 @@
 
   // Scrollspy marks toc items as .active when they are in focus
   .active {
-    @include yiq-contrasted($active-color);
+    background-color: $active-color;
+    color: #000 !important;
+
+    > a {
+      color: #000 !important;
+    }
+  }
+
+  a.active {
+    background-color: $active-color;
+    color: #000 !important;
   }
 }
 
