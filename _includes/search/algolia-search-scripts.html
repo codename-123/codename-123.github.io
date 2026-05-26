@@ -24,7 +24,14 @@ const hitTemplate = function(hit) {
 
   const teaser = hit.teaser || null;
 
-  const teaserHtml = teaser
+  const isDefaultTeaser =
+    teaser &&
+    (
+      teaser.includes("awesome_face_hack.png") ||
+      teaser.includes("/assets/images/awesome_face")
+    );
+
+  const teaserHtml = teaser && !isDefaultTeaser
     ? `
       <div class="archive__item-teaser">
         <img src="{{ site.baseurl }}${teaser}" alt="">
