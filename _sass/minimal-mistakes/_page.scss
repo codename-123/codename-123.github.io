@@ -68,9 +68,6 @@
 
 .page__content {
 
-  font-size: 0.88rem;
-  line-height: 1.75;
-
   h2 {
     padding-bottom: 0.5em;
     border-bottom: 1px solid $border-color;
@@ -79,12 +76,13 @@
   p,
   li,
   dl {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     line-height: 1.75;
   }
 
-  code {
-    font-size: 0.85em;
+  p code,
+  li code {
+    font-size: 0.9em;
   }
 
   /* paragraph indents */
@@ -98,6 +96,14 @@
         margin-top: -($indent-var);
       }
     }
+  }
+
+  pre,
+  pre code,
+  .highlight code,
+  .highlighter-rouge code {
+    font-size: 0.85rem;
+    line-height: 1.6;
   }
 
   a:not(.btn) {
