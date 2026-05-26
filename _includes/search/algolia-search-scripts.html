@@ -13,20 +13,14 @@ const search = instantsearch({
     restrictSearchableAttributes: [
       'title',
       'content'
-    ],
-    attributesToSnippet: [
-      'html:80',
-      'content:80'
     ]
   }
 });
 
 const hitTemplate = function(hit) {
-  console.log("ALGOLIA HIT:", hit);
-
   const url = hit.url;
   const title = hit._highlightResult.title.value;
-  const content = hit.html || hit.content || "";
+  const content = hit._highlightResult.html.value;
 
   return `
     <div class="list__item">
