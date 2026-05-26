@@ -84,7 +84,8 @@
 
 .archive__item-excerpt {
   margin-top: 0;
-  font-size: $type-size-5;
+  font-size: 0.85rem;
+  line-height: 1.65;
 
   & + p {
     text-indent: 0;
