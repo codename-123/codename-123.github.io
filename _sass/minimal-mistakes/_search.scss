@@ -21,7 +21,7 @@
   transition: 0.2s;
 
   &:hover {
-    color: $masthead-link-color-hover;
+    color: #fff;
   }
 }
 
@@ -153,4 +153,12 @@
   color: $primary-color;
   font-style: normal;
   font-weight: bold;
+}
+
+.search-content .archive__item-teaser img[src*="awesome_face_hack.png"] {
+  display: none !important;
+}
+
+.search-content .archive__item-teaser:has(img[src*="awesome_face_hack.png"]) {
+  display: none !important;
 }
