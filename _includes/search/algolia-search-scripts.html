@@ -22,8 +22,8 @@ const search = instantsearch({
 });
 
 const hitTemplate = function(hit) {
+  console.log("ALGOLIA HIT:", hit);
 
-  console.log(hit);
   const url = hit.url;
   const title = hit._highlightResult.title.value;
   const content = hit.html || hit.content || "";
