@@ -22,10 +22,23 @@ const hitTemplate = function(hit) {
   const title = hit._highlightResult.title.value;
   const content = hit._highlightResult.html.value;
 
+  const teaser = hit.teaser || null;
+
+  const teaserHtml = teaser
+    ? `
+      <div class="archive__item-teaser">
+        <img src="{{ site.baseurl }}${teaser}" alt="">
+      </div>
+    `
+    : "";
+
   return `
     <div class="list__item">
       <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-        <h2 class="archive__item-title" itemprop="headline"><a href="{{ site.baseurl }}${url}">${title}</a></h2>
+        ${teaserHtml}
+        <h2 class="archive__item-title" itemprop="headline">
+          <a href="{{ site.baseurl }}${url}">${title}</a>
+        </h2>
         <div class="archive__item-excerpt" itemprop="description">${content}</div>
       </article>
     </div>
