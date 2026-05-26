@@ -9,19 +9,48 @@
 }
 
 .search__toggle {
+  position: relative;
   margin-left: 1rem;
   margin-right: 1rem;
   height: $nav-toggle-height;
   border: 0;
   outline: none;
-  color: $primary-color;
+  box-shadow: none;
+  color: #fff;
   background-color: transparent;
   cursor: pointer;
-  -webkit-transition: 0.2s;
-  transition: 0.2s;
+  -webkit-transition: $global-transition;
+  transition: $global-transition;
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    background: #fff;
+    width: 100%;
+    -webkit-transition: $global-transition;
+    transition: $global-transition;
+    -webkit-transform: scaleX(0) translate3d(0, 0, 0);
+    transform: scaleX(0) translate3d(0, 0, 0);
+  }
 
   &:hover {
-    color: #fff;
+    color: mix(#000, #fff, 20%);
+  }
+
+  &:hover:before {
+    -webkit-transform: scaleX(1);
+    -ms-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+
+  &:focus,
+  &:active {
+    outline: none;
+    box-shadow: none;
+    border: 0;
   }
 
   .search-icon,
@@ -29,6 +58,15 @@
   svg path {
     color: #fff;
     fill: #fff;
+    stroke: #fff;
+  }
+
+  &:hover .search-icon,
+  &:hover svg,
+  &:hover svg path {
+    color: mix(#000, #fff, 20%);
+    fill: mix(#000, #fff, 20%);
+    stroke: mix(#000, #fff, 20%);
   }
 }
 
