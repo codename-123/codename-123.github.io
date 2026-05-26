@@ -47,9 +47,14 @@
   }
 
   &:focus,
-  &:active {
-    outline: none;
-    box-shadow: none;
+  &:active,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  &::-moz-focus-inner {
     border: 0;
   }
 
@@ -58,7 +63,6 @@
   svg path {
     color: #fff;
     fill: #fff;
-    stroke: #fff;
   }
 
   &:hover .search-icon,
@@ -66,7 +70,6 @@
   &:hover svg path {
     color: mix(#000, #fff, 20%);
     fill: mix(#000, #fff, 20%);
-    stroke: mix(#000, #fff, 20%);
   }
 }
 
