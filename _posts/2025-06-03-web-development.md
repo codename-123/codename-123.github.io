@@ -9,9 +9,6 @@ toc_icon: "book"
 toc_sticky: true
 categories: [web]
 tags: [web, development]
-header:
-  teaser: /assets/web-screenshots/web-development/web-development.png
-  teaser_home_page: true
 ---
 
 # 웹 개발 레포지토리

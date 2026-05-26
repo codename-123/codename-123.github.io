@@ -9,9 +9,6 @@ toc_icon: "book"
 toc_sticky: true
 categories: [web]
 tags: [web, authorization, hacking]
-header:
-  teaser: /assets/web-screenshots/authorization/authorization.png
-  teaser_home_page: true
 ---
 
 # 개요

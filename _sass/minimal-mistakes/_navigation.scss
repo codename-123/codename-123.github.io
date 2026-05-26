@@ -534,18 +534,18 @@
   padding: 0;
   width: 100%;
   list-style: none;
-  font-size: 0.76rem;
+  font-size: 0.68rem;
 
   @include breakpoint($large) {
-    font-size: 0.76rem;
+    font-size: 0.68rem;
   }
 
   a {
     display: block;
-    padding: 0.2rem 0.65rem;
+    padding: 0.16rem 0.55rem;
     color: $muted-text-color;
     font-weight: bold;
-    line-height: 1.4;
+    line-height: 1.35;
     border-bottom: 1px solid $border-color;
 
     &:hover {

@@ -9,9 +9,6 @@ toc_icon: "book"
 toc_sticky: true
 categories: [web]
 tags: [web, file upload, hacking]
-header:
-  teaser: /assets/web-screenshots/file-upload/file-upload.png
-  teaser_home_page: true
 ---
 
 # 개요

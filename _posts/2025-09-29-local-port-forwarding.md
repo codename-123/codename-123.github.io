@@ -10,9 +10,6 @@ toc_icon: "network-wired"
 toc_sticky: true
 tags: [networking, ssh, tunneling, socks, pivoting]
 categories: [network]
-header:
-  teaser: /assets/network-screenshots/local-port-forwarding/local-port-forwarding.png
-  teaser_home_page: true
 ---
 
 # 개요
