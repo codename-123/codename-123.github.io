@@ -26,3 +26,18 @@ $navicon-link-color-hover: mix(#000, $background-color, 30%) !default;
 .ais-search-box .ais-search-box--input {
   background-color: $form-background-color;
 }
+
+/* Code block background */
+.page__content pre,
+.page__content .highlight,
+.page__content .highlighter-rouge .highlight,
+.page__content div.highlighter-rouge,
+.page__content figure.highlight {
+  background-color: #101a2b !important;
+}
+
+.page__content pre code,
+.page__content .highlight code,
+.page__content .highlighter-rouge code {
+  background-color: transparent !important;
+}
