@@ -1,5 +1,5 @@
 ---
-title: "LFI Part 2 - Remote Code Execution"
+title: "LFI - Remote Code Execution"
 date: 2026-06-12
 layout: single
 excerpt: "취약한 애플리케이션이 사용자 입력값을 검증하지 않고 그대로 include 함수에 전달한다면, 공격자는 PHP Wrapper, 로그 포이즈닝, RFI, 파일 업로드와의 연계 등을 통해 일반 파일이 아닌 PHP 코드를 include하도록 만들 수 있다. 이 경우 서버는 공격자가 전달한 PHP 코드를 실행하게 되고, 결과적으로 Remote Code Execution으로 이어질 수 있다."

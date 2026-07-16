@@ -1,5 +1,5 @@
 ---
-title: "LFI Part 1 - File Disclosure"
+title: "LFI - File Disclosure"
 date: 2026-06-11
 layout: single
 excerpt: "LFI, Local File Inclusion은 웹 애플리케이션이 서버 내부의 파일을 불러오는 기능을 처리할 때, 사용자의 입력값을 제대로 검증하지 않아 발생하는 취약점이다. 예를 들어 애플리케이션이 특정 페이지나 템플릿 파일을 불러오기 위해 파일명을 파라미터로 받는다고 가정한다면 이때 입력값에 대한 검증이 부족하면 공격자는 의도된 파일이 아닌 서버 내부의 민감한 파일을 읽도록 요청을 조작할 수 있다."
