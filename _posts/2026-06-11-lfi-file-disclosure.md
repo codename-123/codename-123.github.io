@@ -56,8 +56,6 @@ include('../../../../etc/passwd');
 
 # Basic Bypasses
 
-## Non-Recursive Path Traversal Filters
-
 만약 내부에서 이런 필터가 존재한다고 가정해보자:
 
 ```php
@@ -79,38 +77,6 @@ $language = str_replace('../', '', $_GET['language']);
 실제로 확인해보면 다음과 같이 LFI가 발생하는 것을 볼 수 있다:
 
 ![LFI](/assets/cpts-web/lfi-file-disclosure/lfi3.png)
-
-## Double Encoding
-
-또 다른 예로, 내부에서 다음과 같은 필터가 동작한다고 가정해보자:
-
-```php
-(str_contains($_GET["language"], ".") || str_contains($_GET["language"], "/"))
-```
-
-이 필터는 `language` 파라미터에 `.` 또는 `/` 문자가 포함되어 있으면 요청을 차단한다.
-
-일반적인 `../` 는 당연히 차단된다. 또한 `%2e%2e%2f` 처럼 한 번 URL 인코딩된 값을 보내더라도, PHP는 `$_GET` 값을 처리할 때 URL 디코딩을 한 번 수행하기 때문에 필터 검사 시점에는 `../` 로 보이게 되고 차단된다.
-
-하지만 애플리케이션이 필터 검사 이후에 `urldecode()` 를 한 번 더 수행하는 구조라면 **Double Encoding**으로 우회할 수 있다.
-
-예를 들어 다음과 같은 값을 보낸다:
-
-```text
-%252e%252e%252f
-```
-
-PHP의 1차 URL 디코딩을 하게 되면 이러하다: 
-
-```text
-%2e%2e%2f
-```
-
-하지만 필터 이후에 추가적인 디코딩이 없다면, 최종적으로 파일 경로에 들어가는 값은 그대로 `%2e%2e%2f` 이다. 
-
-PHP의 `include()` 나 파일시스템 함수는 이 값을 자동으로 `../` 로 다시 디코딩하지 않기 때문에, Directory Traversal로 동작하지 않고 단순한 문자열처럼 처리된다.
-
-반대로 필터를 통과한 뒤에 `urldecode()` 함수가 한 번 더 호출되는 구조라면, `%2e%2e%2f` 가 다시 디코딩되어 최종적으로 `../` 문자열이 된다.
 
 # PHP Filters
 
