@@ -523,4 +523,4 @@ $svg = $doc->getElementsByTagName('svg');
 
 ```php
 <?php echo $svg->item(0)->C14N(); ?>
-```
+``` 
