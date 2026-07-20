@@ -2,7 +2,7 @@
 title: "XSS - XSS Attacks"
 date: 2026-07-05
 layout: single
-excerpt: "Stored, Reflected, DOM-based XSS의 동작 방식과 차이점을 실습을 통해 알아보고, 각 유형에서 JavaScript가 실행되는 과정을 정리한다."
+excerpt: "Reflected XSS를 이용한 피싱 로그인 폼 삽입과 Stored XSS를 통한 관리자 쿠키 탈취 과정을 실습으로 정리한다."
 author_profile: true
 toc: true
 toc_label: "XSS"
@@ -11,6 +11,8 @@ toc_sticky: true
 categories: [cpts-web]
 tags: [web, cpts, xss]
 ---
+
+**Reflected XSS**를 이용한 피싱 로그인 폼 삽입과 **Stored XSS**를 통한 관리자 쿠키 탈취 과정을 실습으로 정리한다.
 
 # XSS Phishing
 
