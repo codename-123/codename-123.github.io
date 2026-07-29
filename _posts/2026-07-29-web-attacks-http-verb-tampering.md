@@ -1,6 +1,6 @@
 ---
 title: "Web Attacks - HTTP Verb Tampering"
-date: 2026-07-20
+date: 2026-07-29
 layout: single
 excerpt: "HTTP 메서드 변경을 통해 Basic Authentication과 보안 필터를 우회하고 Command Injection으로 이어지는 과정을 정리한다."
 author_profile: true
