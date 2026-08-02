@@ -1,5 +1,5 @@
 ---
-title: "Command Injections - Skills Assessment"
+title: "Command Injection - Skills Assessment"
 date: 2026-07-22
 layout: single
 excerpt: "한 회사의 의뢰를 받아 침투 테스트를 수행하던 중 파일 관리자 웹 애플리케이션을 발견하였다. 파일 관리자는 내부적으로 시스템 명령어를 실행하는 경우가 많기 때문에, 해당 기능에 커맨드 인젝션 취약점이 존재하는지 확인할 필요가 있다. 필터 식별 및 우회 기법을 활용하여 입력 지점을 분석하고, 적용된 블랙리스트와 특수문자 필터를 우회한 뒤 실제로 임의의 시스템 명령어를 실행할 수 있는지 검증해야 한다."
