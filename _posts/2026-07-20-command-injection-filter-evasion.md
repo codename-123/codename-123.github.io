@@ -1,11 +1,11 @@
 ---
-title: "Command Injections - Filter Evasion"
+title: "Command Injection - Filter Evasion"
 date: 2026-07-20
 layout: single
 excerpt: "커맨드 인젝션의 필터링 구조를 확인하고, Linux와 Windows 환경에서 공백, 특수문자, 블랙리스트 명령어를 우회하는 과정을 정리한다."
 author_profile: true
 toc: true
-toc_label: "Web Attacks"
+toc_label: "Command Injection"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-web]
@@ -22,7 +22,7 @@ tags: [web, cpts, web-attacks, command-injection]
 
 이번 웹 페이지는 다음과 같다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection1.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection1.png)
 
 Burp Suite를 실행한 후 요청을 가로채고, 다음과 같이 `;` 문자를 삽입하였다:
 
@@ -32,7 +32,7 @@ ip=127.0.0.1;
 
 하지만 명령어가 실행되지 않고 `Invalid input` 메시지가 나타났다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection2.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection2.png)
 
 `&&` 나 `||` 문자열을 삽입해도 요청이 차단되었다.
 
@@ -44,7 +44,7 @@ ip=127.0.0.1%0a
 
 그 결과 요청이 차단되지 않고 정상적으로 `127.0.0.1` 에 대한 ping 결과가 출력되었다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection3.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection3.png)
 
 이 결과를 통해 `%0a` 문자가 필터링되지 않는다는 것을 확인할 수 있다.
 
@@ -64,7 +64,7 @@ ip=127.0.0.1%0a{ls,-al}
 
 그 결과 공백 필터를 우회하고 정상적으로 파일 목록을 확인하는 데 성공하였다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection4.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection4.png)
 
 ---
 
@@ -98,7 +98,7 @@ ip=127.0.0.1%0a{ls,-la,${PATH:0:1}home}
 
 그 결과 정상적으로 /home 디렉터리의 내용이 출력되었다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection5.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection5.png)
 
 ## Windows Character and Space Filter Bypasses
 
@@ -171,7 +171,7 @@ ip=127.0.0.1%0awhoami
 
 그 결과 `Invalid input` 이 출력되는 것으로 보아 `whoami` 가 필터링되어 있는 것을 확인할 수 있다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection6.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection6.png)
 
 하지만 다음과 같이 작성하였다:
 
@@ -181,7 +181,7 @@ ip=127.0.0.1%0awh'o'a'm'i
 
 그 결과 오류가 발생하지 않고 `whoami` 명령어의 결과가 출력되는 것을 확인할 수 있다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection7.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection7.png)
 
 내부 로직을 확인하기 위해 다음과 같이 작성하였다:
 
@@ -259,7 +259,7 @@ ip=127.0.0.1%0a$(tr${IFS}"[A-Z]"${IFS}"[a-z]"<<<"WhOaMi")
 
 Linux 명령어는 대소문자를 구분하기 때문에 `WhOaMi` 를 그대로 입력하면 실행되지 않는다. 따라서 실행 과정에서 소문자로 변환하여 우회할 수 있다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection8.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection8.png)
 
 또한 `rev` 명령어를 활용하여 거꾸로 작성된 `whoami` 문자열을 다시 원래 상태로 변환할 수 있다:
 
@@ -289,7 +289,7 @@ ip=127.0.0.1%0abash<<<$(base64${IFS}-d<<<Y2F0IC9ldGMvcGFzc3dk)
 
 그 결과 `/etc/passwd` 의 내용이 출력되는 것을 확인할 수 있다:
 
-![Web Attacks](/assets/cpts-web/command-injections-filter-evasion/command-injection9.png)
+![Command Injection](/assets/cpts-web/command-injection-filter-evasion/command-injection9.png)
 
 ## Advanced Command Obfuscation on Windows
 
