@@ -5,14 +5,14 @@ layout: single
 excerpt: "INLANEFREIGHT 조직에서 외부에 공개된 웹 서버 중 하나를 대상으로 보안 강화 평가를 수행해 달라는 의뢰를 받았다. 클라이언트는 서버의 보안 상태를 점검할 수 있도록 낮은 권한의 사용자 계정을 제공하였다. SSH를 통해 서버에 접속한 뒤, 배운 기술을 활용해 권한 상승으로 이어질 수 있는 잘못된 설정과 기타 보안 취약점을 찾아야 한다."
 author_profile: true
 toc: true
-toc_label: "Linux Priv"
+toc_label: "Linux Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
 header:
   teaser: /assets/cpts-infra/linux-privilege-escalation-skills-assessment/badge.png
   teaser_home_page: true
 categories: [cpts-infra]
-tags: [linux, cpts, priv-esc, cron, containers, nfs, suid, library-hijacking]
+tags: [linux, cpts, priv-esc, credential-reuse, tomcat, war-upload, reverse-shell, sudo, busctl]
 ---
 
 # Scenario

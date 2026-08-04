@@ -5,7 +5,7 @@ layout: single
 excerpt: "Linux 환경에서 PATH Abuse, Wildcard Abuse, 제한 셸 우회와 같은 환경 기반 권한 상승 기법을 살펴보고, SUID·SGID, 잘못 설정된 sudo 권한, 특권 그룹 및 Linux Capabilities를 이용한 권한 상승 과정을 실습한다."
 author_profile: true
 toc: true
-toc_label: "Linux Priv"
+toc_label: "Linux Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
