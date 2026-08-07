@@ -226,6 +226,7 @@ NISEnabled                : False
 
 또한 AppLocker 정책을 확인할 수 있다:
 
+{% raw %}
 ```powershell
 PS C:\htb> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
 
@@ -260,6 +261,7 @@ Description         : Allows members of the local Administrators group to run al
 UserOrGroupSid      : S-1-5-32-544
 Action              : Allow
 ```
+{% endraw %}
 
 이 출력에서 `Everyone` 은 `%WINDIR%\Installer\*` 경로의 Windows Installer 파일과 `%PROGRAMFILES%\*` 경로의 스크립트를 실행할 수 있도록 허용되어 있다.
 
