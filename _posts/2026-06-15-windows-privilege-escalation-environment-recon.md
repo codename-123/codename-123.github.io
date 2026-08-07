@@ -24,7 +24,7 @@ Windows 권한 상승을 위해 네트워크, 보안 설정, 프로세스, Acces
 
 IP 정보를 열거하면 다음과 같다:
 
-```cmd
+```powershell
 C:\htb> ipconfig /all
 
 Windows IP Configuration
@@ -85,7 +85,7 @@ Ethernet adapter Ethernet0:
 
 또한 ARP 캐시를 확인해 보자:
 
-```cmd
+```powershell
 C:\htb> arp -a
 
 Interface: 10.129.43.8 --- 0x4
@@ -117,7 +117,7 @@ ARP 캐시를 보면 `10.129.0.1` 게이트웨이와 `10.129.43.12`, `10.129.43.
 
 라우팅 테이블을 통해 현재 호스트가 어떤 네트워크로 패킷을 전달할 수 있는지도 확인할 수 있다:
 
-```cmd
+```powershell
 C:\htb> route print
 
 ===========================================================================
@@ -409,4 +409,4 @@ Named Pipe는 한 프로세스가 다른 프로세스나 서비스에 요청 데
 
 `sqlcmd -S np:\\.\pipe\SQLLocal\SQLEXPRESS01 -E` 를 통해 Named Pipe를 명시적으로 사용하여 SQL Server에 Windows 통합 인증으로 연결하였다.
 
-`1>` 프롬프트가 출력되었으며, 이후 SELECT @@VERSION;과 GO를 실행하여 SQL Server의 버전 정보를 정상적으로 조회할 수 있었다.
+`1>` 프롬프트가 출력되었으며, 이후 `SELECT @@VERSION;` 과 `GO` 를 실행하여 SQL Server의 버전 정보를 정상적으로 조회할 수 있었다.
