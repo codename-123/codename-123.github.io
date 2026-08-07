@@ -2,15 +2,17 @@
 title: "Windows Privilege Escalation - Environment Recon"
 date: 2026-06-15
 layout: single
-excerpt: "잘못 설정된 Cron Job, 컨테이너, NFS, 공유 객체 및 Python 라이브러리를 악용하여 일반 사용자 권한에서 root 권한을 획득하는 과정을 실습한다."
+excerpt: "Windows 권한 상승을 위해 네트워크, 보안 설정, 프로세스, Access Token, Named Pipe 등을 열거하고 권한 상승 가능성을 확인하는 방법을 정리한다."
 author_profile: true
 toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, cron, containers, nfs, suid, library-hijacking]
+tags: [windows, cpts, priv-esc, uac, access-token, named-pipe]
 ---
+
+Windows 권한 상승을 위해 네트워크, 보안 설정, 프로세스, Access Token, Named Pipe 등을 열거하고 권한 상승 가능성을 확인하는 방법을 정리한다.
 
 # Situational Awareness
 
