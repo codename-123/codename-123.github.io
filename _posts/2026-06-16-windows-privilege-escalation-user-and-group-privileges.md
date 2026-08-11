@@ -2,15 +2,17 @@
 title: "Windows Privilege Escalation - User and Group Privileges"
 date: 2026-06-16
 layout: single
-excerpt: "Windows 권한 상승을 위해 네트워크, 보안 설정, 프로세스, Access Token, Named Pipe 등을 열거하고 권한 상승 가능성을 확인하는 방법을 정리한다."
+excerpt: "Windows의 SeImpersonatePrivilege, SeDebugPrivilege, SeTakeOwnershipPrivilege와 Backup Operators, Event Log Readers, DnsAdmins, Server Operators 등을 각각 악용하여 권한 상승으로 이어지는 과정을 실습한다."
 author_profile: true
 toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, uac, access-token, named-pipe]
+tags: [windows, cpts, priv-esc, user-privileges, built-in-groups, access-token]
 ---
+
+Windows의 SeImpersonatePrivilege, SeDebugPrivilege, SeTakeOwnershipPrivilege와 Backup Operators, Event Log Readers, DnsAdmins, Server Operators 등을 각각 악용하여 권한 상승으로 이어지는 과정을 실습한다.
 
 # User Privileges
 
