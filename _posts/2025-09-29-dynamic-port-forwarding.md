@@ -8,8 +8,8 @@ toc: true
 toc_label: "Dynamic Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [networking, ssh, socks, proxychains, pivoting]
-categories: [network]
+tags: [cpts, networking, ssh, socks, proxychains, pivoting]
+categories: [cpts-network]
 ---
 
 # 개요
@@ -25,7 +25,7 @@ categories: [network]
 
 # SSH Dynamic Port Forwarding (SOCKS 프록시)
 
-![Dynamic Port Forwarding](/assets/network-screenshots/dynamic-port-forwarding/dynamic-port-forwarding.png)
+![Dynamic Port Forwarding](/assets/cpts-network/dynamic-port-forwarding/dynamic-port-forwarding.png)
 
 위 다이어그램은 SSH를 이용해 **SOCKS 리스너(포트 9050)** 를 생성한 뒤,  
 이를 통해 `172.16.5.0/23` 내부망을 스캔하는 과정을 나타낸다.
@@ -97,7 +97,7 @@ $ ssh ubuntu@10.129.185.108
 
 접속 후, `ifconfig` 명령어를 통하여 내부망 IP 를 탐색하였다.
 
-![Domain](/assets/network-screenshots/dynamic-port-forwarding/ifconfig.png)
+![Dynamic Port Forwarding](/assets/cpts-network/dynamic-port-forwarding/ifconfig.png)
 
 문제에서 제공된 내부망 IP(`172.16.5.19`) 를 이용하여 RDP(`3389 포트`)의 서비스가 열려 있는 것을 확인하였다.
 
@@ -150,12 +150,12 @@ $ proxychains xfreerdp3 /v:172.16.5.19 /u:victor /p:pass@123
 
 정상적으로 RDP 세션에 접속하는 데 성공하였다.
 
-![Domain](/assets/network-screenshots/dynamic-port-forwarding/rdp-connect.png)
+![Dynamic Port Forwarding](/assets/cpts-network/dynamic-port-forwarding/rdp-connect.png)
 
 ## Flag 획득
 
 세션 접속 후, 데스크톱에 위치한 flag 파일을 확인하고 내용을 읽어 플래그를 획득하였다.
 
-![Domain](/assets/network-screenshots/dynamic-port-forwarding/flag.png)
+![Dynamic Port Forwarding](/assets/cpts-network/dynamic-port-forwarding/flag.png)
 
 이로써 **Dynamic Port Forwarding** 실습을 마무리하였다.

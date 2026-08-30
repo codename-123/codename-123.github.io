@@ -8,8 +8,8 @@ toc: true
 toc_label: "Local Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [networking, ssh, tunneling, socks, pivoting]
-categories: [network]
+tags: [cpts, networking, ssh, tunneling, socks, pivoting]
+categories: [cpts-network]
 ---
 
 # 개요
@@ -25,7 +25,7 @@ categories: [network]
 
 # SSH 로컬 포트 포워딩
 
-![Domain](/assets/network-screenshots/local-port-forwarding/local-port-forwarding.png)
+![Domain](/assets/cpts-network/local-port-forwarding/local-port-forwarding.png)
 
 위 다이어그램은 로컬 포트 포워딩의 예를 보여준다.
 공격 호스트(`10.10.15.5`)가 로컬 포트 `1234`를 대상으로 피해 서버(`172.16.5.129`, `10.129.15.50`)의 원격 포트 `3306`으로 전달을 요청한다. 
@@ -73,7 +73,7 @@ $ ssh ubuntu@10.129.202.64
 
 접속 후, `ifconfig` 명령어를 통하여 내부망 IP 를 탐색하였다.
 
-![Domain](/assets/network-screenshots/local-port-forwarding/ifconfig.png)
+![Local Port Forwarding](/assets/cpts-network/local-port-forwarding/ifconfig.png)
 
 문제에서 제공된 내부망 IP(`172.16.5.19`) 를 이용하여 RDP(`3389 포트`)의 서비스가 열려 있는 것을 확인하였다.
 
@@ -116,11 +116,11 @@ $ xfreerdp3 /v:127.0.0.1:1234 /u:victor /p:pass@123
 
 정상적으로 RDP 세션을 수립하는 데 성공하였다.
 
-![Domain](/assets/network-screenshots/local-port-forwarding/rdp-connect.png)
+![Local Port Forwarding](/assets/cpts-network/local-port-forwarding/rdp-connect.png)
 
 세션 접속 후, 데스크톱에 위치한 flag 파일을 확인하고 내용을 읽어 플래그를 획득하였다.
 
-![Domain](/assets/network-screenshots/local-port-forwarding/flag.png)
+![Local Port Forwarding](/assets/cpts-network/local-port-forwarding/flag.png)
 
 이로써 **Local Port Forwarding** 실습을 마무리하였다.
 
