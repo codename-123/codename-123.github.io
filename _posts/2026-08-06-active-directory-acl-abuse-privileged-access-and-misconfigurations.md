@@ -10,6 +10,8 @@ toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
 tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
+
+published: false
 ---
 
 # An ACE in the Hole
