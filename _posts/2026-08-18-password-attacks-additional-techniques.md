@@ -123,7 +123,7 @@ Old settings for legacy VPN deployment:
 - Ports used: 443, 8443, 1194
 ```
 
-# Windows 리터럴 무브먼트 Techniques
+# Lateral Movement and Authentication Abuse
 
 ## Pass the Ticket (PtT) from Windows
 
