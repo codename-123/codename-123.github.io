@@ -9,7 +9,7 @@ toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
 header:
-  teaser: /assets/cpts-web/active-directory-skills-assessment/badge.png
+  teaser: /assets/cpts-infra/active-directory-skills-assessment/badge.png
   teaser_home_page: true
 categories: [cpts-infra]
 tags: [cpts, active-directory, kerberoasting, bloodhound, dcsync]
