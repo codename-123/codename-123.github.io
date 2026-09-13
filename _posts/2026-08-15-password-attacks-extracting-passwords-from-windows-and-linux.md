@@ -124,7 +124,7 @@ Windows의 `comsvcs.dll` 에 포함된 `MiniDump` 기능을 `rundll32` 로 호�
 
 우선 시스템에서 `lsass.exe` 프로세스가 어떤 PID로 실행 중인지 확인하였다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attack1.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attacks1.png)
 
 이처럼 현재 LSASS가 PID 660으로 실행 중임을 확인하였다.
 
@@ -154,7 +154,7 @@ $ sudo impacket-smbserver share . -smb2support -username kali -password kali
 
 이후 Windows에서 `net use` 를 통해 SMB 서버에 인증하였다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attack2.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attacks2.png)
 
 그 다음 `copy` 명령으로 LSASS 덤프 파일을 SMB 공유로 전송하였다:
 
