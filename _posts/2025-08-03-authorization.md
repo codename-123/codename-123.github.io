@@ -7,7 +7,7 @@ toc: true
 toc_label: "Authorization"
 toc_icon: "book"
 toc_sticky: true
-categories: [web]
+categories: [ctf]
 tags: [web, authorization, hacking]
 ---
 

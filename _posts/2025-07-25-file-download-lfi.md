@@ -7,7 +7,7 @@ toc: true
 toc_label: "File Download & LFI"
 toc_icon: "book"
 toc_sticky: true
-categories: [web]
+categories: [ctf]
 tags: [web, file download, lfi, hacking]
 ---
 

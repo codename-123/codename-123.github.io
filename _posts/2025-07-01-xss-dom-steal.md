@@ -7,7 +7,7 @@ toc: true
 toc_label: "Stealing DOM data via XSS"
 toc_icon: "book"
 toc_sticky: true
-categories: [web]
+categories: [ctf]
 tags: [web, xss, hacking]
 ---
 

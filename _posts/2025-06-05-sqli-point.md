@@ -7,7 +7,7 @@ toc: true
 toc_label: "SQLI Point"
 toc_icon: "book"
 toc_sticky: true
-categories: [web]
+categories: [ctf]
 tags: [web, sqli, hacking]
 ---
 

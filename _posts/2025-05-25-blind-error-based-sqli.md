@@ -7,7 +7,7 @@ toc: true
 toc_label: "Blind & Error Based SQLI"
 toc_icon: "book"
 toc_sticky: true
-categories: [web]
+categories: [ctf]
 tags: [web, sqli, blind, error based, hacking]
 ---
 
