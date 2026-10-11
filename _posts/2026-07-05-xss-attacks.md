@@ -8,7 +8,7 @@ toc: true
 toc_label: "XSS"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-web]
+categories: [cpts]
 tags: [web, cpts, xss]
 ---
 

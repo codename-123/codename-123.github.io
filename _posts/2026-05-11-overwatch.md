@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/htb-windows/overwatch/overwatch.png
   teaser_home_page: true
-categories: [hackthebox-windows]
+categories: [hackthebox]
 tags: [windows, active-directory, smb, mssql, linked-server, adidns, dns, responder, winrm, dotnet, ilspy, wcf, soap, powershell, command-injection, chisel, priv-esc]
 
 ---

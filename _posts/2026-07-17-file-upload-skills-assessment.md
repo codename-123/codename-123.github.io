@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/cpts-web/file-upload-skills-assessment/badge.png
   teaser_home_page: true
-categories: [cpts-web]
+categories: [cpts]
 tags: [web, cpts, file-upload]
 ---
 

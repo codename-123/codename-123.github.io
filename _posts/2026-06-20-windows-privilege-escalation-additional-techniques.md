@@ -8,8 +8,8 @@ toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
+categories: [cpts]
+tags: [windows, cpts, infra, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
 ---
 
 Windows 환경에서 파일, 브라우저, 레지스트리, 저장된 세션, 백업, 클립보드 등을 통해 자격 증명을 수집하고, 사용자 상호작용 및 다양한 추가 기법을 활용해 권한 상승과 횡적 이동으로 이어지는 공격 흐름을 실습한다.

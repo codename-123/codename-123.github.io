@@ -8,8 +8,8 @@ toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [cpts, active-directory, enumeration, responder, password-spraying]
+categories: [cpts]
+tags: [cpts, infra, active-directory, enumeration, responder, password-spraying]
 ---
 
 Active Directory 환경에서 외부 정찰과 내부 호스트, 사용자 열거를 수행하고, Responder와 Inveigh를 이용한 LLMNR/NBT-NS 포이즈닝, 비밀번호 정책 확인 및 패스워드 스프레이를 통해 초기 foothold를 확보하는 과정을 정리한다.

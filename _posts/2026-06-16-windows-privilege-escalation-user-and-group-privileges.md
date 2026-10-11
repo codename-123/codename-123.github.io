@@ -8,8 +8,8 @@ toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, user-privileges, built-in-groups, access-token]
+categories: [cpts]
+tags: [windows, cpts, infra, priv-esc, user-privileges, built-in-groups, access-token]
 ---
 
 Windows의 SeImpersonatePrivilege, SeDebugPrivilege, SeTakeOwnershipPrivilege와 Backup Operators, Event Log Readers, DnsAdmins, Server Operators 등을 각각 악용하여 권한 상승으로 이어지는 과정을 실습한다.

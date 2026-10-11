@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/htb-linux/monitorsthree/monitorsthree.png
   teaser_home_page: true
-categories: [hackthebox-linux]
+categories: [hackthebox]
 tags: [htb, linux, web, sql-injection, error-based-sqli, cacti, cve-2024-25641, rce, hash-cracking, lateral-movement, ssh, chisel, duplicati, authentication-bypass, backup-abuse, priv-esc]
 
 ---

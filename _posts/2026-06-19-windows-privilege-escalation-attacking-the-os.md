@@ -8,8 +8,8 @@ toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, uac, weak-permissions, services, registry-acl]
+categories: [cpts]
+tags: [windows, cpts, infra, priv-esc, uac, weak-permissions, services, registry-acl]
 ---
 
 Windows의 UAC, Weak Permissions, Unquoted Service Path, Registry ACL, Vulnerable Services 등을 확인하고 잘못된 설정과 취약한 서비스를 이용한 권한 상승 기법을 실습한다.

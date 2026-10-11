@@ -8,8 +8,8 @@ toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [cpts, active-directory, kerberos, kerberoasting, enumeration]
+categories: [cpts]
+tags: [cpts, infra, ctive-directory, kerberos, kerberoasting, enumeration]
 ---
 
 Active Directory 환경에서 확보한 자격 증명으로 SMB, LDAP, PowerView, BloodHound 기반 열거를 수행하고, 로그온 사용자와 권한 경로를 분석한 뒤 Impacket, NetExec, Rubeus를 이용한 Kerberoasting으로 고권한 서비스 계정까지 확장하는 과정을 정리한다.

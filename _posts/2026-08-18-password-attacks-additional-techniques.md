@@ -8,8 +8,8 @@ toc: true
 toc_label: "Password Attacks"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, credential-hunting, kerberos, ptt, adcs, ntlm-relay]
+categories: [cpts]
+tags: [windows, cpts, infra, credential-hunting, kerberos, ptt, adcs, ntlm-relay]
 ---
 
 네트워크 트래픽과 공유 폴더에서 자격 증명을 탐색하고, Windows와 Linux 환경의 Kerberos 티켓, keytab, ccache를 활용한 Pass the Ticket과 AD CS ESC8 기반 NTLM Relay 공격 흐름을 실습한다.

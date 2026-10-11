@@ -11,8 +11,8 @@ toc_sticky: true
 header:
   teaser: /assets/cpts-network/pivoting-tunneling-port-forwarding-skills-assessment/badge.png
   teaser_home_page: true
-categories: [cpts-infra]
-tags: [cpts, networking, pivoting, tunneling, port-forwarding, chisel, lateral-movement]
+categories: [cpts]
+tags: [cpts, infra, networking, pivoting, tunneling, port-forwarding, chisel, lateral-movement]
 ---
 
 # Scenario

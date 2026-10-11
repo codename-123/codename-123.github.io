@@ -11,8 +11,8 @@ toc_sticky: true
 header:
   teaser: /assets/cpts-infra/active-directory-skills-assessment/badge.png
   teaser_home_page: true
-categories: [cpts-infra]
-tags: [cpts, active-directory, kerberoasting, bloodhound, dcsync]
+categories: [cpts]
+tags: [cpts, infra, active-directory, kerberoasting, bloodhound, dcsync]
 ---
 
 # Skills Assessment Part I

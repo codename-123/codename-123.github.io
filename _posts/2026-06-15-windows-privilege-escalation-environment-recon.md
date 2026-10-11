@@ -8,8 +8,8 @@ toc: true
 toc_label: "Windows Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, uac, access-token, named-pipe]
+categories: [cpts]
+tags: [windows, cpts, infra, priv-esc, uac, access-token, named-pipe]
 ---
 
 Windows 권한 상승을 위해 네트워크, 보안 설정, 프로세스, Access Token, Named Pipe 등을 열거하고 권한 상승 가능성을 확인하는 방법을 정리한다.

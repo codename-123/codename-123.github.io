@@ -11,8 +11,8 @@ toc_sticky: true
 header:
   teaser: /assets/cpts-infra/linux-privilege-escalation-skills-assessment/badge.png
   teaser_home_page: true
-categories: [cpts-infra]
-tags: [linux, cpts, priv-esc, credential-reuse, tomcat, war-upload, reverse-shell, sudo, busctl]
+categories: [cpts]
+tags: [linux, cpts, infra, priv-esc, credential-reuse, tomcat, war-upload, reverse-shell, sudo, busctl]
 ---
 
 # Scenario

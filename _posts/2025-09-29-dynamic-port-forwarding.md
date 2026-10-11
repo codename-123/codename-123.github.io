@@ -8,8 +8,8 @@ toc: true
 toc_label: "Dynamic Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [cpts, networking, ssh, socks, proxychains, pivoting]
-categories: [cpts-network]
+tags: [cpts, network, ssh, socks, proxychains, pivoting]
+categories: [cpts]
 ---
 
 # 개요

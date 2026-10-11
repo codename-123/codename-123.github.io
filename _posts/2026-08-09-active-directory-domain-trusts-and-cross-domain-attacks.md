@@ -8,8 +8,8 @@ toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [cpts, active-directory, extra-sid, domain-trusts, cross-forest]
+categories: [cpts]
+tags: [cpts, infra, active-directory, extra-sid, domain-trusts, cross-forest]
 ---
 
 Active Directory 환경에서 도메인 및 포레스트 신뢰 관계를 열거하고, ExtraSID를 이용한 Child-to-Parent 공격과 Cross-Forest Kerberoasting, Foreign Group Membership 악용 흐름을 실습한다.

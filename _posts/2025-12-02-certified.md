@@ -11,7 +11,7 @@ toc_sticky: true
 header:
   teaser: /assets/htb-windows/certified/certified.png
   teaser_home_page: true
-categories: [hackthebox-windows]
+categories: [hackthebox]
 tags: [windows, active-directory, ldap, smb, winrm, bloodhound, impacket, certipy, pywhisker, pkinit, adcs, esc9, shadow-credentials, writeowner, genericwrite, genericall, priv-esc, kerberos, evil-winrm]
 
 

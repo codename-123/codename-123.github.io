@@ -8,7 +8,7 @@ toc: true
 toc_label: "Command Injection"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-web]
+categories: [cpts]
 tags: [web, cpts, web-attacks, command-injection]
 ---
 

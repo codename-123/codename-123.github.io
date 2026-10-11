@@ -8,8 +8,8 @@ toc: true
 toc_label: "Linux Privilege Escalation"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [linux, cpts, priv-esc, cron, containers, nfs, suid, library-hijacking]
+categories: [cpts]
+tags: [linux, cpts, infra, priv-esc, cron, containers, nfs, suid, library-hijacking]
 ---
 
 # Service-based Privilege Escalation

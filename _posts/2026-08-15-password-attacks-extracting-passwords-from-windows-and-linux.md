@@ -8,8 +8,8 @@ toc: true
 toc_label: "Password Attacks"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [windows, cpts, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
+categories: [cpts]
+tags: [windows, cpts, infra, priv-esc, credential-theft, pillaging, lateral-movement, registry, browser-credentials, scheduled-tasks]
 ---
 
 Windows의 SAM, SYSTEM, SECURITY 하이브와 LSASS, NTDS.dit, Linux의 passwd, shadow 및 구성, 히스토리, 브라우저 파일을 분석하여 저장된 자격 증명을 추출하고 검증하는 흐름을 실습한다.

@@ -8,8 +8,8 @@ toc: true
 toc_label: "Local Port Forwarding"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [cpts, networking, ssh, tunneling, socks, pivoting]
-categories: [cpts-network]
+tags: [cpts, network, ssh, tunneling, socks, pivoting]
+categories: [cpts]
 ---
 
 # 개요

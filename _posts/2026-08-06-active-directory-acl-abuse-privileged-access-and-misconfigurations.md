@@ -8,8 +8,8 @@ toc: true
 toc_label: "Active Directory"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [cpts, active-directory, acl, dcsync, kerberos, misconfiguration]
+categories: [cpts]
+tags: [cpts, infra, active-directory, acl, dcsync, kerberos, misconfiguration]
 ---
 
 Active Directory 환경에서 ACL과 중첩 그룹 권한을 열거하고, ForceChangePassword, GenericWrite, GenericAll 권한을 연계해 DCSync로 이어지는 공격 경로를 실습한다. 

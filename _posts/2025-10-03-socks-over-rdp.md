@@ -8,8 +8,8 @@ toc: true
 toc_label: "SocksOverRDP"
 toc_icon: "network-wired"
 toc_sticky: true
-tags: [cpts, rdp, socks, tunneling, pivoting]
-categories: [cpts-network]
+tags: [cpts, network, rdp, socks, tunneling, pivoting]
+categories: [cpts]
 ---
 
 **SocksOverRDP**는 **RDP의 Dynamic Virtual Channels(DVC)**를 통해 임의의 패킷을 터널링하고 대상에서 SOCKS 프록시를 생성해 Proxifier 등으로 내부망으로 피벗할 수 있게 한다.

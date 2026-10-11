@@ -8,8 +8,8 @@ toc: true
 toc_label: "Password Attacks"
 toc_icon: "book"
 toc_sticky: true
-categories: [cpts-infra]
-tags: [cpts, password-cracking, john, hashcat, brute-force]
+categories: [cpts]
+tags: [cpts, infra, password-cracking, john, hashcat, brute-force]
 ---
 
 John the Ripper와 Hashcat을 이용한 사전, 마스크, 룰 기반 해시 크래킹, 사용자 맞춤형 워드리스트 생성, 보호된 Office 파일 및 네트워크 서비스의 비밀번호 공격 기법을 실습한다.

@@ -11,8 +11,8 @@ toc_sticky: true
 header:
   teaser: /assets/cpts-infra/password-attacks-skills-assessment/badge.png
   teaser_home_page: true
-categories: [cpts-infra]
-tags: [cpts, password-attacks, credential-reuse, smb, lsass, lateral-movement]
+categories: [cpts]
+tags: [cpts, infra, password-attacks, credential-reuse, smb, lsass, lateral-movement]
 ---
 
 # Scenario
