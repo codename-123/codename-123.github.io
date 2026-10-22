@@ -115,12 +115,10 @@ analytics:
 author:
   name             : "Ji Sang"
   avatar           : "./assets/images/awesome_face_hack.png"
-  bio              : "A personal blog documenting my journey learning red teaming and penetration testing."
+  bio              : 'A personal blog documenting my journey learning red teaming and penetration testing.<br><br><i class="fas fa-fw fa-shield-alt"></i> ROK Air Force · Cybersecurity<br><span style="padding-left: 1.25em; font-size: 0.85em; color: #999;">Dec 2026 – Sep 2028 (Expected)</span>''
   location         : Korea
   email            :
   links:
-    - label: "ROK Air Force · Cybersecurity (Dec 2026 – Sep 2028, Expected)"
-      icon: "fas fa-fw fa-shield-alt"
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
       url: "pathd11.bug@gmail.com"
