@@ -115,13 +115,13 @@ analytics:
 author:
   name             : "Ji Sang"
   avatar           : "./assets/images/awesome_face_hack.png"
-  bio              : ""
-  location         : ""
+  bio              : 
+  location         : 
   email            :
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
-      url: "pathd11.bug@gmail.com"
+      url: "mailto:awnltkd1@gmail.com"
     - label: "Website"
       icon: "fas fa-fw fa-link"
       # url: "https://your-website.com"
