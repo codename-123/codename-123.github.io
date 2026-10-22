@@ -21,7 +21,7 @@ title                    : "Blog"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Ji Sang"
-description              : "A personal blog documenting my journey learning red teaming and penetration testing.<br><br>ROK Air Force · Cybersecurity (Dec 21, 2026 – Sep 20, 2028, Expected)"
+description              : "A personal blog documenting my journey learning red teaming and penetration testing."
 url                      : "https://codename-123.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -115,7 +115,7 @@ analytics:
 author:
   name             : "Ji Sang"
   avatar           : "./assets/images/awesome_face_hack.png"
-  bio              : "A personal blog documenting my journey learning red teaming and penetration testing."
+  bio              : "A personal blog documenting my journey learning red teaming and penetration testing.<br><br>ROK Air Force · Cybersecurity (Dec 21, 2026 – Sep 20, 2028, Expected)"
   location         : Korea
   email            :
   links:
